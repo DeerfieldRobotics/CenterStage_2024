@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testers;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -122,14 +122,6 @@ public class BaseTeleOp extends LinearOpMode {
         // set initial speed
         speed = HIGH_SPEED;
         oldVelos = new double[4];
-
-        // set initial hand state
-        isGrabbing = true;
-        isAxelFront = true;
-        isWristFront = false;
-        ypressed = false;
-        apressed = false;
-        bpressed = false;
 
         // initialize DCMotors
         frontRight = hardwareMap.get(DcMotor.class, "fr");
