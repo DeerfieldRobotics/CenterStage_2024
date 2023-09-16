@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name="BaseTeleOp", group="TeleOp")
-public class BaseTeleOp extends LinearOpMode {
+// This one might actually be smoother (?) but I don't think so
+
+@Disabled
+@TeleOp(name="*Old*", group="Basic TeleOp")
+public class BadTeleOp extends LinearOpMode {
     private DcMotor frontRight;
     private DcMotor frontLeft;
     private DcMotor backRight;
