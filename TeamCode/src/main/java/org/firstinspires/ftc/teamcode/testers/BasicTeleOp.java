@@ -43,7 +43,7 @@ public class BasicTeleOp extends LinearOpMode {
         bR.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    private void driveSetCentered() {
+    private void driveSet() {
         double rs_x = gamepad1.right_stick_x;
         double ls_y = -gamepad1.left_stick_y; 
         double ls_x = gamepad1.left_stick_x;
