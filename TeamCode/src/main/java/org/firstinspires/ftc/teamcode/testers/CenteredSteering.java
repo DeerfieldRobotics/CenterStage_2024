@@ -50,8 +50,8 @@ public class CenteredSteering extends LinearOpMode {
         bR = hardwareMap.get(DcMotor.class, "br");
         bL = hardwareMap.get(DcMotor.class, "bl");
 
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        fL.setDirection(DcMotorSimple.Direction.REVERSE);
+        bR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         imu = hardwareMap.get(IMU.class, "imu");
 
