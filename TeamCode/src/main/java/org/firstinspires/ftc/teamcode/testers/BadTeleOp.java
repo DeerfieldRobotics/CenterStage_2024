@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 // This one might actually be smoother (?) but I don't think so
 
-@Disabled
 @TeleOp(name="*Old*", group="Basic TeleOp")
 public class BadTeleOp extends LinearOpMode {
     private DcMotor frontRight;

@@ -50,8 +50,8 @@ public class CenteredSteering extends LinearOpMode {
         bR = hardwareMap.get(DcMotor.class, "br");
         bL = hardwareMap.get(DcMotor.class, "bl");
 
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        fL.setDirection(DcMotorSimple.Direction.REVERSE);
+        bR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         imu = hardwareMap.get(IMU.class, "imu");
 
@@ -66,10 +66,10 @@ public class CenteredSteering extends LinearOpMode {
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         // https://matthew-brett.github.io/teaching/rotation_2d.html
-        double rotX = ls_x * Math.cos(-botHeading) - ls_y * Math.sin(-botHeading);
-        double rotY = ls_x * Math.sin(-botHeading) + ls_y * Math.cos(-botHeading);
+        double rotX = ls_x * Math.cos(-heading) - ls_y * Math.sin(-heading);
+        double rotY = ls_x * Math.sin(-heading) + ls_y * Math.cos(-heading);
 
-        double k = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double k = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rs_x), 1);
         
         double fRP = (rotY - rotX - rs_x) / k;
         double fLP = (rotY + rotX + rs_x) / k;

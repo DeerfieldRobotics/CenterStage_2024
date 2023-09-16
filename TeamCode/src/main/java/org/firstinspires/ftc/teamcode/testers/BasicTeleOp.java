@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testers;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -20,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 @TeleOp(name="Base", group="TeleOp")
 public class BasicTeleOp extends LinearOpMode {
 
-    private DcMotor fL, bL, fR, bR;
+    private DcMotor fL, bL, fR, bR, s;
 
     @Override
     public void runOpMode() {
@@ -29,7 +29,7 @@ public class BasicTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            driveSet();
+            driveSetCentered();
         }
     }
 
@@ -39,14 +39,28 @@ public class BasicTeleOp extends LinearOpMode {
         bR = hardwareMap.get(DcMotor.class, "br");
         bL = hardwareMap.get(DcMotor.class, "bl");
 
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        s = hardwareMap.get(DcMotor.class, "s");
+
+        fL.setDirection(DcMotorSimple.Direction.REVERSE);
+        bR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        fR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+        s.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        s.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     private void driveSetCentered() {
         double rs_x = gamepad1.right_stick_x;
         double ls_y = -gamepad1.left_stick_y; 
         double ls_x = gamepad1.left_stick_x;
+
+        double ls_y2 = gamepad2.left_stick_y;
 
         double k = Math.max(Math.abs(ls_y) + Math.abs(ls_x) + Math.abs(rs_x), 1);
         
