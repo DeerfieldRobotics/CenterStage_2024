@@ -29,7 +29,7 @@ public class BasicTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            driveSetCentered();
+            driveSet();
         }
     }
 
@@ -44,18 +44,16 @@ public class BasicTeleOp extends LinearOpMode {
         fL.setDirection(DcMotorSimple.Direction.REVERSE);
         bR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         fR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
         s.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         s.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    private void driveSetCentered() {
+    private void driveSet() {
         double rs_x = gamepad1.right_stick_x;
         double ls_y = -gamepad1.left_stick_y; 
         double ls_x = gamepad1.left_stick_x;
