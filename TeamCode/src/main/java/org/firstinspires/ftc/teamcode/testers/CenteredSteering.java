@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 
 /**
  * TELE OP CONTROLS
@@ -23,6 +24,7 @@ public class CenteredSteering extends LinearOpMode {
     private IMU imu;
 
     private DcMotor fL, bL, fR, bR;
+    private DrivetrainKotlin drivetrain;
 
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
         RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -45,6 +47,7 @@ public class CenteredSteering extends LinearOpMode {
     }
 
     private void initialize() {
+        drivetrain = new DrivetrainKotlin(hardwareMap);
         fR = hardwareMap.get(DcMotor.class, "fr");
         fL = hardwareMap.get(DcMotor.class, "fl");
         bR = hardwareMap.get(DcMotor.class, "br");
