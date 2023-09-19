@@ -29,6 +29,7 @@ public class ColorDetectionPipeline extends OpenCvPipeline{
     Mat regionLeft, regionCenter, regionRight = new Mat();
     String propPosition = "";
     int totalLeftRed, totalRightRed, totalCenterRed, totalLeftBlue, totalRightBlue, totalCenterBlue;
+    int[][] totalRedBlue = {{totalLeftRed, totalCenterRed, totalRightRed}, {totalLeftBlue, totalCenterBlue, totalRightBlue}};
     @Override
     public Mat processFrame(Mat input) {
         //number of threshold color pixels in left, center, and right portions of the screen
@@ -56,17 +57,10 @@ public class ColorDetectionPipeline extends OpenCvPipeline{
                 }
             }
         }
-        totalLeftRed = countLeftRed;
-        totalCenterRed = countCenterRed;
-        totalRightRed = countRightRed;
-        totalLeftBlue = countLeftBlue;
-        totalCenterBlue = countCenterBlue;
-        totalRightBlue = countRightBlue;
         int maxOneTwoRed = Math.max(countRightRed, countCenterRed);
         int maxRed = Math.max(maxOneTwoRed, countLeftRed);
         int maxOneTwoBlue = Math.max(countRightRed, countCenterRed);
         int maxBlue = Math.max(maxOneTwoBlue, countLeftRed);
-
         //add something here this is unfinished
         if(maxRed == countLeftRed || maxBlue == countLeftBlue)
         {
@@ -81,7 +75,9 @@ public class ColorDetectionPipeline extends OpenCvPipeline{
 
         return input;
     }
-
+    public int[][] getTotalRedBlue(){
+        return totalRedBlue;
+    }
     public String getPropPosition(){
         return propPosition;
     }
