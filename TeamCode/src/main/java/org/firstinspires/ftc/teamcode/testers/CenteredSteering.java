@@ -28,6 +28,19 @@ public class CenteredSteering extends LinearOpMode {
     private IntakeKotlin intake;
     private SlideKotlin slide;
 
+    //Sensitivity values for triggers of gamepad 2
+    private final double rTriggerStart = 0.05;
+    private final double rTriggerEnd = 0.6;
+    private final double lTriggerStart = 0.05;
+    private final double lTriggerEnd = 0.6;
+
+    //stick sensitivity values
+    private final double l1Sensitivity = 1;
+    private final double r1Sensitivity = 1;
+    private final double l2Sensitivity = 1;
+    private final double r2Sensitivity = 1;
+
+
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
         RevHubOrientationOnRobot.LogoFacingDirection.UP,
         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
@@ -45,17 +58,10 @@ public class CenteredSteering extends LinearOpMode {
             }
 
             driveSetCentered();
+            intake();
+            slide();
 
-            if(gamepad2.right_trigger>0.2)
-                intake.grip(true);
-            else
-                intake.grip(false);
-            if(gamepad2.left_trigger>0.2)
-                intake.turn(true);
-            else
-                intake.turn(false);
-            slide.setPower((double)gamepad2.left_stick_y);
-            telemetry.addData("Slide Current", slide.getCurrent());
+            telemetry.update();
         }
     }
 
@@ -65,6 +71,7 @@ public class CenteredSteering extends LinearOpMode {
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap);
+        slide = new SlideKotlin(hardwareMap);
     }
 
     private void driveSetCentered() {
@@ -86,5 +93,40 @@ public class CenteredSteering extends LinearOpMode {
         double bLP = (rotY - rotX + rs_x) / k;
 
         drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
+    }
+
+    private void intake() {
+        //Set intake values and clamp them between 0 and 1
+        double g = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
+        if(g>0&&g<=1)
+            intake.grip(g);
+        else if(g>1)
+            intake.grip(1);
+        else
+            intake.grip(0);
+
+        double t = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
+        if(t>0&&t<=1)
+            intake.turn(t);
+        else if(t>1)
+            intake.turn(1);
+        else
+            intake.turn(0);
+    }
+
+    private void slide() {
+        double s = gamepad2.left_stick_y*l2Sensitivity;
+        if(s>0&&s<=1)
+            slide.setPower(s);
+        else if(s>1)
+            slide.setPower(1);
+        else if(s<0&&s>=-1)
+            slide.setPower(s);
+        else if(s<-1)
+            slide.setPower(-1);
+        else
+            slide.setPower(0);
+
+        telemetry.addData("Slide Current", slide.getCurrent());
     }
 }

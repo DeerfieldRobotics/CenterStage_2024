@@ -8,17 +8,23 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     private var gripServo: ServoImplEx = hardwareMap.get("grip") as ServoImplEx
     private var turnServo: ServoImplEx = hardwareMap.get("turn") as ServoImplEx
 
-    fun grip (g: Boolean) {
-        if(g)
-            gripServo.position = .25
-        else
-            gripServo.position = 1.0
+    private var gripStart: Double = 0.25
+    private var gripEnd: Double = 1.0
+    private var turnStart: Double = 0.0
+    private var turnEnd: Double = 1.0
+
+    init {
+        gripServo.position = gripStart
+        turnServo.position = turnStart
     }
 
-    fun turn (t: Boolean) {
-        if(t)
-            turnServo.position = 0.0
-        else
-            turnServo.position = 1.0
+    fun grip (g: Double) {
+        //maps the grip value from 0 to 1 to actual range
+        gripServo.position = g*(gripEnd-gripStart)+gripStart
+    }
+
+    fun turn (t: Double) {
+        //maps the turn value from 0 to 1 to actual range
+        turnServo.position = t*(turnEnd-turnStart)+turnStart
     }
 }
