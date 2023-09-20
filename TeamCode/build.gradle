@@ -18,20 +18,15 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
-    androidResources {
-        noCompress 'tflite'
-    }
 
     packagingOptions {
-        jniLibs {
-            pickFirsts += ['**/*.so']
-        }
         jniLibs.useLegacyPackaging true
     }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'androidx.core:core-ktx:+'
+    //noinspection GradleDependency
+    implementation 'androidx.core:core-ktx:1.6.0'
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
