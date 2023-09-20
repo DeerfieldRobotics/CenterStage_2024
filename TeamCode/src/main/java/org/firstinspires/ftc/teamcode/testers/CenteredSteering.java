@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.testers;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
@@ -75,11 +73,15 @@ public class CenteredSteering extends LinearOpMode {
     }
 
     private void driveSetCentered() {
+        //TODO maybe make sensitivities with sticks for movement
+        //TODO add trigger speed control
+
         double rs_x = gamepad1.right_stick_x;
         double ls_y = -gamepad1.left_stick_y;
         double ls_x = gamepad1.left_stick_x;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
 
         // https://matthew-brett.github.io/teaching/rotation_2d.html
         double rotX = ls_x * Math.cos(-heading) - ls_y * Math.sin(-heading);
@@ -96,6 +98,7 @@ public class CenteredSteering extends LinearOpMode {
     }
 
     private void intake() {
+        //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
         double g = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
         if(g>0&&g<=1)
