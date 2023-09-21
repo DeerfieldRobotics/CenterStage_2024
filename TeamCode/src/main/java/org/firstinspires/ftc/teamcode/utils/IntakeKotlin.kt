@@ -14,17 +14,17 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     private var turnEnd: Double = 1.0
 
     init {
-        gripServo.position = gripStart
-        turnServo.position = turnStart
+        gripServo.position = gripEnd
+        turnServo.position = turnEnd
     }
 
     fun grip (g: Double) {
         //maps the grip value from 0 to 1 to actual range
-        gripServo.position = g*(gripEnd-gripStart)+gripStart
+        gripServo.position = 1-(g*(gripEnd-gripStart)+gripStart)
     }
 
     fun turn (t: Double) {
         //maps the turn value from 0 to 1 to actual range
-        turnServo.position = t*(turnEnd-turnStart)+turnStart
+        turnServo.position = 1-(t*(turnEnd-turnStart)+turnStart)
     }
 }

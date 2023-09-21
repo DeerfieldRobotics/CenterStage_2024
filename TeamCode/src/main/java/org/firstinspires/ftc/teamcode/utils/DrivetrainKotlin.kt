@@ -18,10 +18,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
  */
 class DrivetrainKotlin (hardwareMap:HardwareMap) {
 
-    private var frontLeft: DcMotorEx = hardwareMap.get("frontLeft") as DcMotorEx
-    private var frontRight: DcMotorEx = hardwareMap.get("frontRight") as DcMotorEx
-    private var rearLeft: DcMotorEx = hardwareMap.get("rearLeft") as DcMotorEx
-    private var rearRight: DcMotorEx = hardwareMap.get("rearRight") as DcMotorEx
+    private var frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx
+    private var frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx
+    private var rearLeft: DcMotorEx = hardwareMap.get("bl") as DcMotorEx
+    private var rearRight: DcMotorEx = hardwareMap.get("br") as DcMotorEx
 
     private var powerMultiplier = 1.0
 

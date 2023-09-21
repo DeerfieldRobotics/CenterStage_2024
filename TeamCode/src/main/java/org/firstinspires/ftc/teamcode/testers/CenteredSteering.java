@@ -55,7 +55,8 @@ public class CenteredSteering extends LinearOpMode {
                 imu.resetYaw();
             }
 
-            driveSetCentered();
+            //driveSetCentered();
+            driveNormal();
             intake();
             slide();
 
@@ -96,6 +97,22 @@ public class CenteredSteering extends LinearOpMode {
 
         drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
     }
+    private void driveNormal () {
+        double rs_x = gamepad1.right_stick_x;
+        double ls_y = -gamepad1.left_stick_y;
+        double ls_x = gamepad1.left_stick_x;
+
+        double ls_y2 = gamepad2.left_stick_y;
+
+        double k = Math.max(Math.abs(ls_y) + Math.abs(ls_x) + Math.abs(rs_x), 1);
+
+        double fRP = (ls_y - ls_x - rs_x) / k;
+        double fLP = (ls_y + ls_x + rs_x) / k;
+        double bRP = (ls_y + ls_x - rs_x) / k;
+        double bLP = (ls_y - ls_x + rs_x) / k;
+
+        drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
+    }
 
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
@@ -130,6 +147,6 @@ public class CenteredSteering extends LinearOpMode {
         else
             slide.setPower(0);
 
-        telemetry.addData("Slide Current", slide.getCurrent());
+        //telemetry.addData("Slide Current", slide.getCurrent());
     }
 }

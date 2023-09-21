@@ -2,22 +2,29 @@ package org.firstinspires.ftc.teamcode.utils
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
 class SlideKotlin (hardwareMap: HardwareMap){
-    var Slide: DcMotorEx = hardwareMap.get("s") as DcMotorEx
+    var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx
+    var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx
+
 
     init {
-        Slide.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        Slide.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        Slide.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        Slide1.direction = DcMotorSimple.Direction.REVERSE
+        Slide2.direction = DcMotorSimple.Direction.REVERSE
+
+        Slide1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        Slide1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        Slide2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        Slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        Slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 
     fun setPower (s: Double) {
-        Slide.power = s
-    }
-    fun getCurrent (): Double {
-        return Slide.getCurrent(CurrentUnit.AMPS)
+        Slide1.power = s
+        Slide2.power = s
     }
 }

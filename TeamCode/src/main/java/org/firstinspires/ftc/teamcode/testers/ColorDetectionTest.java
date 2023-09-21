@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+
 import android.graphics.Color;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -12,38 +13,24 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.utils.Drivetrain;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+
 @Autonomous(name = "ColorDetection", group = "OpenCvTesting")
 public class ColorDetectionTest extends LinearOpMode{
-    private OpenCvCamera camera;
+    private OpenCvInternalCamera camera;
     private ColorDetectionPipeline colorDetection;
     private Drivetrain drivetrain;
-    public ColorDetectionTest(OpenCvCamera c, Drivetrain d){
+    public ColorDetectionTest(OpenCvInternalCamera c, Drivetrain d){
         camera = c;
         drivetrain = d;
-        colorDetection = new ColorDetectionPipeline();
-        camera.setPipeline(colorDetection);
     }
 
 
     //need to implement this too
     @Override
     public void runOpMode() throws InterruptedException {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-
-            }
-        });
-
+        initialize();
         waitForStart();
-
         while(opModeIsActive())
         {
 //            telemetry.addData("Frame Count", camera.getFrameCount());
@@ -62,10 +49,25 @@ public class ColorDetectionTest extends LinearOpMode{
             telemetry.addData("Total Center Blue", totalRedBluePixels[1][1]);
             telemetry.addData("Total Right Blue", totalRedBluePixels[1][2]);
             telemetry.update();
-
-
-
-            sleep(100);
         }
+    }
+
+    public void initialize(){
+        colorDetection = new ColorDetectionPipeline();
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        camera.setPipeline(colorDetection);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                //potentially use width: 640 and height: 480
+                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
     }
 }
