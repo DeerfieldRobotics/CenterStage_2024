@@ -37,6 +37,11 @@ public class CenteredSteering extends LinearOpMode {
     private final double r1Sensitivity = 1;
     private final double l2Sensitivity = 1;
     private final double r2Sensitivity = 1;
+    //driving values
+    private double speedMult;
+    private double forwardMult = .7;
+    private double turnMult = .65;
+    private double strafeMult = .9;
 
 
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -98,20 +103,24 @@ public class CenteredSteering extends LinearOpMode {
         drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
     }
     private void driveNormal () {
-        double rs_x = gamepad1.right_stick_x;
-        double ls_y = -gamepad1.left_stick_y;
-        double ls_x = gamepad1.left_stick_x;
+        //TODO make this like actually make sense instead of being crap show of code
+        speedMult = 1+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
 
-        double ls_y2 = gamepad2.left_stick_y;
+        //movement
+        if(gamepad1.right_stick_x != 0 || gamepad1.left_stick_y != 0||gamepad1.left_stick_x!=0) {
+            double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+            double turn = gamepad1.right_stick_x * turnMult * speedMult;
+            double strafe = gamepad1.left_stick_x * strafeMult * speedMult;
 
-        double k = Math.max(Math.abs(ls_y) + Math.abs(ls_x) + Math.abs(rs_x), 1);
+            drivetrain.setMotorPower(forward - turn - strafe,forward + turn + strafe,forward - turn + strafe,forward + turn - strafe);
 
-        double fRP = (ls_y - ls_x - rs_x) / k;
-        double fLP = (ls_y + ls_x + rs_x) / k;
-        double bRP = (ls_y + ls_x - rs_x) / k;
-        double bLP = (ls_y - ls_x + rs_x) / k;
+            telemetry.addLine("moving");
+        }
+        else {
+            drivetrain.setMotorPower(0);
+            telemetry.addLine("not moving");
+        }
 
-        drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
     }
 
     private void intake() {
@@ -136,12 +145,10 @@ public class CenteredSteering extends LinearOpMode {
 
     private void slide() {
         double s = gamepad2.left_stick_y*l2Sensitivity;
-        if(s>0&&s<=1)
+        if(s>-1&&s<=1)
             slide.setPower(s);
         else if(s>1)
             slide.setPower(1);
-        else if(s<0&&s>=-1)
-            slide.setPower(s);
         else if(s<-1)
             slide.setPower(-1);
         else
