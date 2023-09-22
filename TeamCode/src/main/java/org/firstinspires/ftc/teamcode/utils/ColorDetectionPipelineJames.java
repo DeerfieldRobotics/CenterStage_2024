@@ -66,24 +66,24 @@ public class ColorDetectionPipelineJames extends OpenCvPipeline
                 {
                     if(j < x1)
                     {
-                        blue[0]++;
-                    } else if(j < x2)
-                    {
-                        blue[1]++;
-                    } else {
-                        blue[2]++;
-                    }
-                }
-                else if(input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold))
-                {
-                    if(j < x1)
-                    {
                         red[0]++;
                     } else if(j < x2)
                     {
                         red[1]++;
                     } else {
                         red[2]++;
+                    }
+                }
+                else if(input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold))
+                {
+                    if(j < x1)
+                    {
+                        blue[0]++;
+                    } else if(j < x2)
+                    {
+                        blue[1]++;
+                    } else {
+                        blue[2]++;
                     }
                 }
             }
@@ -93,7 +93,7 @@ public class ColorDetectionPipelineJames extends OpenCvPipeline
         int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
 
         if(maxRed>maxBlue) {
-            color= Color.RED;
+            color = Color.RED;
             if(maxRed == red[0])
                 position = StartingPosition.LEFT;
             else if(maxRed == red[1])
