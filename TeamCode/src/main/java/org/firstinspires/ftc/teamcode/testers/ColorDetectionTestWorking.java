@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipelineJames;
 import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipelineWorking;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -19,7 +20,7 @@ public class ColorDetectionTestWorking extends LinearOpMode {
     //OpenCvCamera frontCamera;
     private OpenCvInternalCamera frontCamera;
 
-    private ColorDetectionPipelineWorking detector = new ColorDetectionPipelineWorking();
+    private ColorDetectionPipelineJames detector = new ColorDetectionPipelineJames();
 
 
     @Override
@@ -34,7 +35,7 @@ public class ColorDetectionTestWorking extends LinearOpMode {
             @Override
             public void onOpened()
             {
-                frontCamera.startStreaming(320,240, OpenCvCameraRotation.UPRIGHT);
+                frontCamera.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
             }
 
             @Override
@@ -46,7 +47,9 @@ public class ColorDetectionTestWorking extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()) {
-
+            telemetry.addData("Position", detector.getPosition());
+            telemetry.addData("Color", detector.getColor());
+            telemetry.update();
         }
     }
 }
