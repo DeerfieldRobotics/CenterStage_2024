@@ -26,8 +26,8 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
     private var powerMultiplier = 1.0
 
     init {
-        frontLeft.direction = DcMotorSimple.Direction.REVERSE
-        rearRight.direction = DcMotorSimple.Direction.REVERSE
+        frontRight.direction = DcMotorSimple.Direction.REVERSE
+        rearLeft.direction = DcMotorSimple.Direction.REVERSE
 
         frontLeft.mode = DcMotor.RunMode.RUN_USING_ENCODER
         frontRight.mode = DcMotor.RunMode.RUN_USING_ENCODER

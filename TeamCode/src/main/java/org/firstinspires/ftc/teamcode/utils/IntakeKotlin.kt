@@ -8,10 +8,10 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     private var gripServo: ServoImplEx = hardwareMap.get("grip") as ServoImplEx
     private var turnServo: ServoImplEx = hardwareMap.get("turn") as ServoImplEx
 
-    private var gripStart: Double = 0.25
+    private var gripStart: Double = 0.28
     private var gripEnd: Double = 1.0
     private var turnStart: Double = 0.0
-    private var turnEnd: Double = 1.0
+    private var turnEnd: Double = .8
 
     init {
         gripServo.position = gripEnd
