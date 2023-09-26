@@ -104,22 +104,15 @@ public class CenteredSteering extends LinearOpMode {
     }
     private void driveNormal () {
         //TODO make this like actually make sense instead of being crap show of code
-        speedMult = 1+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
-
+        //speedMult = 1+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
+        speedMult = .8;
         //movement
-        if(gamepad1.right_stick_x != 0 || gamepad1.left_stick_y != 0||gamepad1.left_stick_x!=0) {
-            double forward = gamepad1.left_stick_y * forwardMult * speedMult;
-            double turn = gamepad1.right_stick_x * turnMult * speedMult;
-            double strafe = gamepad1.left_stick_x * strafeMult * speedMult;
+        double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+        double turn = gamepad1.right_stick_x * turnMult * speedMult;
+        double strafe = gamepad1.left_stick_x * strafeMult * speedMult;
 
-            drivetrain.setMotorPower(forward - turn - strafe,forward + turn + strafe,forward - turn + strafe,forward + turn - strafe);
+        drivetrain.setMotorPower(forward - turn - strafe,forward + turn + strafe,forward - turn + strafe,forward + turn - strafe);
 
-            telemetry.addLine("moving");
-        }
-        else {
-            drivetrain.setMotorPower(0);
-            telemetry.addLine("not moving");
-        }
 
     }
 

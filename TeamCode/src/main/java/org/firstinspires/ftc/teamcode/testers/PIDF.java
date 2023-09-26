@@ -1,29 +1,12 @@
-/*
- * Copyright (c) 2021 OpenFTC Team
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package org.firstinspires.ftc.teamcode.testers;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -34,14 +17,12 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-import org.openftc.easyopencv.OpenCvInternalCamera2;
 
 import java.util.ArrayList;
 
+@Config
 @TeleOp
-public class AprilTagDemo extends LinearOpMode
-{
+public class PIDF extends LinearOpMode{
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -56,7 +37,7 @@ public class AprilTagDemo extends LinearOpMode
     double cx = 402.145;
     double cy = 221.506;
 
-    // UNITS ARE METERS
+    //size of small tags, size of large tags = 0.124, all units are meters
     double tagsize = 0.0508;
 
     int numFramesWithoutDetection = 0;
@@ -66,9 +47,18 @@ public class AprilTagDemo extends LinearOpMode
     final float THRESHOLD_HIGH_DECIMATION_RANGE_METERS = 1.0f;
     final int THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 4;
 
+    private PIDController controller;
+
+    public static double p = 0, i = 0, d = 0, f = 0;
+
+    //targetY is left right relative to april tag and targetZ is back forward relative to april tag
+    public static int targetY = 0, targetZ = 0;
+    private DcMotorEx fl, fr, bl, br;
+
     @Override
     public void runOpMode()
     {
+        initialize();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 //        camera = OpenCvCameraFactory.getInstance()
@@ -138,6 +128,11 @@ public class AprilTagDemo extends LinearOpMode
                     {
                         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
 
+                        controller.setPID(p, i, d);
+                        double currentY = detection.pose.y*FEET_PER_METER;
+                        double currentZ = detection.pose.z*FEET_PER_METER;
+                        double currentYaw = rot.firstAngle;
+                        double pid = controller.calculate();
                         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
                         telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
                         telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
@@ -148,10 +143,23 @@ public class AprilTagDemo extends LinearOpMode
                     }
                 }
 
+
                 telemetry.update();
             }
 
             sleep(20);
         }
     }
+
+    public void initialize(){
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        fl = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        fr = hardwareMap.get(DcMotorEx.class, "frontRight");
+        bl = hardwareMap.get(DcMotorEx.class, "backLeft");
+        br = hardwareMap.get(DcMotorEx.class, "backRight");
+    }
+
+
 }
