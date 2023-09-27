@@ -138,7 +138,7 @@ public class CenteredSteering extends LinearOpMode {
 
     private void slide() {
         double s = gamepad2.left_stick_y*l2Sensitivity;
-        if(s>-1&&s<=1)
+        if(s>=-1&&s<=1)
             slide.setPower(s);
         else if(s>1)
             slide.setPower(1);

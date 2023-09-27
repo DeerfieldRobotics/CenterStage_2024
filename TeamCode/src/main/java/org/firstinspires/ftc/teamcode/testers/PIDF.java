@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.utils.AprilTagDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.Drivetrain;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -26,7 +27,7 @@ public class PIDF extends LinearOpMode{
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
-    static final double FEET_PER_METER = 3.28084;
+    //static final double FEET_PER_METER = 3.28084;
 
     // Lens intrinsics
     // UNITS ARE PIXELS
@@ -39,6 +40,7 @@ public class PIDF extends LinearOpMode{
 
     //size of small tags, size of large tags = 0.124, all units are meters
     double tagsize = 0.0508;
+    double tagOffset = 152.4; //Distance between center of tags
 
     int numFramesWithoutDetection = 0;
 
@@ -47,13 +49,14 @@ public class PIDF extends LinearOpMode{
     final float THRESHOLD_HIGH_DECIMATION_RANGE_METERS = 1.0f;
     final int THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 4;
 
-    private PIDController controller;
+    private PIDController yController, zController, yawController;
 
-    public static double p = 0, i = 0, d = 0, f = 0;
+    public static double pY = 0, iY = 0, dY = 0, pZ = 0, iZ = 0, dZ = 0, pYaw = 0, iYaw = 0, dYaw = 0;
 
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
-    public static int targetY = 0, targetZ = 0;
-    private DcMotorEx fl, fr, bl, br;
+    public double targetY = 0, targetZ = 0, targetYaw = 0;
+    public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
+    private Drivetrain drivetrain;
 
     @Override
     public void runOpMode()
@@ -71,7 +74,7 @@ public class PIDF extends LinearOpMode{
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,600, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -124,22 +127,37 @@ public class PIDF extends LinearOpMode{
                         aprilTagDetectionPipeline.setDecimation(DECIMATION_HIGH);
                     }
 
+                    currentY = new double[]{0, 0, 0}; //reset all current values before updating
+                    currentZ = new double[]{0, 0, 0};
+                    currentYaw = new double[]{0, 0, 0};
+
                     for(AprilTagDetection detection : detections)
                     {
                         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
 
-                        controller.setPID(p, i, d);
-                        double currentY = detection.pose.y*FEET_PER_METER;
-                        double currentZ = detection.pose.z*FEET_PER_METER;
-                        double currentYaw = rot.firstAngle;
-                        double pid = controller.calculate();
                         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-                        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-                        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-                        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
+                        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x));
+                        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y));
+                        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z));
                         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle));
                         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));
                         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
+
+                        if(detection.id == 1||detection.id==4) {
+                            currentY[0] = detection.pose.y;
+                            currentZ[0] = detection.pose.z;
+                            currentYaw[0] = rot.firstAngle;
+                        }
+                        else if (detection.id == 2 || detection.id == 5) {
+                            currentY[1] = detection.pose.y+tagOffset;
+                            currentZ[1] = detection.pose.z;
+                            currentYaw[1] = rot.firstAngle;
+                        }
+                        else if (detection.id == 3 || detection.id == 6) {
+                            currentY[2] = detection.pose.y+2*tagOffset;
+                            currentZ[2] = detection.pose.z;
+                            currentYaw[2] = rot.firstAngle;
+                        }
                     }
                 }
 
@@ -152,13 +170,13 @@ public class PIDF extends LinearOpMode{
     }
 
     public void initialize(){
-        controller = new PIDController(p, i, d);
+        yController = new PIDController(pY, iY, dY);
+        zController = new PIDController(pZ, iZ, dZ);
+        yawController = new PIDController(pYaw, iYaw, dYaw);
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        fl = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        fr = hardwareMap.get(DcMotorEx.class, "frontRight");
-        bl = hardwareMap.get(DcMotorEx.class, "backLeft");
-        br = hardwareMap.get(DcMotorEx.class, "backRight");
+        drivetrain = new Drivetrain(hardwareMap);
     }
 
 

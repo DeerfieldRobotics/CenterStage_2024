@@ -16,7 +16,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide2.direction = DcMotorSimple.Direction.REVERSE
 
         Slide1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         Slide1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         Slide2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         Slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
