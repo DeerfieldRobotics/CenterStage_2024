@@ -40,7 +40,7 @@ public class PIDF extends LinearOpMode{
 
     //size of small tags, size of large tags = 0.124, all units are meters
     double tagsize = 0.0508;
-    double tagOffset = 152.4; //Distance between center of tags
+    double tagOffset = 0.1524; //Distance between center of tags
 
     int numFramesWithoutDetection = 0;
 
@@ -54,6 +54,7 @@ public class PIDF extends LinearOpMode{
     public static double pY = 0, iY = 0, dY = 0, pZ = 0, iZ = 0, dZ = 0, pYaw = 0, iYaw = 0, dYaw = 0;
 
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
+    //need to calibrate
     public double targetY = 0, targetZ = 0, targetYaw = 0;
     public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private Drivetrain drivetrain;
@@ -159,6 +160,26 @@ public class PIDF extends LinearOpMode{
                             currentYaw[2] = rot.firstAngle;
                         }
                     }
+                    double oneFourDistance = Math.abs(currentY[0]) + Math.abs(currentZ[0]);
+                    double twoFiveDistance = Math.abs(currentY[1]) + Math.abs(currentZ[1]);
+                    double threeSixDistance = Math.abs(currentY[2] + Math.abs(currentZ[1]));
+                    double distMinTemp = Math.min(oneFourDistance, twoFiveDistance);
+                    double distMin = Math.min(distMinTemp, threeSixDistance);
+                    double calcY, calcZ;
+                    if(distMin == oneFourDistance){
+                        calcY = currentY[0];
+                        calcZ = currentZ[0];
+                    }
+                    else if(distMin == twoFiveDistance){
+                        calcY = currentY[1];
+                        calcZ = currentZ[1];
+                    }
+                    else{
+                        calcY = currentY[2];
+                        calcZ = currentZ[2];
+                    }
+                    double outputY = yController.calculate(calcY, targetY);
+                    double outputZ = zController.calculate(calcZ, targetZ);
                 }
 
 
