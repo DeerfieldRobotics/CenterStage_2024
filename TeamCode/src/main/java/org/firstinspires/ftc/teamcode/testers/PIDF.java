@@ -22,8 +22,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @Config
-@TeleOp
-public class PIDF extends LinearOpMode{
+@TeleOp(name = "PIDFTest", group = "TeleOp")
+public class PIDF extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -55,7 +55,7 @@ public class PIDF extends LinearOpMode{
 
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
     //need to calibrate
-    public double targetY = 0, targetZ = 0, targetYaw = 0;
+    public double targetY = 0.5, targetZ = 0.5, targetYaw = 0;
     public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private DrivetrainKotlin drivetrain;
 
@@ -130,9 +130,11 @@ public class PIDF extends LinearOpMode{
 
                     currentY = new double[]{0, 0, 0}; //reset all current values before updating
                     currentZ = new double[]{0, 0, 0};
-                    currentYaw = new double[]{0, 0, 0};
+                    currentYaw = new double[]{0, 0, 0};yController.setSetPoint(targetY);
+                    zController.setSetPoint(targetZ);
+                    yawController.setSetPoint((targetYaw));
 
-                    for(AprilTagDetection detection : detections)
+                    for (AprilTagDetection detection : detections)
                     {
                         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
 
@@ -176,23 +178,27 @@ public class PIDF extends LinearOpMode{
                         calcZ = currentZ[1];
                         calcYaw = currentYaw[1];
                     }
-                    else{
+                    else {
                         calcY = currentY[2];
                         calcZ = currentZ[2];
                         calcYaw = currentYaw[1];
                     }
-                    yController.setSetPoint(targetY);
-                    zController.setSetPoint(targetZ);
-                    yawController.setSetPoint((targetYaw));
-                    while(!zController.atSetPoint() && !yController.atSetPoint()) {
+                    //telemetry.addLine("got past min distance");
+//                    while(!zController.atSetPoint() && !yController.atSetPoint()) {
                         double outputY = yController.calculate(calcY);
                         double outputZ = zController.calculate(calcZ);
                         double outputYaw = yawController.calculate(calcYaw);
+                        telemetry.addData("outputY", outputY);
+                        telemetry.addData("outputZ", outputZ);
+                        telemetry.addData("outputYaw", outputYaw);
 
-                        double forward = (Math.cos(Math.toRadians(calcYaw))*outputZ-Math.sin(Math.toRadians(calcYaw))*outputY)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1);
-                        double strafe = (Math.cos(Math.toRadians(calcYaw))*outputY-Math.sin(Math.toRadians(calcYaw))*outputZ)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1);
+                        double forward = (Math.cos(Math.toRadians(calcYaw))*outputZ-Math.sin(Math.toRadians(calcYaw))*outputY)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
+                        double strafe = (Math.cos(Math.toRadians(calcYaw))*outputY-Math.sin(Math.toRadians(calcYaw))*outputZ)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
+                        telemetry.addData("forward", forward);
+                        telemetry.addData("strafe", strafe);
+                        telemetry.addData("angle", outputYaw);
                         drivetrain.move(forward, strafe, outputYaw);
-                    }
+//                    }
                 }
 
 
@@ -207,6 +213,9 @@ public class PIDF extends LinearOpMode{
         yController = new PIDController(pY, iY, dY);
         zController = new PIDController(pZ, iZ, dZ);
         yawController = new PIDController(pYaw, iYaw, dYaw);
+        yController.setSetPoint(targetY);
+        zController.setSetPoint(targetZ);
+        yawController.setSetPoint((targetYaw));
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
