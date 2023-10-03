@@ -51,11 +51,11 @@ public class PIDF extends LinearOpMode {
 
     private PIDController yController, zController, yawController;
 
-    public static double pY = 0, iY = 0, dY = 0, pZ = 0, iZ = 0, dZ = 0, pYaw = 0, iYaw = 0, dYaw = 0;
+    public static double pY = .1, iY = .1, dY = .1, pZ = .1, iZ = .1, dZ = .1, pYaw = .1, iYaw = .1, dYaw = .1;
 
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
     //need to calibrate
-    public double targetY = 0.5, targetZ = 0.5, targetYaw = 0;
+    public double targetY = 0, targetZ = 0.5, targetYaw = 0;
     public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private DrivetrainKotlin drivetrain;
 
@@ -139,9 +139,9 @@ public class PIDF extends LinearOpMode {
                         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
 
                         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-                        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x));
-                        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y));
-                        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z));
+                        telemetry.addLine(String.format("Translation X: %.2f meters", detection.pose.x));
+                        telemetry.addLine(String.format("Translation Y: %.2f meters", detection.pose.y));
+                        telemetry.addLine(String.format("Translation Z: %.2f meters", detection.pose.z));
                         telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle));
                         telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));
                         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
@@ -194,10 +194,17 @@ public class PIDF extends LinearOpMode {
 
                         double forward = (Math.cos(Math.toRadians(calcYaw))*outputZ-Math.sin(Math.toRadians(calcYaw))*outputY)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
                         double strafe = (Math.cos(Math.toRadians(calcYaw))*outputY-Math.sin(Math.toRadians(calcYaw))*outputZ)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
+
+                        if (forward>.2) {
+                            forward = .2;
+                        }
+                        else if (forward <-.2) {
+                            forward = -.2;
+                        }
                         telemetry.addData("forward", forward);
                         telemetry.addData("strafe", strafe);
                         telemetry.addData("angle", outputYaw);
-                        drivetrain.move(forward, strafe, outputYaw);
+                        drivetrain.move(forward, strafe, 0);
 //                    }
                 }
 

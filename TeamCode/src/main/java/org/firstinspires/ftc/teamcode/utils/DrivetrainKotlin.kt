@@ -46,7 +46,7 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
      * of the full power of the motor.
      */
     fun move(forward: Double, strafe: Double, turn: Double) {
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
 
         frontLeft.power = powerMultiplier * (forward + turn + strafe)
         frontRight.power = powerMultiplier * (forward - turn - strafe)
