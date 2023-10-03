@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.utils.AprilTagDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.Drivetrain;
+import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -57,7 +57,7 @@ public class PIDF extends LinearOpMode{
     //need to calibrate
     public double targetY = 0, targetZ = 0, targetYaw = 0;
     public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
-    private Drivetrain drivetrain;
+    private DrivetrainKotlin drivetrain;
 
     @Override
     public void runOpMode()
@@ -165,21 +165,34 @@ public class PIDF extends LinearOpMode{
                     double threeSixDistance = Math.abs(currentY[2] + Math.abs(currentZ[1]));
                     double distMinTemp = Math.min(oneFourDistance, twoFiveDistance);
                     double distMin = Math.min(distMinTemp, threeSixDistance);
-                    double calcY, calcZ;
+                    double calcY, calcZ, calcYaw;
                     if(distMin == oneFourDistance){
                         calcY = currentY[0];
                         calcZ = currentZ[0];
+                        calcYaw = currentYaw[0];
                     }
                     else if(distMin == twoFiveDistance){
                         calcY = currentY[1];
                         calcZ = currentZ[1];
+                        calcYaw = currentYaw[1];
                     }
                     else{
                         calcY = currentY[2];
                         calcZ = currentZ[2];
+                        calcYaw = currentYaw[1];
                     }
-                    double outputY = yController.calculate(calcY, targetY);
-                    double outputZ = zController.calculate(calcZ, targetZ);
+                    yController.setSetPoint(targetY);
+                    zController.setSetPoint(targetZ);
+                    yawController.setSetPoint((targetYaw));
+                    while(!zController.atSetPoint() && !yController.atSetPoint()) {
+                        double outputY = yController.calculate(calcY);
+                        double outputZ = zController.calculate(calcZ);
+                        double outputYaw = yawController.calculate(calcYaw);
+
+                        double forward = (Math.cos(Math.toRadians(calcYaw))*outputZ-Math.sin(Math.toRadians(calcYaw))*outputY)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1);
+                        double strafe = (Math.cos(Math.toRadians(calcYaw))*outputY-Math.sin(Math.toRadians(calcYaw))*outputZ)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1);
+                        drivetrain.move(forward, strafe, outputYaw);
+                    }
                 }
 
 
@@ -197,7 +210,7 @@ public class PIDF extends LinearOpMode{
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drivetrain = new Drivetrain(hardwareMap);
+        drivetrain = new DrivetrainKotlin(hardwareMap);
     }
 
 
