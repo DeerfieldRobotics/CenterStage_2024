@@ -121,19 +121,19 @@ public class CenteredSteering extends LinearOpMode {
         //Set intake values and clamp them between 0 and 1
         double g = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
         if(g>0&&g<=1)
-            intake.grip(g);
+            intake.intake(g);
         else if(g>1)
-            intake.grip(1);
+            intake.intake(1);
         else
-            intake.grip(0);
+            intake.intake(0);
 
         double t = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
         if(t>0&&t<=1)
-            intake.turn(t);
+            intake.arm(t);
         else if(t>1)
-            intake.turn(1);
+            intake.arm(1);
         else
-            intake.turn(0);
+            intake.arm(0);
     }
 
     private void slide() {
