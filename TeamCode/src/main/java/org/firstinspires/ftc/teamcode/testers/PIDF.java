@@ -6,7 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -49,14 +49,14 @@ public class PIDF extends LinearOpMode {
     final float THRESHOLD_HIGH_DECIMATION_RANGE_METERS = 1.0f;
     final int THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 4;
 
-    private PIDController yController, zController, yawController;
+    private PIDController xController, zController, yawController;
 
     public static double pY = .1, iY = .1, dY = .1, pZ = .1, iZ = .1, dZ = .1, pYaw = .1, iYaw = .1, dYaw = .1;
 
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
     //need to calibrate
-    public double targetY = 0, targetZ = 0.5, targetYaw = 0;
-    public double[] currentY = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
+    public double targetX = 0, targetZ = 0.5, targetYaw = 0;
+    public double[] currentX = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private DrivetrainKotlin drivetrain;
 
     @Override
@@ -128,9 +128,10 @@ public class PIDF extends LinearOpMode {
                         aprilTagDetectionPipeline.setDecimation(DECIMATION_HIGH);
                     }
 
-                    currentY = new double[]{0, 0, 0}; //reset all current values before updating
+                    currentX = new double[]{0, 0, 0}; //reset all current values before updating
                     currentZ = new double[]{0, 0, 0};
-                    currentYaw = new double[]{0, 0, 0};yController.setSetPoint(targetY);
+                    currentYaw = new double[]{0, 0, 0};
+                    xController.setSetPoint(targetX);
                     zController.setSetPoint(targetZ);
                     yawController.setSetPoint((targetYaw));
 
@@ -147,66 +148,66 @@ public class PIDF extends LinearOpMode {
                         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
 
                         if(detection.id == 1||detection.id==4) {
-                            currentY[0] = detection.pose.y;
+                            currentX[0] = detection.pose.x;
                             currentZ[0] = detection.pose.z;
                             currentYaw[0] = rot.firstAngle;
                         }
                         else if (detection.id == 2 || detection.id == 5) {
-                            currentY[1] = detection.pose.y+tagOffset;
+                            currentX[1] = detection.pose.x-tagOffset;
                             currentZ[1] = detection.pose.z;
                             currentYaw[1] = rot.firstAngle;
                         }
                         else if (detection.id == 3 || detection.id == 6) {
-                            currentY[2] = detection.pose.y+2*tagOffset;
+                            currentX[2] = detection.pose.x-2*tagOffset;
                             currentZ[2] = detection.pose.z;
                             currentYaw[2] = rot.firstAngle;
                         }
                     }
-                    double oneFourDistance = Math.abs(currentY[0]) + Math.abs(currentZ[0]);
-                    double twoFiveDistance = Math.abs(currentY[1]) + Math.abs(currentZ[1]);
-                    double threeSixDistance = Math.abs(currentY[2] + Math.abs(currentZ[1]));
+                    double oneFourDistance = Math.abs(currentX[0]) + Math.abs(currentZ[0]);
+                    double twoFiveDistance = Math.abs(currentX[1]) + Math.abs(currentZ[1]);
+                    double threeSixDistance = Math.abs(currentX[2] + Math.abs(currentZ[2]));
                     double distMinTemp = Math.min(oneFourDistance, twoFiveDistance);
                     double distMin = Math.min(distMinTemp, threeSixDistance);
-                    double calcY, calcZ, calcYaw;
+                    double calcX, calcZ, calcYaw;
                     if(distMin == oneFourDistance){
-                        calcY = currentY[0];
+                        calcX = currentX[0];
                         calcZ = currentZ[0];
                         calcYaw = currentYaw[0];
                     }
                     else if(distMin == twoFiveDistance){
-                        calcY = currentY[1];
+                        calcX = currentX[1];
                         calcZ = currentZ[1];
                         calcYaw = currentYaw[1];
                     }
                     else {
-                        calcY = currentY[2];
+                        calcX = currentX[2];
                         calcZ = currentZ[2];
-                        calcYaw = currentYaw[1];
+                        calcYaw = currentYaw[2];
                     }
                     //telemetry.addLine("got past min distance");
-//                    while(!zController.atSetPoint() && !yController.atSetPoint()) {
-                        double outputY = yController.calculate(calcY);
+                    while(!zController.atSetPoint() && !xController.atSetPoint()) {
+                        double outputX = xController.calculate(calcX);
                         double outputZ = zController.calculate(calcZ);
                         double outputYaw = yawController.calculate(calcYaw);
-                        telemetry.addData("outputY", outputY);
+                        telemetry.addData("outputX", outputX);
                         telemetry.addData("outputZ", outputZ);
                         telemetry.addData("outputYaw", outputYaw);
 
-                        double forward = (Math.cos(Math.toRadians(calcYaw))*outputZ-Math.sin(Math.toRadians(calcYaw))*outputY)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
-                        double strafe = (Math.cos(Math.toRadians(calcYaw))*outputY-Math.sin(Math.toRadians(calcYaw))*outputZ)/(2.0*Math.pow(Math.cos(calcYaw), 2)-1.0);
 
-                        if (forward>.2) {
-                            forward = .2;
-                        }
-                        else if (forward <-.2) {
-                            forward = -.2;
-                        }
-                        telemetry.addData("forward", forward);
-                        telemetry.addData("strafe", strafe);
+
+//                        if (forward>.2) {
+//                            forward = .2;
+//                        }
+//                        else if (forward <-.2) {
+//                            forward = -.2;
+//                        }
+//                        telemetry.addData("forward", forward);
+//                        telemetry.addData("strafe", strafe);
                         telemetry.addData("angle", outputYaw);
-                        drivetrain.move(forward, strafe, 0);
-//                    }
+                        drivetrain.move(0, 0, outputYaw);
+                    }
                 }
+
 
 
                 telemetry.update();
@@ -217,10 +218,10 @@ public class PIDF extends LinearOpMode {
     }
 
     public void initialize(){
-        yController = new PIDController(pY, iY, dY);
+        xController = new PIDController(pY, iY, dY);
         zController = new PIDController(pZ, iZ, dZ);
         yawController = new PIDController(pYaw, iYaw, dYaw);
-        yController.setSetPoint(targetY);
+        xController.setSetPoint(targetX);
         zController.setSetPoint(targetZ);
         yawController.setSetPoint((targetYaw));
 
