@@ -166,8 +166,12 @@ public class PIDF extends LinearOpMode {
                     double oneFourDistance = Math.abs(currentX[0]) + Math.abs(currentZ[0]);
                     double twoFiveDistance = Math.abs(currentX[1]) + Math.abs(currentZ[1]);
                     double threeSixDistance = Math.abs(currentX[2] + Math.abs(currentZ[2]));
-                    double distMinTemp = Math.min(oneFourDistance, twoFiveDistance);
-                    double distMin = Math.min(distMinTemp, threeSixDistance);
+                    double distMin = Double.MAX_VALUE;
+                    double arr[] = {oneFourDistance, twoFiveDistance, threeSixDistance};
+                    for (double d : arr)
+                    {
+                        distMin = (d == 0) ? distMin : Math.min(distMin, d);
+                    }
                     double calcX, calcZ, calcYaw;
                     if(distMin == oneFourDistance){
                         calcX = currentX[0];
@@ -185,7 +189,7 @@ public class PIDF extends LinearOpMode {
                         calcYaw = currentYaw[2];
                     }
                     //telemetry.addLine("got past min distance");
-                    while(!zController.atSetPoint() && !xController.atSetPoint()) {
+//                    while(!zController.atSetPoint() && !xController.atSetPoint()) {
                         double outputX = xController.calculate(calcX);
                         double outputZ = zController.calculate(calcZ);
                         double outputYaw = yawController.calculate(calcYaw);
@@ -205,7 +209,7 @@ public class PIDF extends LinearOpMode {
 //                        telemetry.addData("strafe", strafe);
                         telemetry.addData("angle", outputYaw);
                         drivetrain.move(0, 0, outputYaw);
-                    }
+//                    }
                 }
 
 
