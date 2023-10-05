@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 public class PIDF extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    SimpleMotorFeedforward feedForward;
 
     //static final double FEET_PER_METER = 3.28084;
 
@@ -51,11 +53,12 @@ public class PIDF extends LinearOpMode {
 
     private PIDController xController, zController, yawController;
 
-    public static double pY = .1, iY = .1, dY = .1, pZ = .1, iZ = .1, dZ = .1, pYaw = .1, iYaw = .1, dYaw = .1;
-
+    //all these values need to be tuned
+    public static double pX = 0, iX = 0, dX = 0, pZ = 0, iZ = 0, dZ = 0, pYaw = 0, iYaw = 0, dYaw = 0;
+    public static double kS = 0, kV = 0, kA = 0;
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
     //need to calibrate
-    public double targetX = 0, targetZ = 0.5, targetYaw = 0;
+    public double targetX = 0, targetZ = 0.2, targetYaw = 0;
     public double[] currentX = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private DrivetrainKotlin drivetrain;
 
@@ -196,19 +199,16 @@ public class PIDF extends LinearOpMode {
                         telemetry.addData("outputX", outputX);
                         telemetry.addData("outputZ", outputZ);
                         telemetry.addData("outputYaw", outputYaw);
-
-
-
-//                        if (forward>.2) {
-//                            forward = .2;
-//                        }
-//                        else if (forward <-.2) {
-//                            forward = -.2;
-//                        }
-//                        telemetry.addData("forward", forward);
-//                        telemetry.addData("strafe", strafe);
-                        telemetry.addData("angle", outputYaw);
-                        drivetrain.move(0, 0, outputYaw);
+//                        feedForward.calculate(1, 1);
+                        if(!yawController.atSetPoint()) {
+                            drivetrain.move(0, 0, outputYaw);
+                        }
+                        else if(!xController.atSetPoint()) {
+                            drivetrain.move(0, outputX, 0);
+                        }
+                        else if(!zController.atSetPoint()){
+                            drivetrain.move(outputZ, 0, 0);
+                        }
 //                    }
                 }
 
@@ -222,17 +222,24 @@ public class PIDF extends LinearOpMode {
     }
 
     public void initialize(){
-        xController = new PIDController(pY, iY, dY);
+        xController = new PIDController(pX, iX, dX);
         zController = new PIDController(pZ, iZ, dZ);
         yawController = new PIDController(pYaw, iYaw, dYaw);
+        feedForward = new SimpleMotorFeedforward(kS, kV, kA);
         xController.setSetPoint(targetX);
         zController.setSetPoint(targetZ);
         yawController.setSetPoint((targetYaw));
+        xController.setTolerance(tagOffset/3.0);
+        zController.setTolerance(0.05);
+        yawController.setTolerance(2);
+
+
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
     }
+
 
 
 }
