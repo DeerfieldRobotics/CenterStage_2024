@@ -141,14 +141,14 @@ public class PIDF extends LinearOpMode {
                     for (AprilTagDetection detection : detections)
                     {
                         Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
-
-                        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
-                        telemetry.addLine(String.format("Translation X: %.2f meters", detection.pose.x));
-                        telemetry.addLine(String.format("Translation Y: %.2f meters", detection.pose.y));
-                        telemetry.addLine(String.format("Translation Z: %.2f meters", detection.pose.z));
-                        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle));
-                        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));
-                        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
+//
+//                        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
+//                        telemetry.addLine(String.format("Translation X: %.2f meters", detection.pose.x));
+//                        telemetry.addLine(String.format("Translation Y: %.2f meters", detection.pose.y));
+//                        telemetry.addLine(String.format("Translation Z: %.2f meters", detection.pose.z));
+//                        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", rot.firstAngle));
+//                        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", rot.secondAngle));
+//                        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", rot.thirdAngle));
 
                         if(detection.id == 1||detection.id==4) {
                             currentX[0] = detection.pose.x;
@@ -175,22 +175,33 @@ public class PIDF extends LinearOpMode {
                     {
                         distMin = (d == 0) ? distMin : Math.min(distMin, d);
                     }
-                    double calcX, calcZ, calcYaw;
-                    if(distMin == oneFourDistance){
-                        calcX = currentX[0];
-                        calcZ = currentZ[0];
-                        calcYaw = currentYaw[0];
-                    }
-                    else if(distMin == twoFiveDistance){
+                    yawController.setPID(pYaw, iYaw,dYaw);
+                    xController.setPID(pX, iX,dX);
+                    zController.setPID(pZ, iZ,dZ);
+
+                    double calcX = 0, calcZ = 0, calcYaw = 0;
+//                    if(distMin == oneFourDistance){
+//                        calcX = currentX[0];
+//                        calcZ = currentZ[0];
+//                        calcYaw = currentYaw[0];
+//                    }
+//                    else if(distMin == twoFiveDistance){
+//                        calcX = currentX[1];
+//                        calcZ = currentZ[1];
+//                        calcYaw = currentYaw[1];
+//                    }
+//                    else {
+//                        calcX = currentX[2];
+//                        calcZ = currentZ[2];
+//                        calcYaw = currentYaw[2];
+//                    }
                         calcX = currentX[1];
                         calcZ = currentZ[1];
                         calcYaw = currentYaw[1];
-                    }
-                    else {
-                        calcX = currentX[2];
-                        calcZ = currentZ[2];
-                        calcYaw = currentYaw[2];
-                    }
+                        telemetry.addData("calcX", calcX);
+                    telemetry.addData("calcZ", calcZ);
+                    telemetry.addData("calcYaw", calcYaw);
+
                     //telemetry.addLine("got past min distance");
 //                    while(!zController.atSetPoint() && !xController.atSetPoint()) {
                         double outputX = xController.calculate(calcX);
@@ -201,12 +212,15 @@ public class PIDF extends LinearOpMode {
                         telemetry.addData("outputYaw", outputYaw);
 //                        feedForward.calculate(1, 1);
                         if(!yawController.atSetPoint()) {
+                            telemetry.addLine("adjusting Yaw");
                             drivetrain.move(0, 0, outputYaw);
                         }
-                        else if(!xController.atSetPoint()) {
+                         if(!xController.atSetPoint()) {
+                            telemetry.addLine("adjusting X");
                             drivetrain.move(0, outputX, 0);
                         }
-                        else if(!zController.atSetPoint()){
+                        if(!zController.atSetPoint()){
+                            telemetry.addLine("adjusting Z");
                             drivetrain.move(outputZ, 0, 0);
                         }
 //                    }
@@ -229,9 +243,9 @@ public class PIDF extends LinearOpMode {
         xController.setSetPoint(targetX);
         zController.setSetPoint(targetZ);
         yawController.setSetPoint((targetYaw));
-        xController.setTolerance(tagOffset/3.0);
-        zController.setTolerance(0.05);
-        yawController.setTolerance(2);
+//        xController.setTolerance(tagOffset/3.0);
+//        zController.setTolerance(0.05);
+//        yawController.setTolerance(2);
 
 
 
