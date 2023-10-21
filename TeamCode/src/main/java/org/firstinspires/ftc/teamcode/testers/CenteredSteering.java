@@ -42,6 +42,11 @@ public class CenteredSteering extends LinearOpMode {
     private double forwardMult = .7;
     private double turnMult = .65;
     private double strafeMult = .9;
+    //servo position values
+    private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
+    private int servoCounter = 2;
+    double currentOuttakePos = 0.0;
+    double currentArmPos = 0.0;
 
 
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -119,30 +124,61 @@ public class CenteredSteering extends LinearOpMode {
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
-        double g = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
-        if(g>0&&g<=1)
-            intake.intake(g);
-        else if(g>1)
-            intake.intake(1);
+        double rightTrigger = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
+        if(rightTrigger>1)
+        intake.intake(1);
+        else if(1>rightTrigger && rightTrigger>0){
+            intake.intake(rightTrigger);
+        }
+        else
+        intake.intake(0);
+
+        //reverse intake direction
+        double leftTrigger = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
+        if(leftTrigger>1)
+            intake.intake(-1);
+        else if(1>leftTrigger && leftTrigger>0){
+            intake.intake(-leftTrigger);
+        }
         else
             intake.intake(0);
 
-        double t = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
-        if(t>0&&t<=1)
-            intake.arm(t);
-        else if(t>1)
-            intake.arm(1);
-        else
-            intake.arm(0);
+        boolean rightBumper = gamepad2.right_bumper;
+        if (servoCounter != 5){
+            servoCounter++;
+        }
+        if(rightBumper){
+            intake.intakeServo(intakeServoPositions[servoCounter]);
+        }
+        boolean leftBumper = gamepad2.left_bumper;
+        if (servoCounter != 0)
+        {
+            servoCounter--;
+        }
+        if(leftBumper){
+            intake.intakeServo(intakeServoPositions[servoCounter]);
+        }
+
+        boolean cross = gamepad2.a;
+        boolean triangle = gamepad2.y;
+
+        if (cross){
+            intake.outtakeServo(currentOuttakePos = 1-currentOuttakePos);
+        }
+        if (triangle){
+        intake.armServo(currentArmPos = 1-currentArmPos);
+        }
+
+
     }
 
     private void slide() {
-        double s = gamepad2.left_stick_y*l2Sensitivity;
-        if(s>=-1&&s<=1)
-            slide.setPower(s);
-        else if(s>1)
+        double slidePower = gamepad2.left_stick_y*l2Sensitivity;
+        if(slidePower>=-0.8&&slidePower<=0.8)
+            slide.setPower(slidePower);
+        else if(slidePower>0.8)
             slide.setPower(1);
-        else if(s<-1)
+        else if(slidePower<-0.8)
             slide.setPower(-1);
         else
             slide.setPower(0);

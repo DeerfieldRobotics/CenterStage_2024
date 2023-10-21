@@ -58,7 +58,7 @@ public class PIDF extends LinearOpMode {
     public static double kS = 0, kV = 0, kA = 0;
     //targetY is left right relative to april tag and targetZ is back forward relative to april tag
     //need to calibrate
-    public double targetX = 0, targetZ = 0.2, targetYaw = 0;
+    public static double targetX = 0, targetZ = 0.2, targetYaw = 0;
     public double[] currentX = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
     private DrivetrainKotlin drivetrain;
 
@@ -156,12 +156,12 @@ public class PIDF extends LinearOpMode {
                             currentYaw[0] = rot.firstAngle;
                         }
                         else if (detection.id == 2 || detection.id == 5) {
-                            currentX[1] = detection.pose.x-tagOffset;
+                            currentX[1] = detection.pose.x;
                             currentZ[1] = detection.pose.z;
                             currentYaw[1] = rot.firstAngle;
                         }
                         else if (detection.id == 3 || detection.id == 6) {
-                            currentX[2] = detection.pose.x-2*tagOffset;
+                            currentX[2] = detection.pose.x;
                             currentZ[2] = detection.pose.z;
                             currentYaw[2] = rot.firstAngle;
                         }
@@ -199,8 +199,8 @@ public class PIDF extends LinearOpMode {
                         calcZ = currentZ[1];
                         calcYaw = currentYaw[1];
                         telemetry.addData("calcX", calcX);
-                    telemetry.addData("calcZ", calcZ);
-                    telemetry.addData("calcYaw", calcYaw);
+                        telemetry.addData("calcZ", calcZ);
+                        telemetry.addData("calcYaw", calcYaw);
 
                     //telemetry.addLine("got past min distance");
 //                    while(!zController.atSetPoint() && !xController.atSetPoint()) {
@@ -210,19 +210,22 @@ public class PIDF extends LinearOpMode {
                         telemetry.addData("outputX", outputX);
                         telemetry.addData("outputZ", outputZ);
                         telemetry.addData("outputYaw", outputYaw);
+                        telemetry.addData("targetX", targetX);
+                        telemetry.addData("targetZ", targetZ);
+                        telemetry.addData("targetYaw", targetYaw);
 //                        feedForward.calculate(1, 1);
-                        if(!yawController.atSetPoint()) {
+//                        if(!yawController.atSetPoint()) {
                             telemetry.addLine("adjusting Yaw");
                             drivetrain.move(0, 0, outputYaw);
-                        }
-                         if(!xController.atSetPoint()) {
+//                        }
+//                        if(!xController.atSetPoint()) {
                             telemetry.addLine("adjusting X");
                             drivetrain.move(0, outputX, 0);
-                        }
-                        if(!zController.atSetPoint()){
+//                        }
+//                        if(!zController.atSetPoint()){
                             telemetry.addLine("adjusting Z");
                             drivetrain.move(outputZ, 0, 0);
-                        }
+//                        }
 //                    }
                 }
 
@@ -244,8 +247,8 @@ public class PIDF extends LinearOpMode {
         zController.setSetPoint(targetZ);
         yawController.setSetPoint((targetYaw));
 //        xController.setTolerance(tagOffset/3.0);
-//        zController.setTolerance(0.05);
-//        yawController.setTolerance(2);
+        zController.setTolerance(0.005);
+        yawController.setTolerance(0.05);
 
 
 

@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
 class SlideKotlin (hardwareMap: HardwareMap){
-    var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx
-    var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx
+    var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
+    var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
 
 
     init {

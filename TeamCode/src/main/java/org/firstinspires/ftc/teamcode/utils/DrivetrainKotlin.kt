@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils
 
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorEx
-import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
@@ -18,10 +15,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
  */
 class DrivetrainKotlin (hardwareMap:HardwareMap) {
 
-    private var frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx
-    private var frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx
-    private var rearLeft: DcMotorEx = hardwareMap.get("bl") as DcMotorEx
-    private var rearRight: DcMotorEx = hardwareMap.get("br") as DcMotorEx
+    private var frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx //control hub: 0
+    private var frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx //control hub: 1
+    private var rearLeft: DcMotorEx = hardwareMap.get("bl") as DcMotorEx //control hub: 2
+    private var rearRight: DcMotorEx = hardwareMap.get("br") as DcMotorEx //control hub: 3
+
+    private var imu: IMU = hardwareMap.get("imu") as IMU
 
     private var powerMultiplier = 1.0
 
@@ -38,6 +37,8 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
         frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         rearLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         rearRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+
     }
 
     /**
@@ -250,6 +251,9 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
      *  Returns an [Array] containing all of the velocities of all of the motors in the drivetrain in the [AngleUnit] [angleUnit]. It is returned in the order, front left, front right, rear left, rear right.
      */
     fun getMotorVelocity(angleUnit: AngleUnit): Array<Double> = arrayOf(frontLeft.getVelocity(angleUnit), frontRight.getVelocity(angleUnit), rearLeft.getVelocity(angleUnit), rearRight.getVelocity(angleUnit))
+
+
+    fun getHeading(): Double = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)
 
     /**
      *  Returns a boolean indicating if any of the motors are busy.

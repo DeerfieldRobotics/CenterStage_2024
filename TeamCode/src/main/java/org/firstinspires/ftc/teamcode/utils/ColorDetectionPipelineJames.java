@@ -92,7 +92,7 @@ public class ColorDetectionPipelineJames extends OpenCvPipeline
         int maxRed = Math.max(red[0], Math.max(red[1], red[2]));
         int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
 
-        if(maxRed>maxBlue) {
+        if (maxRed>maxBlue) {
             color = Color.RED;
             if(maxRed == red[0])
                 position = StartingPosition.LEFT;
@@ -120,13 +120,13 @@ public class ColorDetectionPipelineJames extends OpenCvPipeline
 
     public String getPosition()
     {
-        if(position == StartingPosition.LEFT)
+        if (position == StartingPosition.LEFT)
         {
             return "LEFT";
-        } else if(position == StartingPosition.CENTER)
+        } else if (position == StartingPosition.CENTER)
         {
             return "CENTER";
-        } else if(position == StartingPosition.RIGHT) {
+        } else if (position == StartingPosition.RIGHT) {
             return "RIGHT";
         } else
         {

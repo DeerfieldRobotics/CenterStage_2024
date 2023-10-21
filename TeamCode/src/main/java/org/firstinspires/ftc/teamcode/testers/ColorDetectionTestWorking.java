@@ -18,7 +18,9 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 @Autonomous(name = "ColorDetectionTestWorking")
 public class ColorDetectionTestWorking extends LinearOpMode {
     //OpenCvCamera frontCamera;
-    private OpenCvInternalCamera frontCamera;
+    private OpenCvCamera frontCamera;
+
+    private int path, red;
 
     private ColorDetectionPipelineJames detector = new ColorDetectionPipelineJames();
 
@@ -27,29 +29,41 @@ public class ColorDetectionTestWorking extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         //frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "frontWeb"), cameraMonitorViewId);
-        frontCamera = OpenCvCameraFactory.getInstance()
-                .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         frontCamera.setPipeline(detector);
-        frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
+        frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                frontCamera.startStreaming(320,240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+            public void onOpened() {
+                frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
+            public void onError(int errorCode) {
 
             }
         });
-        waitForStart();
 
-        while(opModeIsActive()) {
+        while (opModeInInit()) {
+            String p = detector.getPosition();
+
+            if(p == "RIGHT") path = 1;
+            else if(p == "LEFT") path = -1;
+            else path = 0;
+
+            String c = detector.getColor();
+
+            if (c == "RED") red = 1;
+            else red = 0;
+
             telemetry.addData("Position", detector.getPosition());
             telemetry.addData("Color", detector.getColor());
             telemetry.update();
+        }
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+
         }
     }
 }
