@@ -114,21 +114,9 @@ public class main_teleop extends LinearOpMode {
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
-        double rightTrigger = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
-        double leftTrigger = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
-        if(rightTrigger>1)
-            intake.intake(-1);
-        else if(1>rightTrigger && rightTrigger>0){
-            intake.intake(-rightTrigger);
-        }
-        //reverse intake direction
-        else if(leftTrigger>1)
-            intake.intake(1);
-        else if(1>leftTrigger && leftTrigger>0){
-            intake.intake(leftTrigger);
-        }
-        else
-            intake.intake(0);
+        double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
+        double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
+        intake.intake(rightTrigger-leftTrigger);
 
         boolean rightBumper = gamepad2.right_bumper;
         if (servoCounter != 5) {
@@ -154,9 +142,9 @@ public class main_teleop extends LinearOpMode {
             intake.outtake();
         }
         if (gamepad2.triangle) {
-            intake.toggleTriangle(true);
+            triangleToggle = true;
         }
-        if (!gamepad2.triangle & intake.trianglePressed())
+        if (!gamepad2.triangle & triangleToggle)
         {
             intake.toggleTriangle(false);
             intake.armServo(1-currentArmPos);
