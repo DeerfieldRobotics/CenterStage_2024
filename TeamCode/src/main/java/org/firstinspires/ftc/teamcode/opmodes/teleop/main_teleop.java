@@ -45,6 +45,8 @@ public class main_teleop extends LinearOpMode {
     private boolean triangleToggle = false;
     private boolean squareToggle = false;
     private boolean circleToggle = false;
+    private boolean rightBumperToggle = false;
+    private boolean leftBumperToggle = false;
 
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -53,19 +55,12 @@ public class main_teleop extends LinearOpMode {
 
     private void driveNormal () {
         speedMult = .7+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
-//        //movement
-        /*
+
         double forward = gamepad1.left_stick_y * forwardMult * speedMult;
         double turn = gamepad1.right_stick_x * turnMult * speedMult;
         double strafe = gamepad1.left_stick_x * strafeMult * speedMult;
 
-         */
-
-        double forward = gamepad1.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        double strafe = gamepad1.left_stick_x;
-//
-        drivetrain.setMotorPower(forward - turn - strafe,forward + turn + strafe,forward - turn + strafe,forward + turn - strafe);
+        drivetrain.move(forward, turn, strafe);
     }
 
 
@@ -118,21 +113,26 @@ public class main_teleop extends LinearOpMode {
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
         intake.intake(rightTrigger-leftTrigger);
 
-        boolean rightBumper = gamepad2.right_bumper;
-        if (servoCounter != 5) {
+        if (servoCounter != 5&&gamepad2.right_bumper) { //Changes intake servo values on release
+            rightBumperToggle = true;
+        }
+        if (!gamepad2.right_bumper & rightBumperToggle)
+        {
+            rightBumperToggle = false;
             servoCounter++;
         }
-        if (rightBumper) {
-            intake.intakeServo(intakeServoPositions[servoCounter]);
-        }
-        boolean leftBumper = gamepad2.left_bumper;
-        if (servoCounter != 0)
+        if (servoCounter != 0&&gamepad2.left_bumper)
         {
+            leftBumperToggle = true;
+        }
+        if (!gamepad2.left_bumper & leftBumperToggle)
+        {
+            leftBumperToggle = false;
             servoCounter--;
         }
-        if (leftBumper){
-            intake.intakeServo(intakeServoPositions[servoCounter]);
-        }
+        intake.intakeServo(servoCounter);
+
+        //Outtake Code
         if (gamepad2.cross) {
             crossToggle = true;
         }
@@ -141,16 +141,16 @@ public class main_teleop extends LinearOpMode {
             crossToggle = false;
             intake.outtake();
         }
+
+        //arm code
         if (gamepad2.triangle) {
             triangleToggle = true;
         }
         if (!gamepad2.triangle & triangleToggle)
         {
-            intake.toggleTriangle(false);
-            intake.armServo(1-currentArmPos);
+            triangleToggle = false;
+            intake.arm();
         }
-
-
     }
 
     public void initialize() {
