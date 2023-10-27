@@ -13,20 +13,20 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     private var armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 2
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
-    private var crossPressed = false;
-    private var trianglePressed = false;
+    private var crossPressed = false
+    private var trianglePressed = false
 
     private var intakeStart: Double = 0.4
     private var intakeEnd: Double = 0.0
-    private var intakePositions: Array<Double> = arrayOf<Double>(0.0,0.2,0.4,0.6,0.8); //array of positions for the intake servo to go to
+    private var intakePositions: Array<Double> = arrayOf(0.0,0.2,0.4,0.6,0.8); //array of positions for the intake servo to go to
 
     private var outtakeClosed: Double = 1.0 //closed position
     private var outtakeOpen: Double = 0.91 //open position
-    private var outtake: Boolean = true;
+    private var outtake: Boolean = true
 
     private var armOut: Double = 1.0
     private var armIn: Double = 0.0
-    private var arm: Boolean = false;
+    private var arm: Boolean = false
 
     init {
         intakeServo.position = intakeStart
@@ -60,7 +60,7 @@ class IntakeKotlin (hardwareMap: HardwareMap){
         intakeServo.position = position
     }
     fun armServo(position:Double){
-        armServo.position = position;
+        armServo.position = position
     }
     fun intake (power: Double) {
         intakeMotor.power = power
