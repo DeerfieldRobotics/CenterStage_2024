@@ -133,6 +133,7 @@ public class ColorDetectionPipelineJames extends OpenCvPipeline
             return "ERROR";
         }
     }
+
     public String getColor() {
         if (color == Color.RED) {
             return "RED";

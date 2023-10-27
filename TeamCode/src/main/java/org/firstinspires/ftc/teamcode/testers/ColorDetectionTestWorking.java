@@ -46,8 +46,8 @@ public class ColorDetectionTestWorking extends LinearOpMode {
         while (opModeInInit()) {
             String p = detector.getPosition();
 
-            if(p == "RIGHT") path = 1;
-            else if(p == "LEFT") path = -1;
+            if (p == "RIGHT") path = 1;
+            else if (p == "LEFT") path = -1;
             else path = 0;
 
             String c = detector.getColor();

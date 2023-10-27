@@ -16,8 +16,8 @@ public class Drivetrain
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     public static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    public static final double     DRIVE_SPEED             = 0.6;
-    public static final double     TURN_SPEED              = 0.5;
+    public static final double DRIVE_SPEED = 0.6;
+    public static final double TURN_SPEED = 0.5;
 
     private double drivetrainPowMod = 0.5;
 
@@ -187,8 +187,6 @@ public class Drivetrain
 
         run_to_pos();
     }
-
-
 
     public boolean isBusy(){
         return fl.isBusy() && fr.isBusy() && bl.isBusy() && br.isBusy();

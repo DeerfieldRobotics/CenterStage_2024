@@ -39,13 +39,13 @@
 //        detectedTags = aprilTags.getTags();
 //        for(Tag t : detectedTags) telemetry.addLine(t.toString());
 //        telemetry.update();
-////        s.update();
-////        rubberBandIntake.update();
+//        s.update();
+//        rubberBandIntake.update();
 //    }
 //
 //    public void start() {
-////        if (detectedTag == 3) {
-////            path = drive.trajectorySequenceBuilder(startPose)
+//        if (detectedTag == 3) {
+//            path = drive.trajectorySequenceBuilder(startPose)
 //                    .strafeRight(3)
 //                    .forward(3)
 //                    .splineTo(new Vector2d(14,-50), Math.toRadians(115))

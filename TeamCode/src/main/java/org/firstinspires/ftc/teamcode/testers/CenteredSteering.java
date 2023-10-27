@@ -93,7 +93,6 @@ public class CenteredSteering extends LinearOpMode {
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-
         // https://matthew-brett.github.io/teaching/rotation_2d.html
         double rotX = ls_x * Math.cos(-heading) - ls_y * Math.sin(-heading);
         double rotY = ls_x * Math.sin(-heading) + ls_y * Math.cos(-heading);
@@ -108,7 +107,6 @@ public class CenteredSteering extends LinearOpMode {
         drivetrain.setMotorPower(fRP, fLP, bRP, bLP);
     }
     private void driveNormal () {
-        //TODO make this like actually make sense instead of being crap show of code
         //speedMult = 1+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
         speedMult = .8;
         //movement
@@ -125,17 +123,14 @@ public class CenteredSteering extends LinearOpMode {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
         double rightTrigger = (gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart);
+        double leftTrigger = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
         if(rightTrigger>1)
         intake.intake(1);
         else if(1>rightTrigger && rightTrigger>0){
             intake.intake(rightTrigger);
         }
-        else
-        intake.intake(0);
-
         //reverse intake direction
-        double leftTrigger = (gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart);
-        if(leftTrigger>1)
+        else if(leftTrigger>1)
             intake.intake(-1);
         else if(1>leftTrigger && leftTrigger>0){
             intake.intake(-leftTrigger);
@@ -144,10 +139,10 @@ public class CenteredSteering extends LinearOpMode {
             intake.intake(0);
 
         boolean rightBumper = gamepad2.right_bumper;
-        if (servoCounter != 5){
+        if (servoCounter != 5) {
             servoCounter++;
         }
-        if(rightBumper){
+        if (rightBumper) {
             intake.intakeServo(intakeServoPositions[servoCounter]);
         }
         boolean leftBumper = gamepad2.left_bumper;
@@ -155,18 +150,14 @@ public class CenteredSteering extends LinearOpMode {
         {
             servoCounter--;
         }
-        if(leftBumper){
+        if (leftBumper){
             intake.intakeServo(intakeServoPositions[servoCounter]);
         }
-
-        boolean cross = gamepad2.a;
-        boolean triangle = gamepad2.y;
-
-        if (cross){
-            intake.outtakeServo(currentOuttakePos = 1-currentOuttakePos);
+        if (gamepad2.cross) {
+            intake.outtake();
         }
-        if (triangle){
-        intake.armServo(currentArmPos = 1-currentArmPos);
+        if (gamepad2.triangle) {
+            intake.armServo(currentArmPos = 1-currentArmPos);
         }
 
 
@@ -174,15 +165,15 @@ public class CenteredSteering extends LinearOpMode {
 
     private void slide() {
         double slidePower = gamepad2.left_stick_y*l2Sensitivity;
-        if(slidePower>=-0.8&&slidePower<=0.8)
+        if (slidePower >= -0.8 && slidePower <= 0.8)
             slide.setPower(slidePower);
-        else if(slidePower>0.8)
+        else if (slidePower > 0.8)
             slide.setPower(1);
-        else if(slidePower<-0.8)
+        else if (slidePower < -0.8)
             slide.setPower(-1);
         else
             slide.setPower(0);
 
-        //telemetry.addData("Slide Current", slide.getCurrent());
+        // telemetry.addData("Slide Current", slide.getCurrent());
     }
 }

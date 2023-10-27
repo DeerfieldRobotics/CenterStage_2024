@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "NewIntakeTest", group = "TeleOp")
 public class IntakeTest extends LinearOpMode {
-    private DcMotor i1, i2;
+    private DcMotor intake;
 
     @Override
     public void runOpMode() {
@@ -21,34 +21,34 @@ public class IntakeTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            driveSet();
+            double rightTriggerVal = gamepad1.right_trigger, leftTriggerVal = gamepad1.right_trigger;
+
+
+            intake.setPower(rightTriggerVal);
         }
     }
 
     private void initialize() {
-        i1 = hardwareMap.get(DcMotor.class, "i1");
-        i2 = hardwareMap.get(DcMotor.class, "i2");
+        intake = hardwareMap.get(DcMotor.class, "im");
+//        i2 = hardwareMap.get(DcMotor.class, "i2");
 
-        i2.setDirection(DcMotorSimple.Direction.REVERSE);
-        i1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        i2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     private void driveSet() {
-        double rightTriggerVal = gamepad1.right_trigger;
 
-        setPower(rightTriggerVal);
     }
 
-    private void setPower(double rTP) {
-        if(rTP > 0){
-            i1.setPower(1);
-            i2.setPower(1);
-        }
-        else{
-            i1.setPower(0);
-            i2.setPower(0);
-        }
-    }
+//    private void setPower(double rTP) {
+//        if(rTP > 0){
+//            i1.setPower(1);
+//            i2.setPower(1);
+//        }
+//        else{
+//            i1.setPower(0);
+//            i2.setPower(0);
+//        }
+//    }
 
 }
