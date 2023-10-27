@@ -77,15 +77,15 @@ public class main_teleop extends LinearOpMode {
 
             //driveSetCentered();
             driveNormal();
-            telemetry.addLine(drivetrain.isBusy() ? "true" : "false");
+            telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();
             intake();
-
+            telemetry.addData("Drivetrain Current", drivetrain.getCurrent());
+            telemetry.addData("Slide Current", slide.getCurrent());
             telemetry.addData("intakeServo", intake.getIntakePos());
             telemetry.addData("outtakeServo", intake.getOuttakePos());
             telemetry.addData("armServo", intake.getArmPos());
-
 
             telemetry.update();
         }
@@ -158,23 +158,7 @@ public class main_teleop extends LinearOpMode {
 //        imu.initialize(parameters);
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
-//        intake = new IntakeKotlin(hardwareMap);
-        sa = hardwareMap.get(DcMotor.class, "sa");
-
-        sa.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        sa.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        sa.setDirection(DcMotorSimple.Direction.REVERSE);
-        sa.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        sb = hardwareMap.get(DcMotor.class, "sb");
-
-        sb.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        sb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        sb.setDirection(DcMotorSimple.Direction.REVERSE);
-        sb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         intake = new IntakeKotlin(hardwareMap);
-
         slide = new SlideKotlin(hardwareMap);
     }
 

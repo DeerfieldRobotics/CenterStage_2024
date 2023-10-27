@@ -35,7 +35,6 @@ class IntakeKotlin (hardwareMap: HardwareMap){
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
-
     fun intakeServo(position: Int) {
         intakeServo.position = intakePositions[position]
     }
@@ -57,28 +56,16 @@ class IntakeKotlin (hardwareMap: HardwareMap){
             armServo.position = armOut
         }
     }
-
     fun intakeServo (position: Double){
         intakeServo.position = position
     }
-
     fun armServo(position:Double){
         armServo.position = position;
     }
-
     fun intake (power: Double) {
         intakeMotor.power = power
     }
-
-    fun getIntakePos():Double{
-        return intakeServo.position;
-    }
-
-    fun getOuttakePos():Double{
-        return armServo.position;
-    }
-
-    fun getArmPos():Double{
-        return armServo.position;
-    }
+    fun getIntakePos():Double = intakeServo.position
+    fun getOuttakePos():Double = outtakeServo.position
+    fun getArmPos():Double = armServo.position
 }

@@ -27,4 +27,5 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.power = s
         Slide2.power = s
     }
+    fun getCurrent(): Array<Double> = arrayOf(Slide1.getCurrent(CurrentUnit.AMPS), Slide2.getCurrent(CurrentUnit.AMPS))
 }
