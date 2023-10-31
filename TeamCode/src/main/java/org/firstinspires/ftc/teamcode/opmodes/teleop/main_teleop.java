@@ -7,14 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.apache.commons.math3.stat.regression.ModelSpecificationException;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 @TeleOp(name = "main teleop")
 public class main_teleop extends LinearOpMode {
-    private DcMotor sa, sb;
-    private ElapsedTime runtime;
     private DrivetrainKotlin drivetrain;
     private IntakeKotlin intake;
     private SlideKotlin slide;
@@ -35,6 +34,9 @@ public class main_teleop extends LinearOpMode {
     private double forwardMult = .7;
     private double turnMult = .65;
     private double strafeMult = .9;
+    //intake time values
+    long timeSinceArm = 0;
+    long timeSinceOuttake = 0;
 
     //servo position values
     private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
@@ -82,6 +84,7 @@ public class main_teleop extends LinearOpMode {
 
             slide();
             intake();
+
             telemetry.addData("Drivetrain Current", drivetrain.getCurrent());
             telemetry.addData("Slide Current", slide.getCurrent());
             telemetry.addData("intakeServo", intake.getIntakePos());
@@ -97,7 +100,7 @@ public class main_teleop extends LinearOpMode {
     private void slide() {
         double slidePower = gamepad2.left_stick_y*l2Sensitivity/l2Max;
         if(slidePower!=0) {
-            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if (slidePower >= 1)
                 slide.setPower(1);
             else if (slidePower <= -1)
@@ -105,6 +108,9 @@ public class main_teleop extends LinearOpMode {
             else
                 slide.setPower(slidePower);
         }
+        else
+            slide.setPower(0);
+
         telemetry.addData("Slide Current", slide.getCurrent());
     }
 
@@ -135,6 +141,8 @@ public class main_teleop extends LinearOpMode {
         intake.intakeServo(servoCounter);
 
         //Outtake Code
+
+
         if (gamepad2.cross) {
             crossToggle = true;
         }
@@ -153,32 +161,42 @@ public class main_teleop extends LinearOpMode {
             triangleToggle = false;
             intake.armToggle();
         }
+
+
+//        if(gamepad2.cross) {
+//            intakeProcedure(true);
+//        }
+//        if(gamepad2.circle) {
+//            intakeProcedure(false);
+//        }
     }
 
-    private void intakeProcedure(boolean toggle) {
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        long time = System.currentTimeMillis();
-        if(toggle) { //brings intake in and down
-            intake.outtakeToggle(true); //ensure gate is open
-            intake.armToggle(false); //bring arm in
 
-            if(System.currentTimeMillis() - time > slide.getMinArmTimeIn()) { //make sure arm is in before sliding down
-                slide.setTargetPosition(0); //go to bottom
-            }
-            else {
-                slide.setTargetPosition(slide.getMinSlideHeight()); //if arm not in, then just chill
-            }
-        }
-        else { //brings intake up and out
-            intake.outtakeToggle(false); //close gate
-            if(((slide.getPosition()[0] + slide.getPosition()[1]) / 2) < slide.getMinSlideHeight() && System.currentTimeMillis() - time > slide.getMinOuttakeTime()) { //wait for outtake to close and to get to right height
-                slide.setTargetPosition(slide.getTargetSlideHeight()); //if we chilling then go to right slide height
-            }
-            else if (((slide.getPosition()[0] + slide.getPosition()[1]) / 2) >= slide.getMinSlideHeight()){ //if above minimum height and outtake has closed, then arm out
-                intake.armToggle(true); //once we clear the minimum height we bring that schlong out
-            }
-        }
-    }
+//    private void intakeProcedure(boolean toggle) {
+//        if(toggle) { //brings intake in and down
+//            intake.outtakeToggle(true); //ensure gate is open
+//            intake.armToggle(false); //bring arm in
+//
+//            if(System.currentTimeMillis() - intake.getTimeSinceArm() > slide.getMinArmTimeIn()) { //make sure arm is in before sliding down
+//                slide.setTargetPosition(0); //go to bottom
+//                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            }
+//            else {
+//                slide.setTargetPosition(slide.getMinSlideHeight()); //if arm not in, then just chill
+//                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            }
+//        }
+//        else { //brings intake up and out
+//            intake.outtakeToggle(false); //close gate
+//            if(((slide.getPosition()[0] + slide.getPosition()[1]) / 2) < slide.getMinSlideHeight() && System.currentTimeMillis() - intake.getTimeSinceOuttake() > slide.getMinOuttakeTime()) { //wait for outtake to close and to get to right height
+//                slide.setTargetPosition(slide.getTargetSlideHeight()); //if we chilling then go to right slide height
+//                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            }
+//            else if (((slide.getPosition()[0] + slide.getPosition()[1]) / 2) >= slide.getMinSlideHeight()){ //if above minimum height and outtake has closed, then arm out
+//                intake.armToggle(true); //once we clear the minimum height we bring that schlong out
+//            }
+//        }
+//    }
 
     public void initialize() {
 //        imu = hardwareMap.get(IMU.class, "imu");
@@ -188,6 +206,7 @@ public class main_teleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
 
+        //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 

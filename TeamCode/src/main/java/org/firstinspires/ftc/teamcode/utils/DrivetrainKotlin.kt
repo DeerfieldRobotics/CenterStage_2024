@@ -58,7 +58,6 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
      * Moves the drivetrain forward or back [ticks] amount of ticks.
      */
     fun forward(ticks: Int) {
-        setMode(DcMotor.RunMode.RUN_TO_POSITION)
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
 
         frontLeft.targetPosition += ticks
@@ -66,32 +65,35 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
         rearLeft.targetPosition += ticks
         rearRight.targetPosition += ticks
 
+        setMode(DcMotor.RunMode.RUN_TO_POSITION)
     }
 
     /**
      * Moves the drivetrain left or right [ticks] amount of ticks.
      */
     fun strafe(ticks: Int) {
-        setMode(DcMotor.RunMode.RUN_TO_POSITION)
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
 
         frontLeft.targetPosition += ticks
         frontRight.targetPosition -= ticks
         rearLeft.targetPosition -= ticks
         rearRight.targetPosition += ticks
+
+        setMode(DcMotor.RunMode.RUN_TO_POSITION)
     }
 
     /**
      * Turns the drivetrain left or right [ticks] amount of ticks.
      */
     fun turn(ticks: Int) {
-        setMode(DcMotor.RunMode.RUN_TO_POSITION)
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
 
         frontLeft.targetPosition += ticks
         frontRight.targetPosition -= ticks
         rearLeft.targetPosition += ticks
         rearRight.targetPosition -= ticks
+
+        setMode(DcMotor.RunMode.RUN_TO_POSITION)
     }
 
     /**

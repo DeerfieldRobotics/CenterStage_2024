@@ -23,18 +23,18 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         Slide1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         Slide2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        Slide1.mode = DcMotor.RunMode.RUN_TO_POSITION
-        Slide2.mode = DcMotor.RunMode.RUN_TO_POSITION
+        Slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        Slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 
     fun setPower (s: Double) {
         Slide1.power = s
         Slide2.power = s
     }
-    fun setMode (mode: DcMotor.RunMode) {
-        Slide1.mode = mode
-        Slide2.mode = mode
-    }
+//    fun setMode (mode: DcMotor.RunMode) {
+//        Slide1.mode = mode
+//        Slide2.mode = mode
+//    }
     fun setTargetPosition (position: Int) {
         Slide1.targetPosition = position
         Slide2.targetPosition = position

@@ -18,15 +18,18 @@ class IntakeKotlin (hardwareMap: HardwareMap){
 
     private var intakeStart: Double = 0.4
     private var intakeEnd: Double = 0.0
-    private var intakePositions: Array<Double> = arrayOf(0.0,0.2,0.4,0.6,0.8); //array of positions for the intake servo to go to
+    private var intakePositions: Array<Double> = arrayOf(0.0,0.15,0.25,0.3,0.35, .4); //array of positions for the intake servo to go to
 
-    private var outtakeClosed: Double = 1.0 //closed position
-    private var outtakeOpen: Double = 0.4 //open position
+    private var outtakeClosed: Double = 0.0 //closed position
+    private var outtakeOpen: Double = 0.34 //open position
     private var outtake: Boolean = true
 
-    private var armOut: Double = 0.4
-    private var armIn: Double = 0.9
+    private var armOut: Double = 0.05
+    private var armIn: Double = 0.46
     private var arm: Boolean = false
+
+    var timeSinceArm: Long = 0
+    var timeSinceOuttake: Long = 0
 
     init {
         intakeServo.position = intakeStart
@@ -49,13 +52,15 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     }
 
     fun outtakeToggle(toggle:Boolean) {
-        if(toggle) {
-            outtake = true
-            outtakeServo.position = outtakeOpen
-        }
-        else {
-            outtake = false
-            outtakeServo.position = outtakeClosed
+        if(toggle!=outtake) {
+            timeSinceOuttake = System.currentTimeMillis()
+            if (toggle) {
+                outtake = true
+                outtakeServo.position = outtakeOpen
+            } else {
+                outtake = false
+                outtakeServo.position = outtakeClosed
+            }
         }
     }
     fun armToggle() {
@@ -68,13 +73,15 @@ class IntakeKotlin (hardwareMap: HardwareMap){
         }
     }
     fun armToggle(toggle:Boolean) {
-        if(toggle) {
-            arm = true
-            armServo.position = armOut
-        }
-        else {
-            arm = false
-            armServo.position = armIn
+        if(toggle!=arm) {
+            timeSinceArm = System.currentTimeMillis()
+            if (toggle) {
+                arm = true
+                armServo.position = armOut
+            } else {
+                arm = false
+                armServo.position = armIn
+            }
         }
     }
 

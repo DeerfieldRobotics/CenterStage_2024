@@ -7,13 +7,12 @@ public class Tag {
     public Tag(int i, double tx, double ty, double tz, double y, double p, double r){}
 
     public String toString(){
-        String s = "ID: " + id;
-        s += "\nTRANSLATIONAL X " + transX;
-        s += "\nTRANSLATIONAL Y " + transY;
-        s += "\nTRANSLATIONAL Z " + transZ;
-        s += "\nYAW " + yaw;
-        s += "\nPITCH " + pitch;
-        s += "\nROLL " + roll;
-        return s;
+        return "ID: " + id
+        + "\nTRANSLATIONAL X " + transX
+        + "\nTRANSLATIONAL Y " + transY
+        + "\nTRANSLATIONAL Z " + transZ
+        + "\nYAW " + yaw
+        + "\nPITCH " + pitch
+        + "\nROLL " + roll;
     }
 }

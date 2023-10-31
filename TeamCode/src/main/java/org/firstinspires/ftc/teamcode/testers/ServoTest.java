@@ -12,8 +12,10 @@ public class ServoTest extends LinearOpMode {
     private Servo s;
 
     private double increment = 0.01;
+    private boolean dpad_up = false;
+    private boolean dpad_down = false;
 
-    private double pos = 0.5;
+    private double pos = 0.45;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -24,10 +26,12 @@ public class ServoTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            double low = .62;
-            double high = .7;
 
-            s.setPosition(high - (high-low)*gamepad1.right_trigger);
+            s.setPosition(pos);
+            if(gamepad1.dpad_up && !dpad_up) {pos += increment;dpad_up = true;}
+            else dpad_up = false;
+            if(gamepad1.dpad_down && !dpad_down) {pos -= increment;dpad_down = true;}
+            else dpad_down = false;
 
             telemetry.addData("Pos", s.getPosition());
             telemetry.update();
