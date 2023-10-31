@@ -154,7 +154,7 @@ public class CenteredSteering extends LinearOpMode {
             intake.intakeServo(intakeServoPositions[servoCounter]);
         }
         if (gamepad2.cross) {
-            intake.outtake();
+            intake.outtakeToggle();
         }
         if (gamepad2.triangle) {
             intake.armServo(currentArmPos = 1-currentArmPos);
