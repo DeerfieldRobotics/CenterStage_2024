@@ -4,7 +4,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -57,10 +56,10 @@ public class main_teleop extends LinearOpMode {
         speedMult = .7+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
 
         double forward = gamepad1.left_stick_y * forwardMult * speedMult;
-        double turn = gamepad1.right_stick_x * turnMult * speedMult;
-        double strafe = gamepad1.left_stick_x * strafeMult * speedMult;
+        double turn = -gamepad1.right_stick_x * turnMult * speedMult;
+        double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-        drivetrain.move(forward, turn, strafe);
+        drivetrain.move(forward, strafe, turn);
     }
 
 
@@ -86,6 +85,7 @@ public class main_teleop extends LinearOpMode {
             telemetry.addData("intakeServo", intake.getIntakePos());
             telemetry.addData("outtakeServo", intake.getOuttakePos());
             telemetry.addData("armServo", intake.getArmPos());
+            telemetry.addData("crossToggle", crossToggle);
 
             telemetry.update();
         }
@@ -111,7 +111,7 @@ public class main_teleop extends LinearOpMode {
         //Set intake values and clamp them between 0 and 1
         double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
-        intake.intake(rightTrigger-leftTrigger);
+        intake.intake(leftTrigger-rightTrigger);
 
         if (servoCounter != 5&&gamepad2.right_bumper) { //Changes intake servo values on release
             rightBumperToggle = true;
@@ -139,7 +139,7 @@ public class main_teleop extends LinearOpMode {
         if (!gamepad2.cross & crossToggle)
         {
             crossToggle = false;
-            intake.outtake();
+            intake.outtakeToggle();
         }
 
         //arm code
@@ -149,7 +149,7 @@ public class main_teleop extends LinearOpMode {
         if (!gamepad2.triangle & triangleToggle)
         {
             triangleToggle = false;
-            intake.arm();
+            intake.armToggle();
         }
     }
 
@@ -160,6 +160,8 @@ public class main_teleop extends LinearOpMode {
         drivetrain = new DrivetrainKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
+
+        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 }
