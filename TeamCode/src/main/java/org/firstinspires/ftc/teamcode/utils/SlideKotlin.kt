@@ -9,10 +9,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 class SlideKotlin (hardwareMap: HardwareMap){
     private var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
-    var minSlideHeight = 1000;
-    var targetSlideHeight = 1200;
-    var minArmTimeIn = 700;
-    var minOuttakeTime = 100;
+    var minSlideHeight = -800;
+    var targetSlideHeight = -1000;
+    var minArmTimeIn = 600;
+    var minOuttakeTime = 400;
 
 
     init {
