@@ -23,7 +23,7 @@ public class ARedTop extends OpMode {
     private SampleMecanumDrive drive;
 
     private TrajectorySequenceBuilder path;
-    Pose2d start = new Pose2d(60,10,Math.toRadians(180));
+    Pose2d start = new Pose2d(12,-63, Math.toRadians(90));
 
     private OpenCvCamera frontCamera;
 
@@ -66,11 +66,33 @@ public class ARedTop extends OpMode {
     @Override
     public void start() {
         // Temporary: move forward 3
-        path.forward(3);
 
-        // Place purple on correct spike.
+        if (purplePixelPath == -1) {
+            // Left
 
-        // Drop yellow at backboard.
+        } else if (purplePixelPath == 0) {
+            // Center
+            path.forward(32)
+                    .back(5)
+                    .setTangent(Math.toRadians(0))
+                    .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
+                    /*
+                    .back(20)
+                    .turn(Math.toRadians(180))
+                     */
+                    .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
+                    .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)));
+
+        } else if (purplePixelPath == 1) {
+            // Right
+        } else {
+
+        }
+
+        // Park
+        path.back(5)
+                .strafeLeft(10);
 
         drive.followTrajectorySequenceAsync(path.build());
     }
