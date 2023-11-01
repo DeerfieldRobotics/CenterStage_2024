@@ -143,23 +143,23 @@ public class main_teleop extends LinearOpMode {
         //Outtake Code
 
 
-        if (gamepad2.cross) {
+        if (gamepad2.cross&&!crossToggle) {
             crossToggle = true;
+            intake.outtakeToggle();
         }
-        if (!gamepad2.cross & crossToggle)
+        if (!gamepad2.cross)
         {
             crossToggle = false;
-            intake.outtakeToggle();
         }
 
         //arm code
-        if (gamepad2.triangle) {
+        if (gamepad2.triangle&&!triangleToggle) {
             triangleToggle = true;
+            intake.armToggle();
         }
-        if (!gamepad2.triangle & triangleToggle)
+        if (!gamepad2.triangle)
         {
             triangleToggle = false;
-            intake.armToggle();
         }
 
 

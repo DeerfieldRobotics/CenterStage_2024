@@ -16,8 +16,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
 
 
     init {
-        Slide1.direction = DcMotorSimple.Direction.REVERSE
-        Slide2.direction = DcMotorSimple.Direction.REVERSE
+        Slide1.direction = DcMotorSimple.Direction.FORWARD
+        Slide2.direction = DcMotorSimple.Direction.FORWARD
 
         Slide1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -31,10 +31,10 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.power = s
         Slide2.power = s
     }
-//    fun setMode (mode: DcMotor.RunMode) {
-//        Slide1.mode = mode
-//        Slide2.mode = mode
-//    }
+    fun setMode (mode: DcMotor.RunMode) {
+        Slide1.mode = mode
+        Slide2.mode = mode
+    }
     fun setTargetPosition (position: Int) {
         Slide1.targetPosition = position
         Slide2.targetPosition = position

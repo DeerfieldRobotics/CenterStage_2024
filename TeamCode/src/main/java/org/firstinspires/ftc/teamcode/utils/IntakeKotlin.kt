@@ -24,7 +24,7 @@ class IntakeKotlin (hardwareMap: HardwareMap){
     private var outtakeOpen: Double = 0.34 //open position
     private var outtake: Boolean = true
 
-    private var armOut: Double = 0.05
+    private var armOut: Double = 0.15
     private var armIn: Double = 0.46
     private var arm: Boolean = false
 
