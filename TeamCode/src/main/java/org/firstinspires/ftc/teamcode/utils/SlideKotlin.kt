@@ -9,15 +9,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 class SlideKotlin (hardwareMap: HardwareMap){
     private var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
-    var minSlideHeight = -800;
-    var targetSlideHeight = -1000;
-    var minArmTimeIn = 600;
-    var minOuttakeTime = 400;
+    var minSlideHeight = 1000;
+    var targetSlideHeight = 1200;
+    var minArmTimeIn = 700;
+    var minOuttakeTime = 100;
 
 
     init {
-        Slide1.direction = DcMotorSimple.Direction.FORWARD
-        Slide2.direction = DcMotorSimple.Direction.FORWARD
+        Slide1.direction = DcMotorSimple.Direction.REVERSE
+        Slide2.direction = DcMotorSimple.Direction.REVERSE
 
         Slide1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -31,10 +31,10 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.power = s
         Slide2.power = s
     }
-    fun setMode (mode: DcMotor.RunMode) {
-        Slide1.mode = mode
-        Slide2.mode = mode
-    }
+//    fun setMode (mode: DcMotor.RunMode) {
+//        Slide1.mode = mode
+//        Slide2.mode = mode
+//    }
     fun setTargetPosition (position: Int) {
         Slide1.targetPosition = position
         Slide2.targetPosition = position
