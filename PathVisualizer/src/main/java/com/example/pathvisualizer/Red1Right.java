@@ -20,19 +20,22 @@ public class Red1Right {
                 .setDimensions(15,14)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 //.setStartPose(new Pose2d(50, 50))
-                .setConstraints(30, 30, Math.toRadians(180), Math.toRadians(180), 13.5)
+                .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 13.5)
                 .followTrajectorySequence(drive ->
-                                drive.trajectorySequenceBuilder(new Pose2d(63,12, Math.toRadians(180)))
-                                        .forward(30)
-                                        .back(5)
-                                        .setTangent(Math.toRadians(90))
-//                                        .strafeRight(5)
-//
-//                                        .lineToConstantHeading(new Vector2d(33,20))
-//                                        .splineToConstantHeading(new Vector2d(33,20), Math.toRadians(90))
-                                        .splineToLinearHeading(new Pose2d(36,50,Math.toRadians(90)), Math.toRadians(90))
-
-                                        .build()
+                        drive.trajectorySequenceBuilder(new Pose2d(12,-63, Math.toRadians(90)))
+                                .splineToLinearHeading(new Pose2d(7,-28, Math.toRadians(180)), Math.toRadians(90))
+                                .setTangent(Math.toRadians(0))
+                                .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
+                                /*
+                                .back(20)
+                                .turn(Math.toRadians(180))
+                                 */
+                                .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
+                                .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
+                                .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)))
+                                .back(5)
+                                .strafeLeft(10)
+                                .build()
 
 
                 );
