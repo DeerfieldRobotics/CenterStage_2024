@@ -1,7 +1,6 @@
 package com.example.pathvisualizer;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -12,7 +11,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Red_1_left {
+public class Red1Right {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(700);
 
@@ -25,12 +24,13 @@ public class Red_1_left {
                 .followTrajectorySequence(drive ->
                                 drive.trajectorySequenceBuilder(new Pose2d(63,12, Math.toRadians(180)))
                                         .forward(30)
+                                        .back(5)
                                         .setTangent(Math.toRadians(90))
 //                                        .strafeRight(5)
 //
 //                                        .lineToConstantHeading(new Vector2d(33,20))
 //                                        .splineToConstantHeading(new Vector2d(33,20), Math.toRadians(90))
-                                        .splineToLinearHeading(new Pose2d(33,50,Math.toRadians(90)), Math.toRadians(90))
+                                        .splineToLinearHeading(new Pose2d(36,50,Math.toRadians(90)), Math.toRadians(90))
 
                                         .build()
 
