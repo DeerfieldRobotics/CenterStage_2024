@@ -183,17 +183,17 @@ public class MainTeleop extends LinearOpMode {
             else {
                 slide.setTargetPosition(slide.getMinSlideHeight()); //if arm not in, then just chill
                 slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                slide.setPower(1);
+                slide.setPower(-1);
             }
         }
         else { //brings intake up and out
             intake.outtakeToggle(false); //close gate
-            if(((slide.getPosition()[0] + slide.getPosition()[1]) / 2) > slide.getMinSlideHeight() && System.currentTimeMillis() - intake.getTimeSinceOuttake() > slide.getMinOuttakeTime()) { //wait for outtake to close and to get to right height
+            if(((slide.getPosition()[0] + slide.getPosition()[1]) / 2) >= slide.getTargetSlideHeight() && System.currentTimeMillis() - intake.getTimeSinceOuttake() > slide.getMinOuttakeTime()) { //wait for outtake to close and to get to right height
                 slide.setTargetPosition(slide.getTargetSlideHeight()); //if we chilling then go to right slide height
                 slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slide.setPower(1);
             }
-            else if (((slide.getPosition()[0] + slide.getPosition()[1]) / 2) <= slide.getMinSlideHeight()){ //if above minimum height and outtake has closed, then arm out
+            if (((slide.getPosition()[0] + slide.getPosition()[1]) / 2) <= slide.getMinSlideHeight()){ //if above minimum height and outtake has closed, then arm out
                 intake.armToggle(true); //once we clear the minimum height we bring that schlong out
             }
         }

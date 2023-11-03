@@ -9,15 +9,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 class SlideKotlin (hardwareMap: HardwareMap){
     private var Slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var Slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
-    var minSlideHeight = 1000;
-    var targetSlideHeight = 1200;
+    var minSlideHeight = -1000;
+    var targetSlideHeight = -1200;
     var minArmTimeIn = 700;
     var minOuttakeTime = 100;
 
 
     init {
-        Slide1.direction = DcMotorSimple.Direction.REVERSE
-        Slide2.direction = DcMotorSimple.Direction.REVERSE
+        Slide1.direction = DcMotorSimple.Direction.FORWARD
+        Slide2.direction = DcMotorSimple.Direction.FORWARD
 
         Slide1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         Slide2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -26,8 +26,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
         Slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-        Slide1.setCurrentAlert(10.0, CurrentUnit.AMPS)
-        Slide2.setCurrentAlert(10.0, CurrentUnit.AMPS)
+        Slide1.setCurrentAlert(6.0, CurrentUnit.AMPS)
+        Slide2.setCurrentAlert(6.0, CurrentUnit.AMPS)
     }
 
     fun setPower (s: Double) {
@@ -44,7 +44,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     }
     fun bottomOut () {
         setMode(DcMotor.RunMode.RUN_USING_ENCODER)
-        setPower (-1.0)
+        setPower (1.0)
         if(Slide1.isOverCurrent || Slide2.isOverCurrent) {
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
