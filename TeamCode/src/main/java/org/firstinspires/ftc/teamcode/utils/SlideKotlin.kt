@@ -31,10 +31,10 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.power = s
         Slide2.power = s
     }
-//    fun setMode (mode: DcMotor.RunMode) {
-//        Slide1.mode = mode
-//        Slide2.mode = mode
-//    }
+    fun setMode (mode: DcMotor.RunMode) {
+        Slide1.mode = mode
+        Slide2.mode = mode
+    }
     fun setTargetPosition (position: Int) {
         Slide1.targetPosition = position
         Slide2.targetPosition = position
