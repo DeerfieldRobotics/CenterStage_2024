@@ -83,12 +83,11 @@ public class MainTeleop extends LinearOpMode {
             slide();
             intake();
 
-            telemetry.addData("Drivetrain Current", drivetrain.getCurrent());
-            telemetry.addData("Slide Current", slide.getCurrent());
+            telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
+            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("intakeServo", intake.getIntakePos());
             telemetry.addData("outtakeServo", intake.getOuttakePos());
             telemetry.addData("armServo", intake.getArmPos());
-            telemetry.addData("crossToggle", crossToggle);
             telemetry.addData("slide ticks", slide.getPosition()[0]);
 
             telemetry.update();
@@ -179,9 +178,7 @@ public class MainTeleop extends LinearOpMode {
             intake.armToggle(false); //bring arm in
 
             if(System.currentTimeMillis() - intake.getTimeSinceArm() > slide.getMinArmTimeIn()) { //make sure arm is in before sliding down
-                slide.setTargetPosition(0); //go to bottom
-                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                slide.setPower(1);
+                slide.bottomOut(); //slide down and reset encoders
             }
             else {
                 slide.setTargetPosition(slide.getMinSlideHeight()); //if arm not in, then just chill

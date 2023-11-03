@@ -242,6 +242,7 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
             rearLeft.getCurrent(CurrentUnit.AMPS),
             rearRight.getCurrent(CurrentUnit.AMPS)
     )
+    fun getAvgCurrent(): Double = getCurrent().average()
 
     /**
      *  Returns an [Array] containing all of the velocities of all of the motors in the drivetrain in ticks per second. It is returned in the order, front left, front right, rear left, rear right.

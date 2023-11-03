@@ -25,6 +25,9 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         Slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
         Slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        Slide1.setCurrentAlert(10.0, CurrentUnit.AMPS)
+        Slide2.setCurrentAlert(10.0, CurrentUnit.AMPS)
     }
 
     fun setPower (s: Double) {
@@ -39,8 +42,17 @@ class SlideKotlin (hardwareMap: HardwareMap){
         Slide1.targetPosition = position
         Slide2.targetPosition = position
     }
+    fun bottomOut () {
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+        setPower (-1.0)
+        if(Slide1.isOverCurrent || Slide2.isOverCurrent) {
+            setPower(0.0)
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
+        }
+    }
     fun getPosition(): Array<Int> = arrayOf(Slide1.currentPosition, Slide2.currentPosition);
     fun getCurrent(): Array<Double> = arrayOf(Slide1.getCurrent(CurrentUnit.AMPS), Slide2.getCurrent(CurrentUnit.AMPS))
+    fun getAvgCurrent(): Double = getCurrent().average()
     fun getPower(): Array<Double> = arrayOf(Slide1.power, Slide2.power)
     fun getMode(): Array<DcMotor.RunMode> = arrayOf(Slide1.mode, Slide2.mode)
 }
