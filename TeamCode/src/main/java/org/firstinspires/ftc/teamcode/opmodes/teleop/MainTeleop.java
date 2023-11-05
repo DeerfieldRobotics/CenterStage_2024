@@ -149,7 +149,6 @@ public class MainTeleop extends LinearOpMode {
         {
             circleToggle = false;
         }
-/*
 
         //arm code
         if (gamepad2.triangle&&!triangleToggle) {
@@ -160,52 +159,24 @@ public class MainTeleop extends LinearOpMode {
         {
             triangleToggle = false;
         }
-*/
 
 
         if(gamepad2.cross) {
-            intakeProcedure(true);
+            intake.intakeProcedure(true);
         }
         if(gamepad2.square) {
-            intakeProcedure(false);
+            intake.intakeProcedure(false);
         }
     }
 
-
-    private void intakeProcedure(boolean toggle) {
-        if(toggle) { //brings intake in and down
-            intake.outtakeToggle(true); //ensure gate is open
-            intake.armToggle(false); //bring arm in
-
-            if(System.currentTimeMillis() - intake.getTimeSinceArm() > slide.getMinArmTimeIn()) { //make sure arm is in before sliding down
-                slide.bottomOut(); //slide down and reset encoders
-            }
-            else {
-                slide.setTargetPosition(slide.getMinSlideHeight()); //if arm not in, then just chill
-                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                slide.setPower(-1);
-            }
-        }
-        else { //brings intake up and out
-            intake.outtakeToggle(false); //close gate
-            if(((slide.getPosition()[0] + slide.getPosition()[1]) / 2) >= slide.getTargetSlideHeight() && System.currentTimeMillis() - intake.getTimeSinceOuttake() > slide.getMinOuttakeTime()) { //wait for outtake to close and to get to right height
-                slide.setTargetPosition(slide.getTargetSlideHeight()); //if we chilling then go to right slide height
-                slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                slide.setPower(1);
-            }
-            if (((slide.getPosition()[0] + slide.getPosition()[1]) / 2) <= slide.getMinSlideHeight()){ //if above minimum height and outtake has closed, then arm out
-                intake.armToggle(true); //once we clear the minimum height we bring that schlong out
-            }
-        }
-    }
 
     public void initialize() {
 //        imu = hardwareMap.get(IMU.class, "imu");
 //        imu.initialize(parameters);
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
+        intake = new IntakeKotlin(hardwareMap, slide);
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
