@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.testers;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Disabled
 @TeleOp(name = "servotester")
 public class ServoTest extends LinearOpMode {
     private Servo s;
@@ -16,6 +16,7 @@ public class ServoTest extends LinearOpMode {
     private boolean dpad_down = false;
 
     private double pos = 0.45;
+
 
     @Override
     public void runOpMode() throws InterruptedException {

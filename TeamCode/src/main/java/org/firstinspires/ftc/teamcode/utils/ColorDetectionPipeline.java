@@ -1,110 +1,125 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import org.opencv.core.Core;
+
+import androidx.annotation.NonNull;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
-public class ColorDetectionPipeline extends OpenCvPipeline{
-    private int thresholdRed = 25;
-    private int thresholdBlue = 25;
-    private Scalar low1 = new Scalar(0, 150, 150);
-    private Scalar low2 = new Scalar(5, 255, 255);
-    private Scalar high1 = new Scalar(245, 150, 150);
-    private Scalar high2 = new Scalar(255, 255, 255);
 
+public class ColorDetectionPipeline extends OpenCvPipeline
+{
+    private final int threshold = 25;
+    private int blue[] = new int[3]; //array with blue pixels, 0 is left, 1 is center, 2 is right
+    private int red[] = new int [3]; //array with red pixels, 0 is left, 1 is center, 2 is right
+    private int startY = 120;
+    private int endY = 240;
+    private int startX = 0;
+    private int endX = 320;
+    private int x1 = 100; //first x division
+    private int x2 = 220; //second x division
 
-    private int maxWidth, min, max, left, right, maxY;
+    public enum StartingPosition
+    {
+        LEFT,
+        CENTER,
+        RIGHT,
+        NONE
+    }
 
-    Mat workingMatrix = new Mat();
-    Mat lowMat = new Mat();
-    Mat highMat = new Mat();
-    //points bounding the regions of the screen that define the left, center, and right sections
-    Point regionLeftPointA = new Point(
-            1,
-            0);
-    Point regionLeftPointB = new Point(
-            320,
-            480);
-    Point regionCenterPointA = new Point(
-            160,
-            0);
-    Point regionCenterPointB = new Point(
-            480,
-            480);
-    Point regionRightPointA = new Point(
-            320,
-            0);
-    Point regionRightPointB = new Point(
-            640,
-            480);
+    public enum Color
+    {
+        RED,
+        BLUE,
+        NONE
+    }
 
-    Mat regionLeft, regionCenter, regionRight = new Mat();
-    String propPosition = "";
-    int totalLeftRed, totalRightRed, totalCenterRed, totalLeftBlue, totalRightBlue, totalCenterBlue;
-    int[][] totalRedBlue = {{totalLeftRed, totalCenterRed, totalRightRed}, {totalLeftBlue, totalCenterBlue, totalRightBlue}};
+    private StartingPosition position = StartingPosition.NONE;
+    private Color color = Color.NONE;
+    Point leftA = new Point(
+            startX,
+            startY);
+    Point leftB = new Point(
+            x1,
+            endY);
+    Point centerA = new Point(
+            x1+1,
+            startY);
+    Point centerB = new Point(
+            x2,
+            endY);
+    Point rightA = new Point(
+            x2+1,
+            startY);
+    Point rightB = new Point(
+            endX,
+            endY);
+
     @Override
-    public Mat processFrame(Mat input) {
-        input.copyTo(workingMatrix);
-
-        if(workingMatrix.empty()) {
-            return input;
-        }
-        Imgproc.cvtColor(workingMatrix, workingMatrix, Imgproc.COLOR_RGB2HSV); //
-
-        Core.inRange(workingMatrix, low1, low2, lowMat);
-        Core.inRange(workingMatrix, high1, high2, highMat);
-
-        Core.add(lowMat, highMat, workingMatrix);
-        //number of threshold color pixels in left, center, and right portions of the screen
-        int countLeftRed = 0, countCenterRed = 0, countRightRed = 0, countLeftBlue = 0, countCenterBlue = 0, countRightBlue = 0;
-        //checks color of each pixel of the matrix (image)
-        for(int i = 0; i < 480; i++) {
-            for (int j = 0; j < 640; j++) {
-                if (input.get(i, j)[0] > (input.get(i, j)[1] + thresholdRed) && input.get(i, j)[0] > (input.get(i, j)[2] + thresholdRed)) {
-                    if (j < 213) {
-                        countLeftRed++;
-                    } else if (j < 427) {
-                        countCenterRed++;
-                    } else {
-                        countRightRed++;
-                    }
+    public Mat processFrame(Mat input)
+    {
+        for(int i = startY; i < endY; i++) {
+            for(int j = startX; j < endX; j++) {
+                if(input.get(i, j)[0] > (input.get(i, j)[1] + threshold) && input.get(i, j)[0] > (input.get(i, j)[2] + threshold)) {
+                    if(j < x1)
+                        red[0]++;
+                    else if(j < x2)
+                        red[1]++;
+                    else
+                        red[2]++;
                 }
-                if (input.get(i, j)[2] > (input.get(i, j)[1] + thresholdBlue) && input.get(i, j)[2] > (input.get(i, j)[0] + thresholdBlue)) {
-                    if (j < 213) {
-                        countLeftBlue++;
-                    } else if (j < 427) {
-                        countCenterBlue++;
-                    } else {
-                        countRightBlue++;
-                    }
+                else if(input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold)) {
+                    if(j < x1)
+                        blue[0]++;
+                    else if(j < x2)
+                        blue[1]++;
+                    else
+                        blue[2]++;
                 }
             }
         }
-        int maxOneTwoRed = Math.max(countRightRed, countCenterRed);
-        int maxRed = Math.max(maxOneTwoRed, countLeftRed);
-        int maxOneTwoBlue = Math.max(countRightRed, countCenterRed);
-        int maxBlue = Math.max(maxOneTwoBlue, countLeftRed);
-        //add something here this is unfinished
-        if(maxRed == countLeftRed || maxBlue == countLeftBlue)
-        {
-            propPosition = "left";
-        } else if(maxRed == countCenterRed || maxBlue == countCenterBlue)
-        {
-            propPosition = "center";
-        } else
-        {
-            propPosition = "right";
+
+        int maxRed = Math.max(red[0], Math.max(red[1], red[2]));
+        int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
+
+        if (maxRed>maxBlue) {
+            color = Color.RED;
+            if(maxRed == red[0])
+                position = StartingPosition.LEFT;
+            else if(maxRed == red[1])
+                position = StartingPosition.CENTER;
+            else
+                position = StartingPosition.RIGHT;
         }
+        else {
+            color = Color.BLUE;
+            if(maxBlue == blue[0])
+                position = StartingPosition.LEFT;
+            else if(maxBlue == blue[1])
+                position = StartingPosition.CENTER;
+            else
+                position = StartingPosition.RIGHT;
+        }
+
+        Imgproc.rectangle(input, leftA, leftB, new Scalar(0, 0, 255), 1);
+        Imgproc.rectangle(input, centerA, centerB, new Scalar(0, 0, 255), 1);
+        Imgproc.rectangle(input, rightA, rightB, new Scalar(0, 0, 255), 1);
 
         return input;
     }
-    public int[][] getTotalRedBlue(){
-        return totalRedBlue;
-    }
-    public String getPropPosition(){
-        return propPosition;
-    }
 
+    public StartingPosition getPosition()
+    {
+        return position;
+    }
+    public Color getColor() {
+        return color;
+    }
+    @NonNull
+    public String toString() {
+        return "Position: " + (position==StartingPosition.LEFT ? "LEFT" : (position == StartingPosition.RIGHT ? "RIGHT" : (position == StartingPosition.CENTER ? "CENTER" : "NONE")))
+                + " Color: " + (color==Color.RED ? "RED" : (color == Color.BLUE ? "BLUE" : "NONE"));
+    }
 }

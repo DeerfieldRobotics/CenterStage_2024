@@ -79,7 +79,7 @@ public class CenteredSteering extends LinearOpMode {
         imu.initialize(parameters);
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap);
+        intake = new IntakeKotlin(hardwareMap, slide);
         slide = new SlideKotlin(hardwareMap);
     }
 

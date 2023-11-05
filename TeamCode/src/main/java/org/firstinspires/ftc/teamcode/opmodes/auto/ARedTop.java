@@ -1,37 +1,39 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
-import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipelineJames;
+import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
+import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name = "ARedTop")
 public class ARedTop extends OpMode {
-    private ColorDetectionPipelineJames colorDetection;
+    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline();
     private PIDF pidf;
     private SampleMecanumDrive drive;
-
+    private IntakeKotlin intake;
+    private SlideKotlin slide;
     private TrajectorySequenceBuilder path;
     Pose2d start = new Pose2d(12,-63, Math.toRadians(90));
 
     private OpenCvCamera frontCamera;
 
-    private int purplePixelPath;
+    private ColorDetectionPipeline.StartingPosition purplePixelPath;
 
     @Override
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
+        slide = new SlideKotlin(hardwareMap);
+        intake = new IntakeKotlin(hardwareMap, slide);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -42,7 +44,6 @@ public class ARedTop extends OpMode {
             public void onOpened() {
                 frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
-
             @Override
             public void onError(int errorCode) {}
         });
@@ -52,14 +53,9 @@ public class ARedTop extends OpMode {
 
     @Override
     public void init_loop() {
-        String p = colorDetection.getPosition();
+        purplePixelPath = colorDetection.getPosition();
 
-        if (p == "RIGHT") purplePixelPath = 1;
-        else if (p == "LEFT") purplePixelPath = -1;
-        else purplePixelPath = 0;
-
-        telemetry.addData("Position", colorDetection.getPosition());
-        telemetry.addData("Color", colorDetection.getColor());
+        telemetry.addLine(colorDetection.toString());
         telemetry.update();
     }
 
@@ -67,10 +63,10 @@ public class ARedTop extends OpMode {
     public void start() {
         // Temporary: move forward 3
 
-        if (purplePixelPath == -1) {
+        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
             // Left
 
-        } else if (purplePixelPath == 0) {
+        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.CENTER) {
             // Center
             path.forward(32)
                     .back(5)
@@ -84,7 +80,7 @@ public class ARedTop extends OpMode {
                     .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
                     .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)));
 
-        } else if (purplePixelPath == 1) {
+        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.RIGHT) {
             // Right
         } else {
 
@@ -96,7 +92,6 @@ public class ARedTop extends OpMode {
 
         drive.followTrajectorySequenceAsync(path.build());
     }
-
     @Override
     public void loop() {}
 }
