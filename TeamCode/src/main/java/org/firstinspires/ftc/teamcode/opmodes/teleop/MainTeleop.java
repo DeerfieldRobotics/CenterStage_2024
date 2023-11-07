@@ -38,7 +38,7 @@ public class MainTeleop extends LinearOpMode {
     long timeSinceOuttake = 0;
 
     //servo position values
-    private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
+//    private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
     private int servoCounter = 2;
     double currentOuttakePos = 1.0;
     double currentArmPos = 1.0;
@@ -147,6 +147,7 @@ public class MainTeleop extends LinearOpMode {
         {
             rightBumperToggle = false;
             servoCounter++;
+            intake.intakeServo(servoCounter);
         }
         if (servoCounter != 0&&gamepad2.left_bumper)
         {
@@ -156,8 +157,8 @@ public class MainTeleop extends LinearOpMode {
         {
             leftBumperToggle = false;
             servoCounter--;
+            intake.intakeServo(servoCounter);
         }
-        intake.intakeServo(servoCounter);
 
         //Outtake Code
 

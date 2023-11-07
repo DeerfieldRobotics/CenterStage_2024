@@ -12,13 +12,13 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var intakeStart: Double = 0.4
-    private var intakePositions: Array<Double> = arrayOf(0.0,0.15,0.25,0.3,0.35, .4) //array of positions for the intake servo to go to
+    private var intakePositions: Array<Double> = arrayOf(0.0,0.15,0.25,0.3,0.35,.4) //array of positions for the intake servo to go to
 
     private var outtakeClosed: Double = 0.0 //closed position
     private var outtakeOpen: Double = 0.34 //open position
     private var outtake: Boolean = true
 
-    private var armOut: Double = 0.2
+    private var armOut: Double = 0.22
     private var armIn: Double = 0.46
     private var arm: Boolean = false
 

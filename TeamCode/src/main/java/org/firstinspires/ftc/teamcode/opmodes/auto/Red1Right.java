@@ -15,8 +15,8 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "ARedTop")
-public class ARedTop extends OpMode {
+@Autonomous(name = "ARedTo")
+public class Red1Right extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline();
     private PIDF pidf;
     private SampleMecanumDrive drive;
@@ -63,40 +63,52 @@ public class ARedTop extends OpMode {
     public void start() {
         // Temporary: move forward 3
 
-        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
-            // Left
+        path.splineToLinearHeading(new Pose2d(10,-40, Math.toRadians(135)), Math.toRadians(135)) //drop off purple
+                //TODO: OUTTAKE PURPLE HERE
+                .setTangent(Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(180))) //drop off yellow
+                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
+                /*
+                .back(20)
+                .turn(Math.toRadians(180))
+                 */
+//                                .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180))) //Go back to stack
+                //TODO: ADD INTAKE HERE
+                .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(180))) //drop off pixel
+                //TODO: OUTTAKE PIXEL HERE
+                .forward(5)
+                .strafeRight(10);
 
-        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.CENTER) {
-            // Center
-            path.forward(32)
-                    .waitSeconds(1)
-                    .back(5)
-                    .setTangent(Math.toRadians(0))
-                    .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
-                    .waitSeconds(2)
-                    /*
-                    .back(20)
-                    .turn(Math.toRadians(180))
-                     */
-                    .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
-                    .waitSeconds(2)
-                    .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
-                    .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)));
-
-        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.RIGHT) {
-            // Right
-        } else {
-
-        }
-
-        // Park
-        path.back(5)
-                .strafeLeft(10);
+//        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
+//            // Left
+//
+//        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.CENTER) {
+//            // Center
+//            path.forward(32)
+//                    .back(5)
+//                    .setTangent(Math.toRadians(0))
+//                    .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
+//                    /*
+//                    .back(20)
+//                    .turn(Math.toRadians(180))
+//                     */
+//                    .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
+//                    .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
+//                    .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)));
+//
+//        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.RIGHT) {
+//            // Right
+//        } else {
+//
+//        }
+//
+//        // Park
+//        path.back(5)
+//                .strafeLeft(10);
 
         drive.followTrajectorySequenceAsync(path.build());
     }
     @Override
-    public void loop() {
-        drive.update();
-    }
+    public void loop() {}
 }
