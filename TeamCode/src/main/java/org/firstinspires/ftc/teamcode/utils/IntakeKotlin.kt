@@ -99,7 +99,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
             }
         } else { //brings intake up and out
             outtakeToggle(false) //close gate
-            if (slide.getPosition().average() >= slide.minSlideHeight && slide.getTargetPosition()[0] != slide.minSlideHeight && System.currentTimeMillis() - timeSinceOuttake > minOuttakeTime) { //wait for outtake to close and to get to right height
+            if (slide.getPosition().average() > slide.minSlideHeight && slide.getTargetPosition()[0] != slide.minSlideHeight && slide.getMode()[0] != DcMotor.RunMode.RUN_TO_POSITION && System.currentTimeMillis() - timeSinceOuttake > minOuttakeTime) { //wait for outtake to close and to get to right height
                 slide.setTargetPosition(slide.minSlideHeight) //if we chilling then go to right slide height
                 slide.setMode(DcMotor.RunMode.RUN_TO_POSITION)
                 slide.setPower(1.0)
