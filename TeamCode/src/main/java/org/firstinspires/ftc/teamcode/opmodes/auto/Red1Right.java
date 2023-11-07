@@ -23,7 +23,7 @@ public class Red1Right extends OpMode {
     private IntakeKotlin intake;
     private SlideKotlin slide;
     private TrajectorySequenceBuilder path;
-    Pose2d start = new Pose2d(12,-63, Math.toRadians(90));
+    Pose2d start;
 
     private OpenCvCamera frontCamera;
 
@@ -47,7 +47,7 @@ public class Red1Right extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
-
+        start = new Pose2d(12,-63, Math.toRadians(90));
         path = drive.trajectorySequenceBuilder(start);
     }
 
