@@ -12,7 +12,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var intakeStart: Double = 0.4
-    private var intakePositions: Array<Double> = arrayOf(0.0,0.15,0.25,0.3,0.35,.4) //array of positions for the intake servo to go to
+    private var intakePositions: Array<Double> = arrayOf(0.0,0.10,0.20,0.3,0.4) //array of positions for the intake servo to go to
 
     private var outtakeClosed: Double = 0.0 //closed position
     private var outtakeOpen: Double = 0.34 //open position
@@ -24,7 +24,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
 
     private var timeSinceArm: Long = 0
     private var timeSinceOuttake: Long = 0
-    private var minArmTimeIn = 700
+    private var minArmTimeIn = 200 //was 700
     private var minOuttakeTime = 100
 
     init {
@@ -99,16 +99,18 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
             }
         } else { //brings intake up and out
             outtakeToggle(false) //close gate
-            if (slide.getPosition().average() > slide.minSlideHeight && slide.getTargetPosition()[0] != slide.minSlideHeight && slide.getMode()[0] != DcMotor.RunMode.RUN_TO_POSITION && System.currentTimeMillis() - timeSinceOuttake > minOuttakeTime) { //wait for outtake to close and to get to right height
+            if (slide.getPosition().average() > slide.minSlideHeight && System.currentTimeMillis() - timeSinceOuttake > minOuttakeTime) { //wait for outtake to close and to get to right height
                 slide.setTargetPosition(slide.minSlideHeight) //if we chilling then go to right slide height
                 slide.setMode(DcMotor.RunMode.RUN_TO_POSITION)
                 slide.setPower(1.0)
             }
-            if (slide.getPosition().average() <= slide.minSlideHeight) { //if above minimum height and outtake has closed, then arm out
+            if (slide.getPosition().average() <= slide.minSlideHeight+100) { //if above minimum height and outtake has closed, then arm out
                 armToggle(true) //once we clear the minimum height we bring that schlong out
             }
         }
     }
+
+
 
     fun intakeProcedure (toggle: Boolean, target: Int) {
         if (toggle) { //brings intake in and down

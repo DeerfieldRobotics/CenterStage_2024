@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
@@ -49,6 +50,9 @@ public class MainTeleop extends LinearOpMode {
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
     private boolean leftBumperToggle = false;
+
+    private boolean runToPos = false;
+    private ElapsedTime runtime = new ElapsedTime();
 
     private IMU imu;
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -138,9 +142,9 @@ public class MainTeleop extends LinearOpMode {
         //Set intake values and clamp them between 0 and 1
         double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
-        intake.intake(leftTrigger-rightTrigger);
+        intake.intake(rightTrigger-leftTrigger);
 
-        if (servoCounter != 5&&gamepad2.right_bumper) { //Changes intake servo values on release
+        if (servoCounter != 4&&gamepad2.right_bumper) { //Changes intake servo values on release
             rightBumperToggle = true;
         }
         if (!gamepad2.right_bumper & rightBumperToggle)
@@ -177,17 +181,19 @@ public class MainTeleop extends LinearOpMode {
             triangleToggle = true;
             intake.armToggle();
         }
-        if (!gamepad2.triangle)
+        if (!gamepad2.triangle && triangleToggle)
         {
             triangleToggle = false;
         }
 
 
-        if(gamepad2.cross) {
-            intake.intakeProcedure(true);
-        }
-        if(gamepad2.square) {
+        if(gamepad2.cross){
             intake.intakeProcedure(false);
+        }
+
+
+        if(gamepad2.square) {
+            intake.intakeProcedure(true);
         }
     }
 
@@ -202,6 +208,7 @@ public class MainTeleop extends LinearOpMode {
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
 
 }

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 
-@Disabled
+
 @TeleOp(name="SlideTester", group="TeleOp")
 public class SlideTester extends LinearOpMode {
 
