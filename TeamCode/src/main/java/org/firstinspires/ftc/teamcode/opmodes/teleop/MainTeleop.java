@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
@@ -49,6 +50,7 @@ public class MainTeleop extends LinearOpMode {
     private boolean rightBumperToggle = false;
     private boolean leftBumperToggle = false;
 
+    private IMU imu;
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
@@ -64,6 +66,25 @@ public class MainTeleop extends LinearOpMode {
         drivetrain.move(forward, strafe, turn);
     }
 
+    private void driveCentered() {
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double rx = gamepad1.right_stick_x;
+
+        if (gamepad1.options) { imu.resetYaw(); }
+
+        double h = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        x = x * Math.cos(-h) - y * Math.sin(-h);
+        y = x * Math.sin(-h) + y * Math.cos(-h);
+
+        double flp = y + x + rx;
+        double blp = y - x + rx;
+        double frp = y - x - rx;
+        double brp = y + x - rx;
+
+        drivetrain.setMotorPower(flp, frp, blp, brp);
+    }
 
     @Override
     public void runOpMode() {
@@ -76,7 +97,7 @@ public class MainTeleop extends LinearOpMode {
 //                imu.resetYaw();
 //            }
 
-            //driveSetCentered();
+            //driveCentered();
             driveNormal();
             telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
@@ -171,8 +192,8 @@ public class MainTeleop extends LinearOpMode {
 
 
     public void initialize() {
-//        imu = hardwareMap.get(IMU.class, "imu");
-//        imu.initialize(parameters);
+        imu = hardwareMap.get(IMU.class, "imu");
+        imu.initialize(parameters);
 
         drivetrain = new DrivetrainKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
