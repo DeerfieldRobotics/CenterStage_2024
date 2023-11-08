@@ -25,6 +25,9 @@ public class HeadingTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            if(gamepad1.ps) { imu.resetYaw(); }
+
             double h = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             telemetry.addData("Heading (deg)", Math.toDegrees(h));

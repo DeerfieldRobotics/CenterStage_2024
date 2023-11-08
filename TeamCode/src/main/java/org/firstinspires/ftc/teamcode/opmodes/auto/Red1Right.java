@@ -26,6 +26,7 @@ public class Red1Right extends OpMode {
     private SlideKotlin slide;
     private TrajectorySequence path;
     Pose2d start;
+    private int mult = 0;
 
     private OpenCvCamera frontCamera;
 
@@ -56,6 +57,11 @@ public class Red1Right extends OpMode {
     public void init_loop() {
         purplePixelPath = colorDetection.getPosition();
 
+
+        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) mult =  0;
+        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1;
+        else mult = -1;
+
         telemetry.addLine(colorDetection.toString());
         telemetry.update();
     }
@@ -66,17 +72,17 @@ public class Red1Right extends OpMode {
         drive.setPoseEstimate(start);
 
         path = drive.trajectorySequenceBuilder(start)
-                .splineToLinearHeading(new Pose2d(8,-40, Math.toRadians(135)), Math.toRadians(135)) //drop off purple
+                .splineToLinearHeading(new Pose2d(12-mult*4,-34, Math.toRadians(180-45*mult)), Math.toRadians(180-45*mult)) //drop off purple
                 //TODO: OUTTAKE PURPLE HERE
                 .addTemporalMarker(2,()->{
                     intake.intake(0);
                 })
                 .setTangent(Math.toRadians(0))
-                .lineToLinearHeading(new Pose2d(54,-35,Math.toRadians(180))) //drop off yellow
+                .lineToLinearHeading(new Pose2d(54,-34+mult * 7,Math.toRadians(180))) //drop off yellow
                 .waitSeconds(2)
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
                 .addTemporalMarker(3, ()->{
-                    slide.setTargetPosition(-1500);
+                    slide.setTargetPosition(-1050);
                     //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
 
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -88,16 +94,19 @@ public class Red1Right extends OpMode {
                 })
 
                 .addTemporalMarker(3.75, ()->{
-                    intake.outtakeToggle(true);
+                    intake.getOuttakeServo().setPosition(0.34);
                 })
                 .addTemporalMarker(4.0, ()->{
                     intake.armToggle();
 //                    slide.bottomOut();
 //                    slide.setPower(-1);
                 })
-                .addTemporalMarker(5.0,()->{
-                    slide.bottomOut();
-                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                .addTemporalMarker(4.5,()->{
+//                    intake.getOuttakeServo().setPosition(0.34);
+                    slide.setTargetPosition(0);
+                    slide.setPower(-1);
+
+//                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
                 /*
@@ -105,11 +114,42 @@ public class Red1Right extends OpMode {
                 .turn(Math.toRadians(180))
                  */
 //                                .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
+                .strafeRight(-2*mult+0.01)
                 .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180))) //Go back to stack
+                .addTemporalMarker(7,()->{
+                    intake.intake(1);
+                })
+                .addTemporalMarker(9,()->{
+                    intake.intake(0);
+                })
                 //TODO: ADD INTAKE HERE
                 .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(180))) //drop off pixel
                 //TODO: OUTTAKE PIXEL HERE
                 .forward(5)
+                .addTemporalMarker(13, ()->{
+                    intake.getOuttakeServo().setPosition(0);
+                    slide.setTargetPosition(-1150);
+                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
+
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(1);
+
+                })
+                .addTemporalMarker(13.5, ()->{
+                    intake.armToggle();
+                })
+//                .addTemporalMarker(13.75, ()->{
+//                    intake.getOuttakeServo().setPosition(0.34);
+//                })
+//
+//                .addTemporalMarker(14.5,()->{
+////                    intake.getOuttakeServo().setPosition(0.34);
+//                    slide.setTargetPosition(0);
+//                    slide.setPower(-1);
+//
+////                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+////                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                })
                 .strafeRight(10)
                 .build();
 
