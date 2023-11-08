@@ -10,7 +10,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     private var slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
     var minSlideHeight = -1000
-    var targetSlideHeight = -1200
+    var slideTolerance = 100
     var bottomOut = false
 
     init {
@@ -43,9 +43,11 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide2.targetPosition = position
     }
     fun bottomOut () {
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER)
-        setPower (1.0)
-        if(!bottomOut && slide1.isOverCurrent || slide2.isOverCurrent) {
+        if(!bottomOut) {
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+            setPower(1.0)
+        }
+        if (slide1.isOverCurrent || slide2.isOverCurrent) {
             bottomOut = true
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)

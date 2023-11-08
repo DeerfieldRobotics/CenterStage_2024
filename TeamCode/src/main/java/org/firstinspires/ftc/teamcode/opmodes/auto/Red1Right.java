@@ -77,6 +77,7 @@ public class Red1Right extends OpMode {
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
                 .addTemporalMarker(3, ()->{
                     slide.setTargetPosition(-1500);
+                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
 
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(1);
@@ -92,12 +93,12 @@ public class Red1Right extends OpMode {
                 .addTemporalMarker(4.0, ()->{
                     intake.armToggle();
 //                    slide.bottomOut();
-                    slide.setPower(-1);
+//                    slide.setPower(-1);
                 })
                 .addTemporalMarker(5.0,()->{
-                    slide.setPower(0);
+                    slide.bottomOut();
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
                 /*
                 .back(20)

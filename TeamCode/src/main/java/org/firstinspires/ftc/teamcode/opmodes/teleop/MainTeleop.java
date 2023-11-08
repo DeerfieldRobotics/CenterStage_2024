@@ -144,55 +144,47 @@ public class MainTeleop extends LinearOpMode {
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
         intake.intake(rightTrigger-leftTrigger);
 
-        if (servoCounter != 4&&gamepad2.right_bumper) { //Changes intake servo values on release
+        if (servoCounter != 4&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
             rightBumperToggle = true;
-        }
-        if (!gamepad2.right_bumper & rightBumperToggle)
-        {
-            rightBumperToggle = false;
             servoCounter++;
             intake.intakeServo(servoCounter);
         }
-        if (servoCounter != 0&&gamepad2.left_bumper)
-        {
-            leftBumperToggle = true;
+        if (!gamepad2.right_bumper) {
+            rightBumperToggle = false;
         }
-        if (!gamepad2.left_bumper & leftBumperToggle)
-        {
-            leftBumperToggle = false;
+        if (servoCounter != 0&&gamepad2.left_bumper && !leftBumperToggle) {
+            leftBumperToggle = true;
             servoCounter--;
             intake.intakeServo(servoCounter);
+        }
+        if (!gamepad2.left_bumper) {
+            leftBumperToggle = false;
         }
 
         //Outtake Code
 
 
-        if (gamepad2.circle&&!circleToggle) {
+        if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             circleToggle = true;
             intake.outtakeToggle();
         }
-        if (!gamepad2.circle)
-        {
+        if (!gamepad2.circle) {
             circleToggle = false;
         }
 
         //arm code
-        if (gamepad2.triangle&&!triangleToggle) {
+        if (gamepad2.triangle&&!triangleToggle) { // on triangle press, arm toggles
             triangleToggle = true;
             intake.armToggle();
         }
-        if (!gamepad2.triangle && triangleToggle)
-        {
+        if (!gamepad2.triangle) {
             triangleToggle = false;
         }
 
-
-        if(gamepad2.cross){
+        if(gamepad2.cross) { //brings intake shit out
             intake.intakeProcedure(false);
         }
-
-
-        if(gamepad2.square) {
+        if(gamepad2.square) { //brings intake shit in
             intake.intakeProcedure(true);
         }
     }
