@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 
 
-@TeleOp(name="SlideTester", group="TeleOp")
+@TeleOp(name="SlideTester", group="b")
 public class SlideTester extends LinearOpMode {
 
     private SlideKotlin slide;

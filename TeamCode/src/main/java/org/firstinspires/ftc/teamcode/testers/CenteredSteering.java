@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
  */
 
 @TeleOp(name="Centric Steering", group="TeleOp")
+@Disabled
 public class CenteredSteering extends LinearOpMode {
     private IMU imu;
     private DrivetrainKotlin drivetrain;

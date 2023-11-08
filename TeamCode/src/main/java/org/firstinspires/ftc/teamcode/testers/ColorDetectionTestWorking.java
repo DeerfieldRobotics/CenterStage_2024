@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.testers;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -11,6 +12,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
 @Autonomous(name = "ColorDetectionTestWorking")
+@Disabled
 public class ColorDetectionTestWorking extends LinearOpMode {
     //OpenCvCamera frontCamera;
     private OpenCvCamera frontCamera;

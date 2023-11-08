@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
-@TeleOp(name = "Main Teleop")
+@TeleOp(name = "Main Teleop", group = "a")
 public class MainTeleop extends LinearOpMode {
     private DrivetrainKotlin drivetrain;
     private IntakeKotlin intake;
@@ -57,8 +57,8 @@ public class MainTeleop extends LinearOpMode {
     private IMU imu;
     // TODO fix parameters for c-hub placement
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-            RevHubOrientationOnRobot.LogoFacingDirection.UP,
-            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+            RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+            RevHubOrientationOnRobot.UsbFacingDirection.UP
     ));
 
     private void driveNormal () {
@@ -80,7 +80,7 @@ public class MainTeleop extends LinearOpMode {
 
         double h = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-        telemetry.addData("IMU Heading", h);
+        telemetry.addData("IMU Heading", Math.toDegrees(h));
 
         x = x * Math.cos(-h) - y * Math.sin(-h);
         y = x * Math.sin(-h) + y * Math.cos(-h);
@@ -104,8 +104,8 @@ public class MainTeleop extends LinearOpMode {
 //                imu.resetYaw();
 //            }
 
-            //driveCentered();
-            driveNormal();
+            driveCentered();
+            //driveNormal();
             telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();
