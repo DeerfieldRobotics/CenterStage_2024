@@ -182,10 +182,10 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.cross) { //brings intake shit out
-            intake.intakeProcedure(false);
+            intake.intakeProcedure(false, slide.getMinSlideHeight());
         }
         if(gamepad2.square) { //brings intake shit in
-            intake.intakeProcedure(true);
+            intake.intakeProcedure(true, slide.getMinSlideHeight());
         }
     }
 
