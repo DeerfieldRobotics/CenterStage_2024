@@ -55,6 +55,7 @@ public class MainTeleop extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     private IMU imu;
+    // TODO fix parameters for c-hub placement
     private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
@@ -78,6 +79,8 @@ public class MainTeleop extends LinearOpMode {
         if (gamepad1.options) { imu.resetYaw(); }
 
         double h = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        telemetry.addData("IMU Heading", h);
 
         x = x * Math.cos(-h) - y * Math.sin(-h);
         y = x * Math.sin(-h) + y * Math.cos(-h);
