@@ -20,6 +20,21 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     private int endX = 320;
     private int x1 = 100; //first x division
     private int x2 = 220; //second x division
+    private String color;
+    private StartingPosition position;
+
+    public ColorDetectionPipeline()
+    {
+        color = "NONE";
+        position = StartingPosition.NONE;
+    }
+
+    public ColorDetectionPipeline(String color1)
+    {
+        position = StartingPosition.NONE;
+        color = color1;
+    }
+
 
     public enum StartingPosition
     {
@@ -29,15 +44,14 @@ public class ColorDetectionPipeline extends OpenCvPipeline
         NONE
     }
 
-    public enum Color
-    {
-        RED,
-        BLUE,
-        NONE
-    }
+//    public enum Color
+//    {
+//        RED,
+//        BLUE,
+//        NONE
+//    }
 
-    private StartingPosition position = StartingPosition.NONE;
-    private Color color = Color.NONE;
+
     Point leftA = new Point(
             startX,
             startY);
@@ -62,7 +76,7 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     {
         for(int i = startY; i < endY; i++) {
             for(int j = startX; j < endX; j++) {
-                if(input.get(i, j)[0] > (input.get(i, j)[1] + threshold) && input.get(i, j)[0] > (input.get(i, j)[2] + threshold)) {
+                if(color.equals("RED") && (input.get(i, j)[0] > (input.get(i, j)[1] + threshold) && input.get(i, j)[0] > (input.get(i, j)[2] + threshold))) {
                     if(j < x1)
                         red[0]++;
                     else if(j < x2)
@@ -70,7 +84,7 @@ public class ColorDetectionPipeline extends OpenCvPipeline
                     else
                         red[2]++;
                 }
-                else if(input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold)) {
+                else if(color.equals("BLUE") && (input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold))) {
                     if(j < x1)
                         blue[0]++;
                     else if(j < x2)
@@ -85,7 +99,6 @@ public class ColorDetectionPipeline extends OpenCvPipeline
         int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
 
         if (maxRed>maxBlue) {
-            color = Color.RED;
             if(maxRed == red[0])
                 position = StartingPosition.LEFT;
             else if(maxRed == red[1])
@@ -94,7 +107,6 @@ public class ColorDetectionPipeline extends OpenCvPipeline
                 position = StartingPosition.RIGHT;
         }
         else {
-            color = Color.BLUE;
             if(maxBlue == blue[0])
                 position = StartingPosition.LEFT;
             else if(maxBlue == blue[1])
@@ -114,12 +126,12 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     {
         return position;
     }
-    public Color getColor() {
-        return color;
-    }
+//    public Color getColor() {
+//        return color;
+//    }
     @NonNull
     public String toString() {
         return "Position: " + (position==StartingPosition.LEFT ? "LEFT" : (position == StartingPosition.RIGHT ? "RIGHT" : (position == StartingPosition.CENTER ? "CENTER" : "NONE")))
-                + " Color: " + (color==Color.RED ? "RED" : (color == Color.BLUE ? "BLUE" : "NONE"));
+                + " Color: " + color;
     }
 }

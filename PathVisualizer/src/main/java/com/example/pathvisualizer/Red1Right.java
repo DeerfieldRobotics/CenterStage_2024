@@ -1,6 +1,7 @@
 package com.example.pathvisualizer;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
@@ -22,21 +23,14 @@ public class Red1Right {
                 //.setStartPose(new Pose2d(50, 50))
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 13.5)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(12,-63, Math.toRadians(90))) //initial position
-                                .forward(32)
-                                .waitSeconds(1)
-                                .back(5)
-                                .setTangent(Math.toRadians(0))
-                                .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
-                                .waitSeconds(2)
-                                /*
-                                .back(20)
-                                .turn(Math.toRadians(180))
-                                 */
-                                .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
-                                .waitSeconds(2)
-                                .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
-                                .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)))
+                        drive.trajectorySequenceBuilder(new Pose2d(-45,-63, Math.toRadians(90))) //initial position
+                                .splineToLinearHeading(new Pose2d(-35,-37, Math.toRadians(90)), Math.toRadians(90)) //drop off purple
+                                //TODO: OUTTAKE PURPLE HERE
+
+                                .setTangent(Math.toRadians(270))
+                                .splineToSplineHeading(new Pose2d(-54,-55, Math.toRadians(180)), Math.toRadians(180))
+                                .lineToLinearHeading(new Pose2d(-60,-6, Math.toRadians(180)))
+
 
 //                                .splineToLinearHeading(new Pose2d(10,-40, Math.toRadians(135)), Math.toRadians(135)) //drop off purple
 //                                //TODO: OUTTAKE PURPLE HERE
