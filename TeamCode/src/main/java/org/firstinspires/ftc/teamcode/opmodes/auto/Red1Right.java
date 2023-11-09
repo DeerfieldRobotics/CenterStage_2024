@@ -94,7 +94,7 @@ public class Red1Right extends OpMode {
                 })
 
                 .addTemporalMarker(3.75, ()->{
-                    intake.getOuttakeServo().setPosition(0.34);
+                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
                 })
                 .addTemporalMarker(4.0, ()->{
                     intake.armToggle();

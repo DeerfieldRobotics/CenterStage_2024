@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
-    public var outtakeServo: ServoImplEx = hardwareMap.get("os") as ServoImplEx //control hub: 0
+    public var outtakeServo: ServoImplEx = hardwareMap.get("os") as ServoImplEx //control hub: 0 //TODO change to private if we change the Red1Right.java code
     private var armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 1
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
