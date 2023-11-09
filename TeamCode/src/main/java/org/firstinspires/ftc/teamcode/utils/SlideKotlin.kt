@@ -59,4 +59,5 @@ class SlideKotlin (hardwareMap: HardwareMap){
     fun getAvgCurrent(): Double = getCurrent().average()
     fun getPower(): Array<Double> = arrayOf(slide1.power, slide2.power)
     fun getMode(): Array<DcMotor.RunMode> = arrayOf(slide1.mode, slide2.mode)
+    fun isBusy(): Boolean = slide1.isBusy || slide2.isBusy
 }
