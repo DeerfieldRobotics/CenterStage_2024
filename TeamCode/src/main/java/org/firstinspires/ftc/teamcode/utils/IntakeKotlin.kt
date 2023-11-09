@@ -27,8 +27,6 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var minArmTimeIn = 200 //was 700
     private var minOuttakeTime = 100
 
-    private var intakeProcedure = true
-
     private var t: Thread? = null
 
     init {
@@ -118,8 +116,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
 
 
     fun intakeProcedure (toggle: Boolean, target: Int) { //this shit will be threaded fr
-        if(!intakeProcedure && toggle && !(!arm && outtake && slide.bottomOut)) {//brings intake in and down if its out, and not already in manually
-            intakeProcedure = true
+        if(toggle) {//brings intake in and down if its out, and not already in manually
             t?.interrupt() //stops any existing threads
             t = Thread { //remake thread but how we want this time
                 while (true) {
@@ -137,27 +134,28 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
                     if (slide.bottomOut)
                         break
                 }
+                t?.interrupt();
 
             }
             t!!.start()
-        } else if(intakeProcedure && !toggle && !(arm && !outtake && slide.getPosition().average() <= slide.minSlideHeight+100)) { //brings intake up and out if the intake is in, and not already out manually
-            intakeProcedure = false
+        } else if(!toggle) { //brings intake up and out if the intake is in, and not already out manually
             t?.interrupt() //stop any existing threads
             t = Thread { //remake thread but how we want this time
                 while (true) {
                     outtakeToggle(false) //close gate
-                    if (slide.getPosition().average() >= target && //if we are above the target
-                        !(slide.getTargetPosition()[0] == target && slide.isBusy()) && //not already going to the target
+                    /*if (slide.getPosition().average() >= target && //if we are above the target
+//                        !(slide.getTargetPosition()[0] == target && slide.isBusy()) && //not already going to the target
                         System.currentTimeMillis() - timeSinceOuttake > minOuttakeTime) { //wait for outtake to close
                         slide.setTargetPosition(target) //if we chilling then go to right slide height
                         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION)
-                        slide.setPower(1.0)
-                    }
+                        slide.setPower(-1.0)
+                    }*/
                     if (slide.getPosition().average() <= slide.minSlideHeight + 100) { //if above minimum height and outtake has closed, then arm out
                         armToggle(true) //once we clear the minimum height we bring that schlong out
                         break
                     }
                 }
+                t?.interrupt();
             }
             t!!.start()
         }

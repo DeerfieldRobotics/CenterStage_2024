@@ -104,8 +104,8 @@ public class MainTeleop extends LinearOpMode {
 //                imu.resetYaw();
 //            }
 
-            driveCentered();
-            //driveNormal();
+//            driveCentered();
+            driveNormal();
             telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();
@@ -113,10 +113,8 @@ public class MainTeleop extends LinearOpMode {
 
             telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
-            telemetry.addData("intakeServo", intake.getIntakePos());
-            telemetry.addData("outtakeServo", intake.getOuttakePos());
-            telemetry.addData("armServo", intake.getArmPos());
             telemetry.addData("slide ticks", slide.getPosition()[0]);
+            telemetry.addData("slide isBusy", slide.isBusy());
 
             telemetry.update();
         }
@@ -184,11 +182,19 @@ public class MainTeleop extends LinearOpMode {
             triangleToggle = false;
         }
 
-        if(gamepad2.cross) { //brings intake shit out
+        if(gamepad2.cross && !crossToggle) { //brings intake shit out
+            crossToggle = true;
             intake.intakeProcedure(false, slide.getMinSlideHeight());
         }
-        if(gamepad2.square) { //brings intake shit in
-            intake.intakeProcedure(true, slide.getMinSlideHeight());
+        if(!gamepad2.cross) {
+            crossToggle = false;
+        }
+        if(gamepad2.square && !squareToggle) { //brings intake shit in
+            squareToggle = true;
+            intake.intakeProcedure(true, slide.getMinSlideHeight()); //works w
+        }
+        if(!gamepad2.square) {
+            squareToggle = false;
         }
     }
 
