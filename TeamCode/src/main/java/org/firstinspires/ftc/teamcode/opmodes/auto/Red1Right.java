@@ -39,7 +39,7 @@ public class Red1Right extends OpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -70,81 +70,97 @@ public class Red1Right extends OpMode {
 
     @Override
     public void start() {
-        drive.setPoseEstimate(new Pose2d(5,-63, Math.toRadians(90)));
+        drive.setPoseEstimate(new Pose2d(11,-63, Math.toRadians(90)));
 
-        path = drive.trajectorySequenceBuilder(new Pose2d(5,-63, Math.toRadians(90)))
-                .splineToSplineHeading(new Pose2d(10-mult*3,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90+52*mult)) //drop off purple
-                .addTemporalMarker(() -> {
-                    intake.intakeServo(1);
-                })
-                .back(5)
-                .splineToLinearHeading(new Pose2d(19, -48, Math.toRadians(180)), Math.toRadians(0))
-                .setTangent(Math.toRadians(0))
-                //.strafeRight(14)
-                .lineToLinearHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)))
-                .addTemporalMarker(()->{//3.0
+        path = drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90)))
+                .addTemporalMarker(3.5, ()->{
                     slide.setTargetPosition(-1000);
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
-
                 })
-                .addTemporalMarker(()->{//3.3
+                .strafeRight(2)
+                .waitSeconds(0.05)
+                .splineToSplineHeading(new Pose2d(13-3*mult,-34+(1-1*Math.abs(mult)),Math.toRadians(45)), Math.toRadians(45)) //drop off purple
+                .addTemporalMarker(()->{
+                    intake.getIntakeServo().setPosition(0.9);
+                })
+                .back(2)
+                .setTangent(Math.toRadians(-45))
+                .splineToLinearHeading(new Pose2d(54.5,-34+6.5*mult,Math.toRadians(180)), Math.toRadians(45))
+                .addTemporalMarker(()->{
                     intake.armToggle();
                 })
-                //.splineToSplineHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)), Math.toRadians(0))
-                .waitSeconds(2.0)
-                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
-                .addTemporalMarker(()->{//4.5
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{
                     intake.getOuttakeServo().setPosition(0.34);
                 })
-                .addTemporalMarker(()->{//4.8
-                    slide.setTargetPosition(-1050);
-                    slide.setPower(-1);
-                 })
-                .setTangent(135)
-                .splineToConstantHeading(new Vector2d(24,-11.8), Math.toRadians(180))
-                .addTemporalMarker(()->{//5.0
+                .waitSeconds(0.2)
+                .addTemporalMarker(()->{
                     intake.armToggle();
                 })
-                .addTemporalMarker(()->{//5.5
-                    //Bottom out
-
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{
                     slide.setTargetPosition(0);
                     slide.setPower(1);
+                })
+                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
 
-                    intake.getIntakeServo().setPosition(1);
+                .setTangent(135)
+                .splineToConstantHeading(new Vector2d(24,-12), Math.toRadians(180))
+
+                .splineToConstantHeading(new Vector2d(-60,-14), Math.toRadians(180))
+                //INTAKE
+                .addTemporalMarker(()->{
+                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    intake.intake(0.4);
+                    intake.getIntakeServo().setPosition(0.8);
                 })
-//                .setTangent(180)
-                .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
-                .addTemporalMarker(()->{//11
-                    intake.getIntakeMotor().setPower(0.6);
+                .waitSeconds(0.6)
+                .addTemporalMarker(()->{
+                    intake.intake(0.0);
                 })
-                .waitSeconds(1.0)
-                .addTemporalMarker(()->{//11.5
-                    intake.getIntakeMotor().setPower(0.0);
+                .back(4)
+                .addTemporalMarker(()->{
+                    intake.getIntakeServo().setPosition(0.0);
                 })
-                .back(10)
-                .waitSeconds(1.0)
-                .addTemporalMarker(()->{//12
-                    intake.getIntakeServo().setPosition(0);
-                    intake.getIntakeMotor().setPower(0.6);
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{
+                    intake.intake(0.7);
                 })
-                .addTemporalMarker(()->{//13
-                    intake.getIntakeMotor().setPower(0.0);
-                    intake.getOuttakeServo().setPosition(0.0);
+                .waitSeconds(1.3)
+                .addTemporalMarker(()->{
+                    intake.intake(0.0);
+                    intake.outtakeToggle();
+                    intake.getIntakeServo().setPosition(1.0);
                 })
-                .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
-//                .setTangent(-45)
-                .addTemporalMarker(()->{//19
-                    slide.setTargetPosition(-1075);
+                .lineToLinearHeading(new Pose2d(28, -12, Math.toRadians(180)))
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-1000);
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
                 })
-                .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
-                .addTemporalMarker(()->{//20
+                .splineToConstantHeading(new Vector2d(54,-37), Math.toRadians(-45))
+                //OUTTAKE 2
+                .addTemporalMarker(()->{
                     intake.armToggle();
                 })
-                .addTemporalMarker(()->{//21
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
                     intake.getOuttakeServo().setPosition(0.34);
                 })
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
+                    intake.armToggle();
+                })
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(0);
+                    slide.setPower(1);
+                })
+                //PARK
+                .forward(5)
+                .strafeRight(30)
+                .back(10)
                 .waitSeconds(10)
                 .build();
 

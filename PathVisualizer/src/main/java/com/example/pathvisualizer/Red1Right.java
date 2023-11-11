@@ -23,30 +23,23 @@ public class Red1Right {
                 //.setStartPose(new Pose2d(50, 50))
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 13.5)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(5,-63, Math.toRadians(90))) //initial position
-                                .splineToSplineHeading(new Pose2d(10,-34,Math.toRadians(45)), Math.toRadians(45)) //drop off purple
+                        drive.trajectorySequenceBuilder(new Pose2d(10,-63, Math.toRadians(90))) //initial position
+                                .splineToSplineHeading(new Pose2d(15,-34,Math.toRadians(45)), Math.toRadians(45)) //drop off purple
 
                                 .setTangent(Math.toRadians(-45))
-//                                .splineToLinearHeading(new Pose2d(19, -48, Math.toRadians(180)), Math.toRadians(0))
-//                                .setTangent(Math.toRadians(0))
-                                //.strafeRight(14)
                                 .splineToLinearHeading(new Pose2d(50,-35,Math.toRadians(180)), Math.toRadians(45))
-
-                                //.splineToSplineHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)), Math.toRadians(0))
                                 .waitSeconds(2.0)
                                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
 
                                 .setTangent(135)
                                 .splineToConstantHeading(new Vector2d(24,-11.8), Math.toRadians(180))
 
-//                .setTangent(180)
                                 .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
 
                                 .waitSeconds(1.0)
                                 .back(10)
                                 .waitSeconds(1.0)
                                 .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
-//                .setTangent(-45)
                                 .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
 
 
