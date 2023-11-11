@@ -209,8 +209,8 @@ public class MainTeleop extends LinearOpMode {
     public void launcher() {
         if (gamepad2.share)
             launcher.fire();
-//        else
-//            launcher.load();
+        else
+            launcher.load();
     }
 
 
