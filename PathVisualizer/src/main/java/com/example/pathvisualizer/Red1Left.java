@@ -41,7 +41,7 @@ public class Red1Left {
                         .setTangent(Math.toRadians(270))
                             .splineToSplineHeading(new Pose2d(-44.5, -45.5, Math.toRadians(180)), Math.toRadians(225))
                             .splineToLinearHeading(new Pose2d(-57,-15, Math.toRadians(180)), Math.toRadians(90))
-                            .splineToLinearHeading(new Pose2d(-61,-12, Math.toRadians(180)), Math.toRadians(90))
+                            .splineToLinearHeading(new Pose2d(-61,-12, Math.toRadians(180)), Math.toRadians(180))
                             //INTAKE
                             //                .addTemporalMarker(()->{
                             //                    slide.setPower(0);

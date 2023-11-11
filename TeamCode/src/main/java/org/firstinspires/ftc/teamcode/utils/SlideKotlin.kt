@@ -12,6 +12,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     var minSlideHeight = -1000
     var slideTolerance = 100
     var bottomOut = false
+    private var t: Thread? = null
 
     init {
         slide1.direction = DcMotorSimple.Direction.FORWARD
@@ -29,7 +30,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     }
 
     fun setPower (s: Double) {
-        if(s!=0.0)
+        if(s !=0.0)
             bottomOut = false
         slide1.power = s
         slide2.power = s
@@ -52,6 +53,17 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
         }
+    }
+
+    fun bottomOutProcedure(){
+        t?.interrupt() //stop any existing threads
+        t = Thread { //remake thread but how we want this time
+            while (!bottomOut) {
+                bottomOut()
+            }
+            t?.interrupt()
+        }
+        t!!.start()
     }
 
     fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)

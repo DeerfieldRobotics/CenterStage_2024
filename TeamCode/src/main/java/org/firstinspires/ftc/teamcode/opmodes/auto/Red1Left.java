@@ -29,7 +29,8 @@ public class Red1Left extends OpMode {
     private SlideKotlin slide;
     private TrajectorySequence path;
     Pose2d start;
-    private int mult = 0;
+    private double mult = 0;
+    private double centerx = 0;
 
     private OpenCvCamera frontCamera;
 
@@ -53,17 +54,19 @@ public class Red1Left extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
-        start = new Pose2d(-38,-63, Math.toRadians(90));
+        start = new Pose2d(-39.75,-63, Math.toRadians(90));
     }
 
     @Override
     public void init_loop() {
         purplePixelPath = colorDetection.getPosition();
 
-
-        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) mult =  0;
-        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1;
-        else mult = -1;
+        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
+            mult =  0.0;
+            centerx = -5;
+        }
+        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1.0;
+        else mult = -1.0;
 
         telemetry.addLine(colorDetection.toString());
         telemetry.update();
@@ -75,87 +78,73 @@ public class Red1Left extends OpMode {
         drive.setPoseEstimate(start);
 
         path = drive.trajectorySequenceBuilder(start)
-                .splineToLinearHeading(new Pose2d(-35-mult*3.5,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90)) //drop off purple
-                //OUTTAKE PURPLE HERE
+                .strafeRight(5)
+                .waitSeconds(0.05)
+                .splineToSplineHeading(new Pose2d(-36.5+centerx-4.5*mult,-34+(1-1*Math.abs(mult)),Math.toRadians(90+53*mult)), Math.toRadians(90+53*mult)) //drop off purple
+                .addTemporalMarker(()->{
+                    intake.getIntakeServo().setPosition(0.9);
+                })
+                .back(2)
                 .setTangent(Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-55,-55, Math.toRadians(180)), Math.toRadians(180))
-                .lineToLinearHeading(new Pose2d(-55,-11, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-60, -11, Math.toRadians(180)))
+                .splineToSplineHeading(new Pose2d(-44.5, -45.5, Math.toRadians(180)), Math.toRadians(225))
+                .splineToLinearHeading(new Pose2d(-57,-15, Math.toRadians(180)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(-61,-12, Math.toRadians(180)), Math.toRadians(180))
                 //INTAKE
-                .addTemporalMarker(4.0, ()->{
-                    intake.getIntakeServo().setPosition(1.0);
+                .addTemporalMarker(()->{
+                    intake.intake(0.35);
+                    intake.getIntakeServo().setPosition(0.8);
                 })
-                .addTemporalMarker(5.0, ()->{
-                    intake.intake(0.6);
-                })
-                .waitSeconds(1)
-                .addTemporalMarker(5.5, ()->{
-                    intake.intake(0);
-                })
-                .addTemporalMarker(6.0, ()->{
-                    intake.getOuttakeServo().setPosition(0);
-                    intake.intake(0.6);
-                })
-                .addTemporalMarker(6.5, ()->{
+                .waitSeconds(0.6)
+                .addTemporalMarker(()->{
                     intake.intake(0.0);
                 })
-                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(52, -35+mult*7,Math.toRadians(180)))
-                .addTemporalMarker(13.7, ()->{
+                .back(9)
+                .addTemporalMarker(()->{
+                    intake.getIntakeServo().setPosition(0.0);
+                })
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{
+                    intake.intake(0.7);
+                })
+                .waitSeconds(1.3)
+                .addTemporalMarker(()->{
+                    intake.intake(0.0);
+                    intake.outtakeToggle();
+                    intake.getIntakeServo().setPosition(1.0);
+                })
+                .lineToLinearHeading(new Pose2d(28, -12, Math.toRadians(180)))
+                .addTemporalMarker(()->{
                     slide.setTargetPosition(-1050);
-                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
-
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    slide.setPower(1);
-
-                })
-                .addTemporalMarker(14.2, ()->{
-                    intake.armToggle();
-                })
-
-                .addTemporalMarker(14.5, ()->{
-                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
-                })
-                .addTemporalMarker(14.9, ()->{
-                    intake.armToggle();
-                })
-                .addTemporalMarker(15.3,()->{
-                    slide.setTargetPosition(0);
                     slide.setPower(-1);
                 })
-                .waitSeconds(1)
-                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-58, -11, Math.toRadians(180)))
-                //TODO INTAKE NEW 2
-                .waitSeconds(1)
-                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(52, -35,Math.toRadians(180)))
-                //TODO OUTTAKE 2
-                .addTemporalMarker(28.0, ()->{
-                    slide.setTargetPosition(-1050);
-                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
-
-                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    slide.setPower(1);
-
-                })
-                .addTemporalMarker(28.4, ()->{
+                .splineToConstantHeading(new Vector2d(53.25,-32+7.5*mult), Math.toRadians(-45))
+                //OUTTAKE 2
+                .addTemporalMarker(()->{
                     intake.armToggle();
                 })
-
-                .addTemporalMarker(28.7, ()->{
-                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
+                    intake.getOuttakeServo().setPosition(0.34);
                 })
-                .addTemporalMarker(29.1, ()->{
+                .waitSeconds(0.2)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-1300);
+                })
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
                     intake.armToggle();
                 })
-                .addTemporalMarker(29.5,()->{
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
                     slide.setTargetPosition(0);
-                    slide.setPower(-1);
+                    slide.setPower(1);
                 })
-                .waitSeconds(20)
-
-
+                //PARK
+                .forward(5)
+                .strafeRight(27)
+                .back(10)
+                .waitSeconds(10)
                 .build();
 
 //        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
