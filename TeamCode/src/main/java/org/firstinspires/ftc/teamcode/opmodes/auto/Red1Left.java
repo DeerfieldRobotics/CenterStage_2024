@@ -53,7 +53,7 @@ public class Red1Left extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
-        start = new Pose2d(-45,-63, Math.toRadians(90));
+        start = new Pose2d(-38,-63, Math.toRadians(90));
     }
 
     @Override
@@ -75,12 +75,75 @@ public class Red1Left extends OpMode {
         drive.setPoseEstimate(start);
 
         path = drive.trajectorySequenceBuilder(start)
-                .splineToLinearHeading(new Pose2d(-35,-37, Math.toRadians(90)), Math.toRadians(90)) //drop off purple
-                //TODO: OUTTAKE PURPLE HERE
-
+                .splineToLinearHeading(new Pose2d(-35-mult*3,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90)) //drop off purple
+                //OUTTAKE PURPLE HERE
                 .setTangent(Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-54,-55, Math.toRadians(180)), Math.toRadians(180))
-                .lineToLinearHeading(new Pose2d(-60,-6, Math.toRadians(180)))
+                .splineToSplineHeading(new Pose2d(-55,-55, Math.toRadians(180)), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-55,-11.8, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-58, -11.8, Math.toRadians(180)))
+                //INTAKE
+                .addDisplacementMarker(()->{
+                    intake.intake(1);
+                })
+                .waitSeconds(2)
+                .addDisplacementMarker(()->{
+                    intake.intake(0);
+                })
+                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(52, -35+mult*7,Math.toRadians(180)))
+                .addTemporalMarker(13.7, ()->{
+                    slide.setTargetPosition(-1050);
+                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
+
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(1);
+
+                })
+                .addTemporalMarker(14.2, ()->{
+                    intake.armToggle();
+                })
+
+                .addTemporalMarker(14.5, ()->{
+                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
+                })
+                .addTemporalMarker(14.9, ()->{
+                    intake.armToggle();
+                })
+                .addTemporalMarker(15.3,()->{
+                    slide.setTargetPosition(0);
+                    slide.setPower(-1);
+                })
+                .waitSeconds(2)
+                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-58, -11.8, Math.toRadians(180)))
+                //TODO INTAKE NEW 2
+                .waitSeconds(2)
+                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(52, -35,Math.toRadians(180)))
+                //TODO OUTTAKE 2
+                .addTemporalMarker(28.0, ()->{
+                    slide.setTargetPosition(-1050);
+                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
+
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(1);
+
+                })
+                .addTemporalMarker(28.4, ()->{
+                    intake.armToggle();
+                })
+
+                .addTemporalMarker(28.7, ()->{
+                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
+                })
+                .addTemporalMarker(29.1, ()->{
+                    intake.armToggle();
+                })
+                .addTemporalMarker(29.5,()->{
+                    slide.setTargetPosition(0);
+                    slide.setPower(-1);
+                })
+                .waitSeconds(20)
 
 
                 .build();

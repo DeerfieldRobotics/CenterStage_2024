@@ -40,6 +40,7 @@ public class Red1Right extends OpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -62,8 +63,8 @@ public class Red1Right extends OpMode {
 
 
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) mult =  0;
-        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1;
-        else mult = -1;
+        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = -1;
+        else mult = 1;
 
         telemetry.addLine(colorDetection.toString());
         telemetry.update();
@@ -75,89 +76,73 @@ public class Red1Right extends OpMode {
         drive.setPoseEstimate(start);
 
         path = drive.trajectorySequenceBuilder(start)
-                .splineToLinearHeading(new Pose2d(10-mult*3,-37+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90+52*mult)) //drop off purple
+                .splineToLinearHeading(new Pose2d(10-mult*3,-34+(1-Math.abs(mult)), Math.toRadians(90)), Math.toRadians(90)) //drop off purple
                 //TODO: OUTTAKE PURPLE HERE
-                .back(5)
-                .setTangent(Math.toRadians(0))
-                .lineToLinearHeading(new Pose2d(50,-34+mult * 8,Math.toRadians(180))) //drop off yellow
-                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
-                .addTemporalMarker(3, ()->{
-                    slide.setTargetPosition(-1050);
-                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
 
-                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    slide.setPower(1);
-
-                })
-                .addTemporalMarker(4, ()->{
-                    intake.armToggle();
-                })
-
-                .addTemporalMarker(4.3, ()->{
-                    intake.getOuttakeServo().setPosition(0.34); //TODO change to intake.outtakeToggle(true) if possible
-                })
-                .addTemporalMarker(4.7, ()->{
-                    intake.armToggle();
-//                    slide.bottomOut();
-//                    slide.setPower(-1);
-                })
-                .addTemporalMarker(5.1,()->{
-//                    intake.getOuttakeServo().setPosition(0.34);
-                    slide.setTargetPosition(0);
+                .setTangent(Math.toRadians(-60))
+                .addTemporalMarker(2.5,()->{
+                    slide.setTargetPosition(-1000);
                     slide.setPower(-1);
 
-//                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                /*
-                .back(20)
-                .turn(Math.toRadians(180))
-                 */
-//                                .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
-                .setTangent(180)
-                .splineToSplineHeading(new Pose2d(-14,-58,Math.toRadians(180)), Math.toRadians(180))
-                .strafeRight(55)
-//                .lineToConstantHeading(new Vector2d(-14, -8))
-                .lineToLinearHeading(new Pose2d(-60,-6, Math.toRadians(180)))
-                .lineToConstantHeading(new Vector2d(10,-7))
-//                                .setTangent(180)
-                .lineToConstantHeading(new Vector2d(54,-35))
+                .addTemporalMarker(2.8,()->{
+                    intake.armToggle();
+                })
+                .splineToSplineHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(2.5)
+                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
+                .addTemporalMarker(4.0,()->{
+                    intake.getOuttakeServo().setPosition(0.34);
+                })
+                .addTemporalMarker(4.3,()->{
+                    slide.setTargetPosition(-1050);
+                    slide.setPower(-1);
+                 })
+                .setTangent(135)
+                .splineToConstantHeading(new Vector2d(24,-11.8), Math.toRadians(180))
+                .addTemporalMarker(4.5,()->{
+                    intake.armToggle();
+                })
+                .addTemporalMarker(5.0,()->{
+                    //Bottom out
 
-                //TODO: ADD INTAKE HERE
-                .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(180))) //drop off pixel
-//                .addDisplacementMarker(()->{
-//                    intake.intake(1);
-//                })
-//                .waitSeconds(2)
-//                .addDisplacementMarker(()->{
-//                    intake.intake(0);
-//                })
-                //TODO: OUTTAKE PIXEL HERE
-//                .forward(5)
-//                .addTemporalMarker(13, ()->{
-//                    intake.getOuttakeServo().setPosition(0);
-//                    slide.setTargetPosition(-1150);
-//                    //TODO: USE THE OVERLOADED METHOD FROM IntakeKotlin.kt FOR intakeProcedure WHICH RUNS IT ASYNCHRONOUSLY ALLEGEDLY LINE 116 of IntakeKotlin.kt (intakeProcedure (toggle: Boolean, target: Int))
-//
-//                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                    slide.setPower(1);
-//
-//                })
-//                .addTemporalMarker(13.5, ()->{
-//                    intake.armToggle();
-//                })
-//                .addTemporalMarker(13.75, ()->{
-//                    intake.getOuttakeServo().setPosition(0.34);
-//                })
-//
-//                .addTemporalMarker(14.5,()->{
-////                    intake.getOuttakeServo().setPosition(0.34);
-//                    slide.setTargetPosition(0);
-//                    slide.setPower(-1);
-//
-////                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-////                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                })
+                    slide.setTargetPosition(0);
+                    slide.setPower(1);
+
+                    intake.getIntakeServo().setPosition(1);
+                })
+//                .setTangent(180)
+                .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
+                .addTemporalMarker(12.0, ()->{
+                    intake.getIntakeMotor().setPower(0.6);
+                })
+                .waitSeconds(1.0)
+                .addTemporalMarker(12.7,()->{
+                    intake.getIntakeMotor().setPower(0.0);
+                })
+                .back(5)
+                .addTemporalMarker(13.4,()->{
+                    intake.getIntakeServo().setPosition(0);
+                    intake.getIntakeMotor().setPower(0.6);
+                })
+                .addTemporalMarker(14.0,()->{
+                    intake.getIntakeMotor().setPower(0.0);
+                    intake.getOuttakeServo().setPosition(0.0);
+                })
+                .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
+//                .setTangent(-45)
+                .addTemporalMarker(16,()->{
+                    slide.setTargetPosition(-1075);
+                    slide.setPower(-1);
+                })
+                .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
+                .addTemporalMarker(17,()->{
+                    intake.armToggle();
+                })
+                .addTemporalMarker(18.0,()->{
+                    intake.getOuttakeServo().setPosition(0.34);
+                })
+                .waitSeconds(20)
                 .build();
 
 //        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
@@ -191,6 +176,9 @@ public class Red1Right extends OpMode {
     }
     @Override
     public void loop() {
+
         drive.update();
+        telemetry.addLine(""+ slide.getPosition()[0]);
+        telemetry.update();
     }
 }

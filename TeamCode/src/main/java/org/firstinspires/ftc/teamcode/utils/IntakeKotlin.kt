@@ -11,8 +11,8 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 1
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
-    private var intakeStart: Double = 0.4
-    private var intakePositions: Array<Double> = arrayOf(0.0,0.10,0.20,0.3,0.4) //array of positions for the intake servo to go to
+    private var intakeStart: Double = 0.0
+    private var intakePositions: Array<Double> = arrayOf(0.05, 0.33, 0.67, 1.0) //array of positions for the intake servo to go to
 
     private var outtakeClosed: Double = 0.0 //closed position
     private var outtakeOpen: Double = 0.34 //open position
@@ -161,6 +161,10 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         }
     }
 
+    fun changeIntakeServo(power: Double){
+        intakeServo.position -= power* 0.25;
+    }
+
     fun intakeServo (position: Double){
         intakeServo.position = position
     }
@@ -170,6 +174,10 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     fun intake (power: Double) {
         intakeMotor.power = power
     }
+
+    fun getIntakeMotor(): DcMotorEx = intakeMotor
+
+    fun getIntakeServo(): ServoImplEx = intakeServo
     fun getIntakePos():Double = intakeServo.position
     fun getOuttakePos():Double = outtakeServo.position
     fun getArmPos():Double = armServo.position

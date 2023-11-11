@@ -53,6 +53,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
         }
     }
+
+    fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)
     fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
     fun getTargetPosition(): Array<Int> = arrayOf(slide1.targetPosition, slide2.targetPosition)
     fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))

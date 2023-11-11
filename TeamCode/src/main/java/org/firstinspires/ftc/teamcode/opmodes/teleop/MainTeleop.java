@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
+import org.firstinspires.ftc.teamcode.utils.Launcher;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 @TeleOp(name = "Main Teleop", group = "a")
@@ -17,6 +18,7 @@ public class MainTeleop extends LinearOpMode {
     private DrivetrainKotlin drivetrain;
     private IntakeKotlin intake;
     private SlideKotlin slide;
+    private Launcher launcher;
     //Sensitivity values for triggers of gamepad 2
     private final double rTriggerStart = 0.05;
     private final double rTriggerEnd = 0.6;
@@ -61,7 +63,7 @@ public class MainTeleop extends LinearOpMode {
             RevHubOrientationOnRobot.UsbFacingDirection.UP
     ));
 
-    private void driveNormal () {
+    private void driveNormal() {
         speedMult = .7+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
 
         double forward = gamepad1.left_stick_y * forwardMult * speedMult;
@@ -110,11 +112,13 @@ public class MainTeleop extends LinearOpMode {
 
             slide();
             intake();
+            launcher();
 
             telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("slide ticks", slide.getPosition()[0]);
             telemetry.addData("slide isBusy", slide.isBusy());
+            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
 
             telemetry.update();
         }
@@ -141,26 +145,30 @@ public class MainTeleop extends LinearOpMode {
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
-        double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
+        double rightTrigger = 0.8*Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
+        telemetry.addData("intakePower", rightTrigger);
         intake.intake(rightTrigger-leftTrigger);
 
-        if (servoCounter != 4&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
-            rightBumperToggle = true;
-            servoCounter++;
-            intake.intakeServo(servoCounter);
-        }
-        if (!gamepad2.right_bumper) {
-            rightBumperToggle = false;
-        }
-        if (servoCounter != 0&&gamepad2.left_bumper && !leftBumperToggle) {
-            leftBumperToggle = true;
-            servoCounter--;
-            intake.intakeServo(servoCounter);
-        }
-        if (!gamepad2.left_bumper) {
-            leftBumperToggle = false;
-        }
+//        if (servoCounter != 3&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
+//            rightBumperToggle = true;
+//            servoCounter++;
+//            intake.intakeServo(servoCounter);
+//        }
+//        if (!gamepad2.right_bumper) {
+//            rightBumperToggle = false;
+//        }
+//        if (servoCounter != 0&&gamepad2.left_bumper && !leftBumperToggle) {
+//            leftBumperToggle = true;
+//            servoCounter--;
+//            intake.intakeServo(servoCounter);
+//        }
+//        if (!gamepad2.left_bumper) {
+//            leftBumperToggle = false;
+//        }
+
+        intake.changeIntakeServo(gamepad2.right_stick_y);
+
 
         //Outtake Code
 
@@ -184,18 +192,25 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.cross && !crossToggle) { //brings intake shit out
             crossToggle = true;
-            intake.intakeProcedure(false, slide.getMinSlideHeight());
+            intake.intakeProcedure(true, slide.getMinSlideHeight());
         }
         if(!gamepad2.cross) {
             crossToggle = false;
         }
         if(gamepad2.square && !squareToggle) { //brings intake shit in
             squareToggle = true;
-            intake.intakeProcedure(true, slide.getMinSlideHeight()); //works w
+            intake.intakeProcedure(false, slide.getMinSlideHeight()); //works w
         }
         if(!gamepad2.square) {
             squareToggle = false;
         }
+    }
+
+    public void launcher() {
+        if (gamepad2.share)
+            launcher.fire();
+//        else
+//            launcher.load();
     }
 
 
@@ -206,10 +221,11 @@ public class MainTeleop extends LinearOpMode {
         drivetrain = new DrivetrainKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
+        launcher = new Launcher(hardwareMap);
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        intake.outtakeToggle();
     }
 
 }
