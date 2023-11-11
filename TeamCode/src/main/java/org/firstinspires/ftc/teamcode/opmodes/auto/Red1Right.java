@@ -74,36 +74,38 @@ public class Red1Right extends OpMode {
 
         path = drive.trajectorySequenceBuilder(new Pose2d(5,-63, Math.toRadians(90)))
                 .splineToSplineHeading(new Pose2d(10-mult*3,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90+52*mult)) //drop off purple
-                //TODO: OUTTAKE PURPLE HERE
+                .addTemporalMarker(() -> {
+                    intake.intakeServo(1);
+                })
                 .back(5)
                 .splineToLinearHeading(new Pose2d(19, -48, Math.toRadians(180)), Math.toRadians(0))
                 .setTangent(Math.toRadians(0))
                 //.strafeRight(14)
                 .lineToLinearHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)))
-                .addTemporalMarker(3.0,()->{
+                .addTemporalMarker(()->{//3.0
                     slide.setTargetPosition(-1000);
                     slide.setPower(-1);
 
                 })
-                .addTemporalMarker(3.3,()->{
+                .addTemporalMarker(()->{//3.3
                     intake.armToggle();
                 })
                 //.splineToSplineHeading(new Pose2d(50,-35+mult*7,Math.toRadians(180)), Math.toRadians(0))
                 .waitSeconds(2.0)
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
-                .addTemporalMarker(4.5,()->{
+                .addTemporalMarker(()->{//4.5
                     intake.getOuttakeServo().setPosition(0.34);
                 })
-                .addTemporalMarker(4.8,()->{
+                .addTemporalMarker(()->{//4.8
                     slide.setTargetPosition(-1050);
                     slide.setPower(-1);
                  })
                 .setTangent(135)
                 .splineToConstantHeading(new Vector2d(24,-11.8), Math.toRadians(180))
-                .addTemporalMarker(5.0,()->{
+                .addTemporalMarker(()->{//5.0
                     intake.armToggle();
                 })
-                .addTemporalMarker(5.5,()->{
+                .addTemporalMarker(()->{//5.5
                     //Bottom out
 
                     slide.setTargetPosition(0);
@@ -113,34 +115,34 @@ public class Red1Right extends OpMode {
                 })
 //                .setTangent(180)
                 .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
-                .addTemporalMarker(11.0, ()->{
+                .addTemporalMarker(()->{//11
                     intake.getIntakeMotor().setPower(0.6);
                 })
                 .waitSeconds(1.0)
-                .addTemporalMarker(11.5,()->{
+                .addTemporalMarker(()->{//11.5
                     intake.getIntakeMotor().setPower(0.0);
                 })
                 .back(10)
                 .waitSeconds(1.0)
-                .addTemporalMarker(12.0,()->{
+                .addTemporalMarker(()->{//12
                     intake.getIntakeServo().setPosition(0);
                     intake.getIntakeMotor().setPower(0.6);
                 })
-                .addTemporalMarker(13.0,()->{
+                .addTemporalMarker(()->{//13
                     intake.getIntakeMotor().setPower(0.0);
                     intake.getOuttakeServo().setPosition(0.0);
                 })
                 .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
 //                .setTangent(-45)
-                .addTemporalMarker(19,()->{
+                .addTemporalMarker(()->{//19
                     slide.setTargetPosition(-1075);
                     slide.setPower(-1);
                 })
                 .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
-                .addTemporalMarker(20,()->{
+                .addTemporalMarker(()->{//20
                     intake.armToggle();
                 })
-                .addTemporalMarker(21,()->{
+                .addTemporalMarker(()->{//21
                     intake.getOuttakeServo().setPosition(0.34);
                 })
                 .waitSeconds(10)
