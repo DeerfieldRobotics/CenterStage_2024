@@ -23,9 +23,11 @@ public class Red1Right {
                 //.setStartPose(new Pose2d(50, 50))
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 13.5)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(10,-63, Math.toRadians(90))) //initial position
-                                .splineToSplineHeading(new Pose2d(15,-34,Math.toRadians(45)), Math.toRadians(45)) //drop off purple
-
+                        drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90))) //initial position
+                                .strafeRight(2)
+                                .waitSeconds((0.05))
+                                .splineToSplineHeading(new Pose2d(10,-34,Math.toRadians(90+45*-1)), Math.toRadians(90+45*-1)) //drop off purple
+                                .back(2)
                                 .setTangent(Math.toRadians(-45))
                                 .splineToLinearHeading(new Pose2d(50,-35,Math.toRadians(180)), Math.toRadians(45))
                                 .waitSeconds(2.0)
