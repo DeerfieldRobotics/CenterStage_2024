@@ -12,7 +12,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Red1Left {
+public class Blue1Left {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(700);
 
@@ -23,11 +23,11 @@ public class Red1Left {
                 //.setStartPose(new Pose2d(50, 50))
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 13.5)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-38,-63, Math.toRadians(90))) //initial position
-                                .splineToSplineHeading(new Pose2d(-35,-34,Math.toRadians(90)), Math.toRadians(90)) //drop off purple
-                                .setTangent(Math.toRadians(-90))
-                                .splineToSplineHeading(new Pose2d(-50,-50,Math.toRadians(180)), Math.toRadians(180))
-                                .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
+                        drive.trajectorySequenceBuilder(new Pose2d(-38,63, Math.toRadians(-90))) //initial position
+                                .splineToSplineHeading(new Pose2d(-35,34,Math.toRadians(-90)), Math.toRadians(-90)) //drop off purple
+                                .setTangent(Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-50,50,Math.toRadians(180)), Math.toRadians(180))
+                                .splineToConstantHeading(new Vector2d(-66,11.8), Math.toRadians(180))
 
                                 .build()
                 );
