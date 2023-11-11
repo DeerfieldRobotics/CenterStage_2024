@@ -75,21 +75,31 @@ public class Red1Left extends OpMode {
         drive.setPoseEstimate(start);
 
         path = drive.trajectorySequenceBuilder(start)
-                .splineToLinearHeading(new Pose2d(-35-mult*3,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90)) //drop off purple
+                .splineToLinearHeading(new Pose2d(-35-mult*3.5,-34+(1-Math.abs(mult)), Math.toRadians(90+52*mult)), Math.toRadians(90)) //drop off purple
                 //OUTTAKE PURPLE HERE
                 .setTangent(Math.toRadians(270))
                 .splineToSplineHeading(new Pose2d(-55,-55, Math.toRadians(180)), Math.toRadians(180))
-                .lineToLinearHeading(new Pose2d(-55,-11.8, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-58, -11.8, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-55,-11, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-60, -11, Math.toRadians(180)))
                 //INTAKE
-                .addDisplacementMarker(()->{
-                    intake.intake(1);
+                .addTemporalMarker(4.0, ()->{
+                    intake.getIntakeServo().setPosition(1.0);
                 })
-                .waitSeconds(2)
-                .addDisplacementMarker(()->{
+                .addTemporalMarker(5.0, ()->{
+                    intake.intake(0.6);
+                })
+                .waitSeconds(1)
+                .addTemporalMarker(5.5, ()->{
                     intake.intake(0);
                 })
-                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
+                .addTemporalMarker(6.0, ()->{
+                    intake.getOuttakeServo().setPosition(0);
+                    intake.intake(0.6);
+                })
+                .addTemporalMarker(6.5, ()->{
+                    intake.intake(0.0);
+                })
+                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
                 .lineToLinearHeading(new Pose2d(52, -35+mult*7,Math.toRadians(180)))
                 .addTemporalMarker(13.7, ()->{
                     slide.setTargetPosition(-1050);
@@ -113,12 +123,12 @@ public class Red1Left extends OpMode {
                     slide.setTargetPosition(0);
                     slide.setPower(-1);
                 })
-                .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(-58, -11.8, Math.toRadians(180)))
+                .waitSeconds(1)
+                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-58, -11, Math.toRadians(180)))
                 //TODO INTAKE NEW 2
-                .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(35, -11.8, Math.toRadians(180)))
+                .waitSeconds(1)
+                .lineToLinearHeading(new Pose2d(35, -11, Math.toRadians(180)))
                 .lineToLinearHeading(new Pose2d(52, -35,Math.toRadians(180)))
                 //TODO OUTTAKE 2
                 .addTemporalMarker(28.0, ()->{
