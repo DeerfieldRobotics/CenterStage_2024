@@ -197,13 +197,13 @@ public class MainTeleop extends LinearOpMode {
         if(!gamepad2.cross) {
             crossToggle = false;
         }
-        if(gamepad2.square && !squareToggle) { //brings intake shit in
-            squareToggle = true;
-            intake.intakeProcedure(false, slide.getMinSlideHeight()); //works w
-        }
-        if(!gamepad2.square) {
-            squareToggle = false;
-        }
+//        if(gamepad2.square && !squareToggle) { //brings intake shit in
+//            squareToggle = true;
+//            intake.intakeProcedure(false, slide.getMinSlideHeight()); //works w
+//        }
+//        if(!gamepad2.square) {
+//            squareToggle = false;
+//        }
     }
 
     public void launcher() {
