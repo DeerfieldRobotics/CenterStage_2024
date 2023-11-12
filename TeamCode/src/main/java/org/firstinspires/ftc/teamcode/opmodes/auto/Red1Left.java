@@ -20,6 +20,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+//this is blue path needs to be changed
 @Autonomous(name = "ARedTopLeft")
 public class Red1Left extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
