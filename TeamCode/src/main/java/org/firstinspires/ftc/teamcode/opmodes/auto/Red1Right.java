@@ -35,9 +35,9 @@ public class Red1Right extends OpMode {
     private double rightBackboard = 0.0;
     private double centerBackboard = 0.0;
     private double leftConst = 0.0;
+    private double centerx = 0;
 
     private OpenCvCamera frontCamera;
-    private double centerx = 0;
 
     private ColorDetectionPipeline.StartingPosition purplePixelPath;
 
