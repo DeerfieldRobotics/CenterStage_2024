@@ -20,7 +20,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "ARedTopWorks")
+@Autonomous(name = "RedClose")
 public class Red1Right extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
     private PIDF pidf;
@@ -29,6 +29,12 @@ public class Red1Right extends OpMode {
     private SlideKotlin slide;
     private TrajectorySequence path;
     private double mult = 0.0;
+    private double righty = 0.0;
+    private double lefty = 0.0;
+    private double centery = 0.0;
+    private double rightBackboard = 0.0;
+    private double centerBackboard = 0.0;
+    private double leftConst = 0.0;
 
     private OpenCvCamera frontCamera;
     private double centerx = 0;
@@ -64,9 +70,33 @@ public class Red1Right extends OpMode {
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
             mult = 0.0;
             centerx = 5;
+            centerBackboard = 0.5;
+            righty = 0.0;
+            rightBackboard = 0;
+            lefty = 0.0;
+            centery = -1;
+            leftConst = 0;
         }
-        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1.0;
-        else mult = -1.0;
+        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) {
+            mult = 1.0;
+            righty = 0.0;
+            rightBackboard = 0;
+            centerx = 0.0;
+            centerBackboard = 0.0;
+            lefty = 0.0;
+            centery = 0.0;
+            leftConst = -0.5;
+        }
+        else {
+            mult = -1.0;
+            righty = 0.3;
+            rightBackboard = -1.5;
+            centerx = 0.0;
+            centerBackboard = 0.0;
+            lefty = 0.0;
+            centery = 0.0;
+            leftConst = 0;
+        }
 
         telemetry.addLine(colorDetection.toString());
         telemetry.update();
@@ -74,22 +104,24 @@ public class Red1Right extends OpMode {
 
     @Override
     public void start() {
+        frontCamera.closeCameraDevice();
         drive.setPoseEstimate(new Pose2d(8.25,-63, Math.toRadians(90)));
         path = drive.trajectorySequenceBuilder(new Pose2d(8.25,-63, Math.toRadians(90)))
                 .addTemporalMarker(3.5, ()->{
-                    slide.setTargetPosition(-1100);
+                    slide.setTargetPosition(-1000);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
                 })
                 .strafeRight(5)
                 .waitSeconds(0.05)
+                .setTangent(45)
                 .splineToSplineHeading(new Pose2d(11.5-4.5*mult+centerx,-36+(4-4*Math.abs(mult)),Math.toRadians(90+53*mult)), Math.toRadians(90+53*mult)) //drop off purple
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.9);
                 })
                 .back(2)
                 .setTangent(Math.toRadians(-45))
-                .splineToLinearHeading(new Pose2d(55,-35+6.5*mult,Math.toRadians(180)), Math.toRadians(45))
+                .splineToLinearHeading(new Pose2d(55+leftConst,-33+rightBackboard+centerBackboard+7*mult,Math.toRadians(180)), Math.toRadians(45))
                 .addTemporalMarker(()->{
                     intake.armToggle();
                 })
@@ -118,20 +150,20 @@ public class Red1Right extends OpMode {
                     slide.setPower(0);
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 })
-                .splineToConstantHeading(new Vector2d(-61,-12-0.4*mult), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-61,-11.6-0.4*mult+righty+lefty+centery), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
                 })
                 .addTemporalMarker(()->{
-                    intake.getIntakeServo().setPosition(0.8);
+                    intake.getIntakeServo().setPosition(0.85);
                 })
                 .waitSeconds(0.8)
                 .addTemporalMarker(()->{
                     intake.intake(0.0);
 //                    intake.getIntakeServo().setPosition(1.0);
                 })
-                .back(7)
+                .back(6)
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.0);
                 })
@@ -139,7 +171,7 @@ public class Red1Right extends OpMode {
                 .addTemporalMarker(()->{
                     intake.intake(0.7);
                 })
-                .waitSeconds(1.0)
+                .waitSeconds(1.5)
                 .addTemporalMarker(()->{
                     intake.intake(-0.1);
                     intake.outtakeToggle();

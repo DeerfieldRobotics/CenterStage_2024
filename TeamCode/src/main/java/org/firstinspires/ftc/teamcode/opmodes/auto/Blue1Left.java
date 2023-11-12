@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import android.graphics.Color;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -11,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
 import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
@@ -20,19 +17,18 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "ARedTopLeft")
-public class Red1Left extends OpMode {
-    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
+@Autonomous(name = "BlueClose")
+public class Blue1Left extends OpMode {
+    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private PIDF pidf;
     private SampleMecanumDrive drive;
     private IntakeKotlin intake;
     private SlideKotlin slide;
     private TrajectorySequence path;
-    Pose2d start;
-    private double mult = 0;
-    private double centerx = 0;
+    private double mult = 0.0;
 
     private OpenCvCamera frontCamera;
+    private double centerx = 0;
 
     private ColorDetectionPipeline.StartingPosition purplePixelPath;
 
@@ -41,6 +37,7 @@ public class Red1Left extends OpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
+//        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -54,19 +51,19 @@ public class Red1Left extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
-        start = new Pose2d(-39.75,-63, Math.toRadians(90));
     }
 
     @Override
     public void init_loop() {
         purplePixelPath = colorDetection.getPosition();
 
+
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
-            mult =  0.0;
-            centerx = -5;
+            mult = 0.0;
+            centerx = 5;
         }
-        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1.0;
-        else mult = -1.0;
+        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = -1.0;
+        else mult = 1.0;
 
         telemetry.addLine(colorDetection.toString());
         telemetry.update();
@@ -74,31 +71,62 @@ public class Red1Left extends OpMode {
 
     @Override
     public void start() {
-        // Temporary: move forward 3
-        drive.setPoseEstimate(start);
-
-        path = drive.trajectorySequenceBuilder(start)
+        drive.setPoseEstimate(new Pose2d(8.25,63, Math.toRadians(270)));
+        path = drive.trajectorySequenceBuilder(new Pose2d(8.25,63, Math.toRadians(270)))
+                .addTemporalMarker(3.5, ()->{
+                    slide.setTargetPosition(-1100);
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(-1);
+                })
                 .strafeRight(5)
                 .waitSeconds(0.05)
-                .splineToSplineHeading(new Pose2d(-36.5+centerx-4.5*mult,-36+(4-4*Math.abs(mult)),Math.toRadians(90+53*mult)), Math.toRadians(90+53*mult)) //drop off purple
+                .splineToSplineHeading(new Pose2d(11.5-4.5*mult-centerx,36-(4-4*Math.abs(mult)),Math.toRadians(270-53*mult)), Math.toRadians(270-53*mult)) //drop off purple
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.9);
                 })
                 .back(2)
-                .setTangent(Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-44.5, -45.5, Math.toRadians(180)), Math.toRadians(225))
-                .splineToLinearHeading(new Pose2d(-57,-15, Math.toRadians(180)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(-61,-12, Math.toRadians(180)), Math.toRadians(180))
+                .setTangent(Math.toRadians(45))
+                .splineToLinearHeading(new Pose2d(55,32+7.0*mult,Math.toRadians(180)), Math.toRadians(-45))
+                .addTemporalMarker(()->{
+                    intake.armToggle();
+                })
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{
+                    intake.getOuttakeServo().setPosition(0.34);
+                })
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-1200);
+                })
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{
+                    intake.armToggle();
+                })
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{
+                    slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    slide.setPower(1.0);
+                })
+                .setTangent(135)
+                .splineToConstantHeading(new Vector2d(24,10.5), Math.toRadians(180))
+                .addTemporalMarker(()->{
+                    slide.setPower(0);
+                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                })
+                .splineToConstantHeading(new Vector2d(-61,12+0.4*mult), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
+                })
+                .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.8);
                 })
-                .waitSeconds(0.6)
+                .waitSeconds(0.8)
                 .addTemporalMarker(()->{
                     intake.intake(0.0);
+//                    intake.getIntakeServo().setPosition(1.0);
                 })
-                .back(9)
+                .back(7)
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.0);
                 })
@@ -106,19 +134,23 @@ public class Red1Left extends OpMode {
                 .addTemporalMarker(()->{
                     intake.intake(0.7);
                 })
-                .waitSeconds(1.3)
+                .waitSeconds(1.0)
                 .addTemporalMarker(()->{
-                    intake.intake(0.0);
+                    intake.intake(-0.1);
                     intake.outtakeToggle();
                     intake.getIntakeServo().setPosition(1.0);
                 })
-                .lineToLinearHeading(new Pose2d(28, -12, Math.toRadians(180)))
+                .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(-1050);
+                    intake.intake(0.0);
+                })
+                .lineToLinearHeading(new Pose2d(28, 10.5, Math.toRadians(180)))
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-1600);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
                 })
-                .splineToConstantHeading(new Vector2d(53.25,-32+7.5*mult), Math.toRadians(-45))
+                .splineToConstantHeading(new Vector2d(55,36), Math.toRadians(-45))
                 //OUTTAKE 2
                 .addTemporalMarker(()->{
                     intake.armToggle();
@@ -129,7 +161,7 @@ public class Red1Left extends OpMode {
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(-1300);
+                    slide.setTargetPosition(-1700);
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
@@ -137,11 +169,15 @@ public class Red1Left extends OpMode {
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(0);
-                    slide.setPower(1);
+                    slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    slide.setPower(1.0);
                 })
                 //PARK
                 .forward(5)
+                .addTemporalMarker(()->{
+                    slide.setPower(0);
+                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                })
                 .strafeRight(27)
                 .back(10)
                 .waitSeconds(10)
@@ -178,6 +214,9 @@ public class Red1Left extends OpMode {
     }
     @Override
     public void loop() {
+
         drive.update();
+        telemetry.addLine(""+ slide.getPosition()[0]);
+        telemetry.update();
     }
 }

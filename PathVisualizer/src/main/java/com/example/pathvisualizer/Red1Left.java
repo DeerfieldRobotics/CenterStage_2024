@@ -34,7 +34,8 @@ public class Red1Left {
                         .strafeRight(5)
                         .waitSeconds(0.05)
                         .splineToSplineHeading(new Pose2d(-36.5-4.5*mult,-34+(1-1*Math.abs(mult)),Math.toRadians(90+53*mult)), Math.toRadians(90+53*mult)) //drop off purple
-        //                .addTemporalMarker(()->{
+                        .splineToSplineHeading(new Pose2d(10,-34,Math.toRadians(90+45*-1)), Math.toRadians(90+45*-1))
+                            //                .addTemporalMarker(()->{
         //                    intake.getIntakeServo().setPosition(0.9);
         //                })
                         .back(2)
