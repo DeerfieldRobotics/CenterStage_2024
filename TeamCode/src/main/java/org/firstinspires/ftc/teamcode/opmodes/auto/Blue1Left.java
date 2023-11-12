@@ -66,12 +66,12 @@ public class Blue1Left extends OpMode {
 
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
             mult = 0.0;
-            centerx = 0;
-            centerBackboard = 0.0;
+            centerx = 5.6;
+            centerBackboard = -0.5;
             righty = 0.0;
             rightBackboard = 0;
             lefty = 0.0;
-            centery = 0;
+            centery = 1;
             leftConst = 0;
         }
         else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) {
@@ -82,12 +82,12 @@ public class Blue1Left extends OpMode {
             centerBackboard = 0.0;
             lefty = 0.0;
             centery = 0.0;
-            leftConst = 0.0;
+            leftConst = 1.0;
         }
         else {
             mult = 1.0;
-            righty = 0.0;
-            rightBackboard = 0.0;
+            righty = -0.3;
+            rightBackboard = 1.5;
             centerx = 0.0;
             centerBackboard = 0.0;
             lefty = 0.0;
@@ -101,8 +101,8 @@ public class Blue1Left extends OpMode {
 
     @Override
     public void start() {
-        drive.setPoseEstimate(new Pose2d(8.25,63, Math.toRadians(270)));
-        path = drive.trajectorySequenceBuilder(new Pose2d(8.25,63, Math.toRadians(270)))
+        drive.setPoseEstimate(new Pose2d(16.5,63, Math.toRadians(270)));
+        path = drive.trajectorySequenceBuilder(new Pose2d(16.5,63, Math.toRadians(270)))
                 .addTemporalMarker(3.5, ()->{
                     slide.setTargetPosition(-1000);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -111,13 +111,13 @@ public class Blue1Left extends OpMode {
                 .strafeRight(5)
                 .waitSeconds(0.05)
                 .setTangent(-45)
-                .splineToSplineHeading(new Pose2d(11.5-4.5*mult+centerx,36+(4-4*Math.abs(mult)),Math.toRadians(270+53*mult)), Math.toRadians(270+53*mult)) //drop off purple
+                .splineToSplineHeading(new Pose2d(11.5-4.5*mult+centerx+leftConst,36-(4-4*Math.abs(mult)),Math.toRadians(270-53*mult)), Math.toRadians(270-53*mult)) //drop off purple
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.9);
                 })
-                .back(2)
-                .setTangent(Math.toRadians(-45))
-                .splineToLinearHeading(new Pose2d(55+leftConst,33+rightBackboard+centerBackboard+7*mult,Math.toRadians(180)), Math.toRadians(-45))
+                .back(4)
+                .setTangent(Math.toRadians(45))
+                .splineToLinearHeading(new Pose2d(54.0,33+rightBackboard+centerBackboard-7*mult,Math.toRadians(180)), Math.toRadians(-45))
                 .addTemporalMarker(()->{
                     intake.armToggle();
                 })
@@ -141,12 +141,12 @@ public class Blue1Left extends OpMode {
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
 
                 .setTangent(135)
-                .splineToConstantHeading(new Vector2d(24,10.5), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(24,8.5), Math.toRadians(180))
                 .addTemporalMarker(()->{
                     slide.setPower(0);
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 })
-                .splineToConstantHeading(new Vector2d(-61,11.6-0.4*mult+righty+lefty+centery), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-61,13+0.4*mult+righty+lefty+centery), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
@@ -177,7 +177,7 @@ public class Blue1Left extends OpMode {
                 .addTemporalMarker(()->{
                     intake.intake(0.0);
                 })
-                .lineToLinearHeading(new Pose2d(28, 10.5, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(28, 8.5, Math.toRadians(180)))
                 .addTemporalMarker(()->{
                     slide.setTargetPosition(-1600);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -206,7 +206,7 @@ public class Blue1Left extends OpMode {
                     slide.setPower(1.0);
                 })
                 //PARK
-                .forward(5)
+                .forward(8)
                 .addTemporalMarker(()->{
                     slide.setPower(0);
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
