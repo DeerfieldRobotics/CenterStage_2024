@@ -15,9 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ColorDetectionPipeline extends OpenCvPipeline
+public class whitePipeline extends OpenCvPipeline
 {
     private final int threshold = 25;
+
+    private int whitePixels;
+
     private Mat hsv = new Mat();
     private Mat v = new Mat();
 
@@ -30,9 +33,9 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     private int x1 = 100; //first x division
     private int x2 = 220; //second x division
     private int w1 = 16, w2 = 32, w3 = 48, w4 = 64, w5 = 80, w6 = 96, w7 = 112, w8 = 128, w9 = 144, w10 = 160, w11=176,
-    w12=192, w13=208, w14=224, w15=240, w16=256, w17=272, w18=288, w19 = 304, w20 = 320;
-    private String color;
-    private StartingPosition position;
+            w12=192, w13=208, w14=224, w15=240, w16=256, w17=272, w18=288, w19 = 304, w20 = 320;
+//    private String color;
+//    private StartingPosition position;
 
     String whiteVals = "NO WHITES";
 
@@ -40,28 +43,21 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     TreeMap<Integer, Integer> tm = new TreeMap<>(Collections.reverseOrder());
     double avg = -3;
 
+    double[] selected = new double[4];
+
     int white[] = new int[20];
 
-    public ColorDetectionPipeline()
-    {
-        color = "NONE";
-        position = StartingPosition.NONE;
-    }
+//    public ColorDetectionPipeline()
+//    {
+//        color = "NONE";
+//        position = StartingPosition.NONE;
+//    }
 
-    public ColorDetectionPipeline(String color1)
-    {
-        position = StartingPosition.NONE;
-        color = color1;
-    }
-
-
-    public enum StartingPosition
-    {
-        LEFT,
-        CENTER,
-        RIGHT,
-        NONE
-    }
+//    public whitePipeline(String color1)
+//    {
+//        position = StartingPosition.NONE;
+//        color = color1;
+//    }
 
 //    public enum Color
 //    {
@@ -217,62 +213,19 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        if(color != "WHITE"){
-            avg = -4;
-            for(int i = startY; i < endY; i++) {
-                for(int j = startX; j < endX; j++) {
-                    if(color.equals("RED") && (input.get(i, j)[0] > (input.get(i, j)[1] + threshold) && input.get(i, j)[0] > (input.get(i, j)[2] + threshold))) {
-                        if(j < x1)
-                            red[0]++;
-                        else if(j < x2)
-                            red[1]++;
-                        else
-                            red[2]++;
-                    }
-                    else if(color.equals("BLUE") && (input.get(i,j)[2] > (input.get(i,j)[1]+threshold) && input.get(i,j)[2] > (input.get(i,j)[0]+threshold))) {
-                        if(j < x1)
-                            blue[0]++;
-                        else if(j < x2)
-                            blue[1]++;
-                        else
-                            blue[2]++;
-                    }
-                }
-            }
-
-            int maxRed = Math.max(red[0], Math.max(red[1], red[2]));
-            int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
-
-            if (maxRed>maxBlue) {
-                if(maxRed == red[0])
-                    position = StartingPosition.LEFT;
-                else if(maxRed == red[1])
-                    position = StartingPosition.CENTER;
-                else
-                    position = StartingPosition.RIGHT;
-            }
-            else {
-                if (maxBlue == blue[0])
-                    position = StartingPosition.LEFT;
-                else if (maxBlue == blue[1])
-                    position = StartingPosition.CENTER;
-                else
-                    position = StartingPosition.RIGHT;
-            }
-
-        }
-
-        //WHITE DETECTIon
-        else {
-            avg = -5;
+//            avg = -5;
             inputToV(input);
             whiteVals = "";
             for (int i = startY; i < endY; i++) {
                 for (int j = startX; j < w6; j++) {
-                    if (input.get(i, j)[0] > 200) {
+                    if (input.get(i, j)[2] > 90) {
                         white[j % 16]++;
                     }
                 }
+            }
+
+            for (int i : white) {
+                whitePixels = Math.max(whitePixels, i);
             }
 
 
@@ -285,9 +238,13 @@ public class ColorDetectionPipeline extends OpenCvPipeline
             TreeMap<Integer, Integer> tm = new TreeMap<>(Collections.reverseOrder());
 
             tm.putAll(whites);
-
+//
             avg = ((int) tm.values().toArray()[0] + (int) tm.values().toArray()[1] + (int) tm.values().toArray()[2] + (int) tm.values().toArray()[3])/4.0;
-        }
+
+            selected[0] = (int)tm.values().toArray()[0];
+            selected[1] = (int)tm.values().toArray()[1];
+            selected[2] = (int)tm.values().toArray()[2];
+            selected[3] = (int)tm.values().toArray()[3];
 
 //        Imgproc.rectangle(input, leftA, leftB, new Scalar(0, 0, 255), 1);
 //        Imgproc.rectangle(input, centerA, centerB, new Scalar(0, 0, 255), 1);
@@ -334,10 +291,17 @@ public class ColorDetectionPipeline extends OpenCvPipeline
 //        return whiteVals;
     }
 
-    public StartingPosition getPosition()
-    {
-        return position;
+//    public StartingPosition getPosition()
+//    {
+//        return position;
+//    }
+
+
+    public double[] getSelected() {
+        return selected;
     }
+
+    public int getMaxWhite() { return whitePixels; }
 
     void inputToV(Mat input)
     {
@@ -348,9 +312,9 @@ public class ColorDetectionPipeline extends OpenCvPipeline
     //    public Color getColor() {
 //        return color;
 //    }
-    @NonNull
-    public String toString() {
-        return "Position: " + (position==StartingPosition.LEFT ? "LEFT" : (position == StartingPosition.RIGHT ? "RIGHT" : (position == StartingPosition.CENTER ? "CENTER" : "NONE")))
-                + " Color: " + color;
-    }
+//    @NonNull
+//    public String toString() {
+//        return "Position: " + (position==StartingPosition.LEFT ? "LEFT" : (position == StartingPosition.RIGHT ? "RIGHT" : (position == StartingPosition.CENTER ? "CENTER" : "NONE")))
+//                + " Color: " + color;
+//    }
 }

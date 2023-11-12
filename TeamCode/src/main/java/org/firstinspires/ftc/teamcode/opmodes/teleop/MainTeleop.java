@@ -145,10 +145,10 @@ public class MainTeleop extends LinearOpMode {
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
-        double rightTrigger = 0.8*Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
+        double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
         telemetry.addData("intakePower", rightTrigger);
-        intake.intake(rightTrigger-leftTrigger);
+        intake.intake(0.4*(rightTrigger-leftTrigger));
 
 //        if (servoCounter != 3&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
 //            rightBumperToggle = true;
@@ -225,7 +225,8 @@ public class MainTeleop extends LinearOpMode {
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.outtakeToggle();
+        intake.getOuttakeServo().setPosition(0.34);
+        intake.getIntakeServo().setPosition(0.1);
     }
 
 }
