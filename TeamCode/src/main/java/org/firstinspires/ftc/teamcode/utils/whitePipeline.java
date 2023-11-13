@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 
-import androidx.annotation.NonNull;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -11,6 +9,7 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,6 +19,7 @@ public class whitePipeline extends OpenCvPipeline
     private final int threshold = 25;
 
     private int whitePixels;
+    private String telemetry = "";
 
     private Mat hsv = new Mat();
     private Mat v = new Mat();
@@ -40,7 +40,6 @@ public class whitePipeline extends OpenCvPipeline
     String whiteVals = "NO WHITES";
 
     HashMap<Integer, Integer> whites = new HashMap<>();
-    TreeMap<Integer, Integer> tm = new TreeMap<>(Collections.reverseOrder());
     double avg = -3;
 
     double[] selected = new double[4];
@@ -218,33 +217,33 @@ public class whitePipeline extends OpenCvPipeline
             whiteVals = "";
             for (int i = startY; i < endY; i++) {
                 for (int j = startX; j < w6; j++) {
-                    if (input.get(i, j)[2] > 90) {
+                    if (v.get(i, j)[0] > 90) {
                         white[j % 16]++;
                     }
                 }
             }
 
             for (int i : white) {
-                whitePixels = Math.max(whitePixels, i);
+                whitePixels = Math.max(i, whitePixels);
             }
 
 
 
             for(int i = 0; i < 20; i++){
-                whites.put(white[i],i);
-                whiteVals += ("" + white[i]);
+                whites.put(i,white[i]);
             }
 
-            TreeMap<Integer, Integer> tm = new TreeMap<>(Collections.reverseOrder());
-
-            tm.putAll(whites);
+       //     whites = (HashMap<Integer, Integer>) valueSort(whites);
 //
-            avg = ((int) tm.values().toArray()[0] + (int) tm.values().toArray()[1] + (int) tm.values().toArray()[2] + (int) tm.values().toArray()[3])/4.0;
+            telemetry = ""+whites.values().toArray().length;
+////
+            avg = ((int) whites.keySet().toArray()[0] + (int) whites.keySet().toArray()[1] + (int) whites.keySet().toArray()[2] + (int) whites.keySet().toArray()[3])/4.0;
 
-            selected[0] = (int)tm.values().toArray()[0];
-            selected[1] = (int)tm.values().toArray()[1];
-            selected[2] = (int)tm.values().toArray()[2];
-            selected[3] = (int)tm.values().toArray()[3];
+            selected[0] = (int)whites.keySet().toArray()[whites.keySet().toArray().length-1];
+            selected[1] = (int)whites.keySet().toArray()[whites.keySet().toArray().length-2];
+            selected[2] = (int)whites.keySet().toArray()[whites.keySet().toArray().length-3];
+            selected[3] = (int)whites.keySet().toArray()[whites.keySet().toArray().length-4];
+
 
 //        Imgproc.rectangle(input, leftA, leftB, new Scalar(0, 0, 255), 1);
 //        Imgproc.rectangle(input, centerA, centerB, new Scalar(0, 0, 255), 1);
@@ -270,6 +269,11 @@ public class whitePipeline extends OpenCvPipeline
         Imgproc.rectangle(input, w19left, w19right, new Scalar(0, 0, 255), 1);
         Imgproc.rectangle(input, w20left, w20right, new Scalar(0, 0, 255), 1);
 
+        Imgproc.rectangle(input, new Point(16*(int)selected[0], startY), new Point(16*((int)selected[0]+1),endY), new Scalar(0, 255, 0), 1);
+        Imgproc.rectangle(input, new Point(16*(int)selected[1], startY), new Point(16*((int)selected[1]+1),endY), new Scalar(0, 255, 0), 1);
+        Imgproc.rectangle(input, new Point(16*(int)selected[2], startY), new Point(16*((int)selected[2]+1),endY), new Scalar(0, 255, 0), 1);
+        Imgproc.rectangle(input, new Point(16*(int)selected[3], startY), new Point(16*((int)selected[3]+1),endY), new Scalar(0, 255, 0), 1);
+
 
         return input;
     }
@@ -286,10 +290,6 @@ public class whitePipeline extends OpenCvPipeline
         return avg;
     }
 
-    public String getWhiteVals(){
-        return "";
-//        return whiteVals;
-    }
 
 //    public StartingPosition getPosition()
 //    {
@@ -306,9 +306,57 @@ public class whitePipeline extends OpenCvPipeline
     void inputToV(Mat input)
     {
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2YCrCb);
-        Core.extractChannel(hsv, v, 2);
+        Core.extractChannel(hsv, v, 0);
     }
 
+    public String toString () {
+        return telemetry;
+    }
+    public static <K, V extends Comparable<V> > Map<K, V>
+    valueSort(final Map<K, V> map)
+    {
+        // Static Method with return type Map and
+        // extending comparator class which compares values
+        // associated with two keys
+        Comparator<K> valueComparator = new Comparator<K>()
+        {
+
+            public int compare(K k1, K k2)
+            {
+
+                int comp = map.get(k1).compareTo(map.get(k2));
+
+                if (comp == 0)
+                    return 1;
+
+                else
+                    return comp;
+            }
+        };
+
+        // SortedMap created using the comparator
+        Map<K, V> sorted = new TreeMap<K, V>(valueComparator);
+
+        sorted.putAll(map);
+
+        return sorted;
+    }
+
+    class Sector {
+        int index;
+        int count;
+        public Sector(int index, int count) {
+            this.index = index;
+            this.count = count;
+        }
+
+        public int getCount () {
+            return count;
+        }
+        public int getIndex () {
+            return index;
+        }
+    }
     //    public Color getColor() {
 //        return color;
 //    }

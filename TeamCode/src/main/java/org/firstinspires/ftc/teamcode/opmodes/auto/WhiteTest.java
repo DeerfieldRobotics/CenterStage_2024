@@ -19,18 +19,21 @@ import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+
 @Autonomous(name = "WhiteTEst")
 public class WhiteTest extends OpMode {
     private final whitePipeline colorDetection = new whitePipeline();
+    private OpenCvInternalCamera frontCamera;
+    //private OpenCvCamera frontCamera;
+    private double centerx = 0;
+    private double mult = 0.0;
+
     private PIDF pidf;
     private SampleMecanumDrive drive;
     private IntakeKotlin intake;
     private SlideKotlin slide;
     private TrajectorySequence path;
-    private double mult = 0.0;
-
-    private OpenCvCamera frontCamera;
-    private double centerx = 0;
     private double stackOffset = 0;
 
 //    private ColorDetectionPipeline.StartingPosition purplePixelPath;
@@ -40,22 +43,25 @@ public class WhiteTest extends OpMode {
 
     @Override
     public void init() {
-        drive = new SampleMecanumDrive(hardwareMap);
-        slide = new SlideKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap, slide);
 //        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        frontCamera = OpenCvCameraFactory.getInstance()
+                .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+
         frontCamera.setPipeline(colorDetection);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
                 frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
+
             @Override
-            public void onError(int errorCode) {}
+            public void onError(int errorCode) {
+
+            }
         });
     }
 
@@ -83,6 +89,7 @@ public class WhiteTest extends OpMode {
         telemetry.addLine(String.valueOf(s[3]));
 
         telemetry.addData("max white", colorDetection.getMaxWhite());
+        telemetry.addLine(colorDetection.toString());
 
         telemetry.update();
     }
@@ -113,7 +120,6 @@ public class WhiteTest extends OpMode {
     @Override
     public void loop() {
 //        avg = cp.getAvg();
-        drive.update();
 //        telemetry.addLine(""+ slide.getPosition()[0]);
 //        telemetry.addLine("AVG "+cp.getAvg());
 //        telemetry.addLine("WHITE VALUES: "+cp.getWhiteVals());
