@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.checkerframework.checker.units.qual.K;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
+import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
@@ -17,13 +20,14 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 @Autonomous(name = "WhiteTEst")
 public class WhiteTest extends OpMode {
     private final WhiteDetectionPipeline colorDetection = new WhiteDetectionPipeline();
-    private OpenCvInternalCamera frontCamera;
-    //private OpenCvCamera frontCamera;
+//    private OpenCvInternalCamera frontCamera;
+    private OpenCvCamera frontCamera;
     private double centerx = 0;
     private double mult = 0.0;
 
     private PIDF pidf;
-    private SampleMecanumDrive drive;
+//    private SampleMecanumDrive drive;
+    private DrivetrainKotlin drive;
     private IntakeKotlin intake;
     private SlideKotlin slide;
     private TrajectorySequence path;
@@ -40,9 +44,11 @@ public class WhiteTest extends OpMode {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-//        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        frontCamera = OpenCvCameraFactory.getInstance()
-                .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//        frontCamera = OpenCvCameraFactory.getInstance()
+//                .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+
+
 
         frontCamera.setPipeline(colorDetection);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -56,6 +62,8 @@ public class WhiteTest extends OpMode {
 
             }
         });
+
+        drive = new DrivetrainKotlin(hardwareMap);
     }
 
     @Override
@@ -64,24 +72,8 @@ public class WhiteTest extends OpMode {
 
         avg = colorDetection.getAvg();
 
-
-//        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
-//            mult = 0.0;
-//            centerx = 5;
-//        }
-//        else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) mult = 1.0;
-//        else mult = -1.0;
-
         telemetry.addLine(String.valueOf(avg));
 
-        double[] s = colorDetection.getSelected();
-
-        telemetry.addLine(String.valueOf(s[0]));
-        telemetry.addLine(String.valueOf(s[1]));
-        telemetry.addLine(String.valueOf(s[2]));
-        telemetry.addLine(String.valueOf(s[3]));
-
-        telemetry.addData("max white", colorDetection.getMaxWhite());
         telemetry.addLine(colorDetection.toString());
 
         telemetry.update();
@@ -89,34 +81,12 @@ public class WhiteTest extends OpMode {
 
     @Override
     public void start() {
-//        drive.setPoseEstimate(new Pose2d(8.25,-63, Math.toRadians(90)));
-//        path = drive.trajectorySequenceBuilder(new Pose2d(8.25,-63, Math.toRadians(90)))
-//                .addTemporalMarker(3.5, ()->{
-//                    slide.setTargetPosition(-1000);
-//                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                    slide.setPower(-1);
-//                    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//                    frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-//                    frontCamera.setPipeline(colorDetection);
-//                    frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-//                        @Override
-//                        public void onOpened() {
-//                            frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-//                        }
-//                        @Override
-//                        public void onError(int errorCode) {}
-//                    });
-//                })
-//                        .build();
-//        drive.followTrajectorySequenceAsync(path);
+
     }
     @Override
     public void loop() {
-//        avg = cp.getAvg();
-//        telemetry.addLine(""+ slide.getPosition()[0]);
-//        telemetry.addLine("AVG "+cp.getAvg());
-//        telemetry.addLine("WHITE VALUES: "+cp.getWhiteVals());
-//
-//        telemetry.update();
+        while(Math.abs(avg-3.5)>= 1) {
+            drive.strafe((int)((3.5-avg)*10));
+        }
     }
 }
