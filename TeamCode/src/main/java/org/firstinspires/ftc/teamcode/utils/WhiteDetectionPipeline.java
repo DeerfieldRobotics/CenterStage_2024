@@ -9,32 +9,25 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class WhiteDetectionPipeline extends OpenCvPipeline {
     private final int threshold = 220;
     private ArrayList<WhiteFrame> whiteFrames;
-    private int startY = 120;
-    private int endY = 240;
-    private int startX = 0;
-    private int endX = 320;
-    private int numDivs = 20;
-    private int color_counts[] = new int[numDivs];
+    private final int startY = 120;
+    private final int endY = 240;
+    private final int startX = 0;
+    private final int endX = 320;
+    private int numDivs;
     double avg = -1;
 
     public WhiteDetectionPipeline() {
-        double loc = 0;
+        numDivs = 20;
     }
 
     public WhiteDetectionPipeline(int numDivs) {
-        double loc = 0;
         this.numDivs = numDivs;
     }
-
-
-    Point leftA = new Point(
-            startX,
-            startY);
-    
 
     @Override
     public Mat processFrame(Mat input) {
@@ -47,7 +40,6 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
                 }
             }
         }
-
         whiteFrames.add(frame);
         //5 averages
         if(whiteFrames.size() > 5) {
@@ -56,8 +48,8 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
 
         //get the average over all frames
         double sum = 0;
-        for(WhiteFrame frame : whiteFrames){
-            sum += frame.getAvgIndex();//get that frame's average index
+        for(WhiteFrame f : whiteFrames){
+            sum += f.getAvgIndex();//get that frame's average index
         }
         avg = sum/whiteFrames.size();
 
@@ -69,10 +61,6 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
         }
 
         return input;
-    }
-
-    public StartingPosition getPosition() {
-        return position;
     }
 
     public double getAvg() {
@@ -96,4 +84,72 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
         s += "Overall Average: " + avg;
         return s;
     }
+
+    static class WhiteFrame {
+        int maxSize = 20;
+        //number of sectors to consider
+        int numSectors = 5;
+        private ArrayList<WhiteSector> whiteSectors;
+        double avg = -1;
+
+        public WhiteFrame(int maxSize, int numSectors) {
+            whiteSectors = new ArrayList<WhiteSector>();
+            this.maxSize = maxSize;
+        }
+
+        public void addSector(WhiteSector sector) {
+            whiteSectors.add(sector);
+            if(whiteSectors.size() > maxSize) {
+                whiteSectors.remove(0);
+            }
+        }
+
+        public void incrementSector(int index) {
+            whiteSectors.get(index).incrementWhiteCount();
+        }
+
+        public double getAvgIndex(){
+
+            TreeSet<WhiteSector> sortedSectors = new TreeSet<>(whiteSectors);
+
+            //get the average index of the first numSectors sectors
+            int sum = 0;
+            for(int i = 0; i < numSectors; i++){
+                sum += sortedSectors.pollFirst().getIndex();
+            }
+
+            sortedSectors.clear();
+
+            return ((double) sum)/numSectors;
+        }
+    }
+
+    static class WhiteSector implements Comparable<WhiteSector>{
+        private int whiteCount;
+        private final int index;
+
+        //default constructor
+        public WhiteSector() {
+            whiteCount = 0;
+            index = 0;
+        }
+        public WhiteSector(int whiteCount, int index) {
+            this.whiteCount = whiteCount;
+            this.index = index;
+        }
+        public int getWhiteCount() {
+            return whiteCount;
+        }
+        public void incrementWhiteCount() {
+            whiteCount++;
+        }
+        public int getIndex() {
+            return index;
+        }
+        @Override
+        public int compareTo(WhiteSector whiteSector) {
+            return -whiteCount + whiteSector.getWhiteCount();
+        }
+    }
+
 }
