@@ -8,6 +8,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import java.util.ArrayList;
+
 public class WhiteDetectionPipeline extends OpenCvPipeline {
     private final int threshold = 220;
     private ArrayList<WhiteFrame> whiteFrames;
@@ -19,11 +21,11 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
     private int color_counts[] = new int[numDivs];
     double avg = -1;
 
-    public ColorDetectionPipeline() {
+    public WhiteDetectionPipeline() {
         double loc = 0;
     }
 
-    public ColorDetectionPipeline(int numDivs) {
+    public WhiteDetectionPipeline(int numDivs) {
         double loc = 0;
         this.numDivs = numDivs;
     }
@@ -92,5 +94,6 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
 
         //add overall average
         s += "Overall Average: " + avg;
+        return s;
     }
 }

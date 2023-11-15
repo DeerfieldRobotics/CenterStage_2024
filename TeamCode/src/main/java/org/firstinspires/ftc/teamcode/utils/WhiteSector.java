@@ -1,6 +1,8 @@
+package org.firstinspires.ftc.teamcode.utils;
+
 public class WhiteSector implements Comparable<WhiteSector>{
     private int whiteCount;
-    private int index;
+    private final int index;
 
     //default constructor
     public WhiteSector() {
@@ -25,10 +27,8 @@ public class WhiteSector implements Comparable<WhiteSector>{
         return index;
     }
 
-    static class WhiteComparator implements Comparator<WhiteSector> {
-        @Override
-        public int compare(WhiteSector a, WhiteSector b) {
-            return -a.getWhiteCount() + b.getWhiteCount();
-        }
+    @Override
+    public int compareTo(WhiteSector whiteSector) {
+        return -whiteCount + whiteSector.getWhiteCount();
     }
 }

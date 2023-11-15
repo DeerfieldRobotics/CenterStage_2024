@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode.utils;
+
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -25,11 +27,8 @@ public class WhiteFrame {
     }
 
     public double getAvgIndex(){
-        TreeSet<WhiteSector> sortedSectors = new TreeSet<WhiteSector>(new WhiteSector.WhiteComparator());
 
-        for(WhiteSector sector : whiteSectors){
-            sortedSectors.add(sector);
-        }
+        TreeSet<WhiteSector> sortedSectors = new TreeSet<>(whiteSectors);
 
         //get the average index of the first numSectors sectors
         int sum = 0;   
