@@ -20,8 +20,8 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "ARedTopLeft")
-public class Red1Left extends OpMode {
+@Autonomous(name = "BlueFAR")
+public class BlueFar extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
     private PIDF pidf;
     private SampleMecanumDrive drive;
@@ -54,7 +54,7 @@ public class Red1Left extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
-        start = new Pose2d(-39.75,-63, Math.toRadians(90));
+        start = new Pose2d(-39.75,63, Math.toRadians(90));
     }
 
     @Override
@@ -80,15 +80,15 @@ public class Red1Left extends OpMode {
         path = drive.trajectorySequenceBuilder(start)
                 .strafeRight(5)
                 .waitSeconds(0.05)
-                .splineToSplineHeading(new Pose2d(-36.5+centerx-4.5*mult,-36+(4-4*Math.abs(mult)),Math.toRadians(90+53*mult)), Math.toRadians(90+53*mult)) //drop off purple
+                .splineToSplineHeading(new Pose2d(-36.5+centerx-4.5*mult,36-(4-4*Math.abs(mult)),Math.toRadians(270-53*mult)), Math.toRadians(270-53*mult)) //drop off purple
                 .addTemporalMarker(()->{
                     intake.getIntakeServo().setPosition(0.9);
                 })
                 .back(2)
-                .setTangent(Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-44.5, -45.5, Math.toRadians(180)), Math.toRadians(225))
-                .splineToLinearHeading(new Pose2d(-57,-15, Math.toRadians(180)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(-61,-12, Math.toRadians(180)), Math.toRadians(180))
+                .setTangent(Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-44.5, 45.5, Math.toRadians(180)), Math.toRadians(135))
+                .splineToLinearHeading(new Pose2d(-57,15, Math.toRadians(180)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(-61,12, Math.toRadians(180)), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
@@ -112,13 +112,13 @@ public class Red1Left extends OpMode {
                     intake.outtakeToggle();
                     intake.getIntakeServo().setPosition(1.0);
                 })
-                .lineToLinearHeading(new Pose2d(28, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(28, 9, Math.toRadians(180)))
                 .addTemporalMarker(()->{
                     slide.setTargetPosition(-1050);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
                 })
-                .splineToConstantHeading(new Vector2d(53.25,-32+7.5*mult), Math.toRadians(-45))
+                .splineToLinearHeading(new Pose2d(53.25,33-7*mult, Math.toRadians(180)), Math.toRadians(-60))
                 //OUTTAKE 2
                 .addTemporalMarker(()->{
                     intake.armToggle();

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
@@ -39,6 +42,8 @@ public class MainTeleop extends LinearOpMode {
     //intake time values
     long timeSinceArm = 0;
     long timeSinceOuttake = 0;
+
+    SampleMecanumDrive drive;
 
     //servo position values
 //    private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
@@ -72,7 +77,7 @@ public class MainTeleop extends LinearOpMode {
 
         drivetrain.move(forward, strafe, turn);
     }
-
+    //mack poop
     private void driveCentered() {
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x;
@@ -95,6 +100,41 @@ public class MainTeleop extends LinearOpMode {
         drivetrain.setMotorPower(flp, frp, blp, brp);
     }
 
+    //kevin good
+    private void driveRRCentered(){
+        Pose2d poseEstimate = drive.getPoseEstimate();
+
+        // Create a vector from the gamepad x/y inputs
+        // Then, rotate that vector by the inverse of that heading
+        Vector2d input = new Vector2d(
+                -0.8*gamepad1.left_stick_y,
+                -0.8*gamepad1.left_stick_x
+        ).rotated(-poseEstimate.getHeading());
+
+        // Pass in the rotated input + right stick value for rotation
+        // Rotation is not part of the rotated input thus must be passed in separately
+        drive.setWeightedDrivePower(
+                new Pose2d(
+                        input.getX(),
+                        input.getY(),
+                        0.6*gamepad1.right_stick_x
+                )
+        );
+
+        if(gamepad1.ps){
+            drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(90)));
+        }
+
+        // Update everything. Odometry. Etc.
+        drive.update();
+
+        // Print pose to telemetry
+        telemetry.addData("x", poseEstimate.getX());
+        telemetry.addData("y", poseEstimate.getY());
+        telemetry.addData("heading", poseEstimate.getHeading());
+        telemetry.update();
+    }
+
     @Override
     public void runOpMode() {
         initialize();
@@ -107,7 +147,8 @@ public class MainTeleop extends LinearOpMode {
 //            }
 
 //            driveCentered();
-            driveNormal();
+//            driveNormal();
+            driveRRCentered();
             telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();
@@ -218,6 +259,8 @@ public class MainTeleop extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(parameters);
 
+        drive = new SampleMecanumDrive(hardwareMap);
+
         drivetrain = new DrivetrainKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
@@ -227,6 +270,20 @@ public class MainTeleop extends LinearOpMode {
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake.getOuttakeServo().setPosition(0.34);
         intake.getIntakeServo().setPosition(0.1);
+
+        // We want to turn off velocity control for teleop
+        // Velocity control per wheel is not necessary outside of motion profiled auto
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Retrieve our pose from the PoseStorage.currentPose static field
+        // See AutoTransferPose.java for further details
+        drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(90)));
+
+        drive.reverseMotors();
+
+        waitForStart();
+
+        if (isStopRequested()) return;
     }
 
 }

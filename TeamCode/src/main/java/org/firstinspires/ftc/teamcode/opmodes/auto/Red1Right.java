@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.testers.PIDF;
 import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -23,6 +24,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(name = "RedClose")
 public class Red1Right extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
+    private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
     private PIDF pidf;
     private SampleMecanumDrive drive;
     private IntakeKotlin intake;
@@ -39,7 +41,9 @@ public class Red1Right extends OpMode {
 
     private OpenCvCamera frontCamera;
 
-    private ColorDetectionPipeline.StartingPosition purplePixelPath;
+    private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
+
+    private double avg = -1;
 
     @Override
     public void init() {
@@ -51,7 +55,8 @@ public class Red1Right extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
         frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        frontCamera.setPipeline(colorDetection);
+//        frontCamera.setPipeline(colorDetection);
+        frontCamera.setPipeline(wp);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -64,7 +69,7 @@ public class Red1Right extends OpMode {
 
     @Override
     public void init_loop() {
-        purplePixelPath = colorDetection.getPosition();
+//        purplePixelPath = colorDetection.getPosition();
 
 
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER)) {
@@ -85,7 +90,7 @@ public class Red1Right extends OpMode {
             centerBackboard = 0.0;
             lefty = 0.0;
             centery = 0.0;
-            leftConst = -0.5;
+            leftConst = -1.2;
         }
         else {
             mult = -1.0;
@@ -98,19 +103,36 @@ public class Red1Right extends OpMode {
             leftConst = 0;
         }
 
-        telemetry.addLine(colorDetection.toString());
+//        telemetry.addLine(colorDetection.toString());
+        telemetry.addLine(purplePixelPath.name());
+        telemetry.addLine(""+wp.getAvg());
+        telemetry.addLine(wp.toString());
         telemetry.update();
     }
 
     @Override
     public void start() {
-        frontCamera.closeCameraDevice();
         drive.setPoseEstimate(new Pose2d(8.25,-63, Math.toRadians(90)));
         path = drive.trajectorySequenceBuilder(new Pose2d(8.25,-63, Math.toRadians(90)))
                 .addTemporalMarker(3.5, ()->{
                     slide.setTargetPosition(-1000);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
+
+                    //new pipeline
+//                    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//                    frontCamera.closeCameraDevice();
+//                    frontCamera = null;
+//                    frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//                    frontCamera.setPipeline(wp);
+//                    frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+//                        @Override
+//                        public void onOpened() {
+//                            frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+//                        }
+//                        @Override
+//                        public void onError(int errorCode) {}
+//                    });
                 })
                 .strafeRight(5)
                 .waitSeconds(0.05)
@@ -131,7 +153,7 @@ public class Red1Right extends OpMode {
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(-1200);
+                    slide.setTargetPosition(-1250);
                 })
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{
@@ -141,16 +163,22 @@ public class Red1Right extends OpMode {
                 .addTemporalMarker(()->{
                     slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     slide.setPower(1.0);
+
                 })
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
 
                 .setTangent(135)
-                .splineToConstantHeading(new Vector2d(24,-10.5), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(24,-8.5), Math.toRadians(180))
                 .addTemporalMarker(()->{
                     slide.setPower(0);
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 })
-                .splineToConstantHeading(new Vector2d(-61,-11.6-0.4*mult+righty+lefty+centery), Math.toRadians(180))
+                .forward(60)
+                .waitSeconds(2)
+                .strafeLeft(.35*(12-avg))
+                .forward(30)
+
+//                .splineToConstantHeading(new Vector2d(-60.75,-11.6-0.4*mult+righty+lefty+centery), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
@@ -251,9 +279,12 @@ public class Red1Right extends OpMode {
     }
     @Override
     public void loop() {
-
+        avg = wp.getAvg();
         drive.update();
-        telemetry.addLine(""+ slide.getPosition()[0]);
+//        telemetry.addLine(""+ slide.getPosition()[0]);
+        telemetry.addLine("AVG "+ avg);
+//        telemetry.addLine("WHITE VALUES: "+cp.getWhiteVals());
+
         telemetry.update();
     }
 }

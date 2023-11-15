@@ -33,6 +33,8 @@ public class Blue1Left extends OpMode {
     private double centerBackboard = 0.0;
     private double leftConst = 0.0;
     private double centerx = 0;
+    private double angleChange = 0.0;
+    private double leftChange = 0.0;
 
     private OpenCvCamera frontCamera;
 
@@ -71,28 +73,34 @@ public class Blue1Left extends OpMode {
             righty = 0.0;
             rightBackboard = 0;
             lefty = 0.0;
-            centery = 1;
+            centery = 3.5;
             leftConst = 0;
+            angleChange = 0.0;
+            leftChange = 0;
         }
         else if (purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT)) {
             mult = -1.0;
             righty = 0.0;
-            rightBackboard = 0;
+            rightBackboard = -1.0;
             centerx = 0.0;
             centerBackboard = 0.0;
-            lefty = 0.0;
-            centery = 0.0;
+            lefty = 2.75;
+            centery = -1.0;
             leftConst = 1.0;
+            angleChange = -10;
+            leftChange = -1;
         }
         else {
             mult = 1.0;
             righty = -0.3;
-            rightBackboard = 1.5;
+            rightBackboard = 0.5;
             centerx = 0.0;
             centerBackboard = 0.0;
             lefty = 0.0;
             centery = 0.0;
-            leftConst = 0;
+            leftConst = -0.5;
+            angleChange = 0;
+            leftChange = 0;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -101,6 +109,7 @@ public class Blue1Left extends OpMode {
 
     @Override
     public void start() {
+        frontCamera.closeCameraDevice();
         drive.setPoseEstimate(new Pose2d(16.5,63, Math.toRadians(270)));
         path = drive.trajectorySequenceBuilder(new Pose2d(16.5,63, Math.toRadians(270)))
                 .addTemporalMarker(3.5, ()->{
@@ -117,7 +126,7 @@ public class Blue1Left extends OpMode {
                 })
                 .back(4)
                 .setTangent(Math.toRadians(45))
-                .splineToLinearHeading(new Pose2d(54.0,33+rightBackboard+centerBackboard-7*mult,Math.toRadians(180)), Math.toRadians(-45))
+                .splineToLinearHeading(new Pose2d(53.5,33+rightBackboard+centerBackboard-7*mult,Math.toRadians(180)), Math.toRadians(-60))
                 .addTemporalMarker(()->{
                     intake.armToggle();
                 })
@@ -146,7 +155,7 @@ public class Blue1Left extends OpMode {
                     slide.setPower(0);
                     slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 })
-                .splineToConstantHeading(new Vector2d(-61,13+0.4*mult+righty+lefty+centery), Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(-60.25,20+0.4*mult+righty+lefty+centery, Math.toRadians(180+angleChange)), Math.toRadians(180))
                 //INTAKE
                 .addTemporalMarker(()->{
                     intake.intake(0.35);
@@ -183,7 +192,7 @@ public class Blue1Left extends OpMode {
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
                 })
-                .splineToConstantHeading(new Vector2d(55,36), Math.toRadians(45))
+                .splineToConstantHeading(new Vector2d(53.5+leftChange,36), Math.toRadians(45))
                 //OUTTAKE 2
                 .addTemporalMarker(()->{
                     intake.armToggle();
@@ -215,34 +224,6 @@ public class Blue1Left extends OpMode {
                 .back(10)
                 .waitSeconds(10)
                 .build();
-
-//        if (purplePixelPath == ColorDetectionPipeline.StartingPosition.LEFT) {
-//            // Left
-//
-//        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.CENTER) {
-//            // Center
-//            path.forward(32)
-//                    .back(5)
-//                    .setTangent(Math.toRadians(0))
-//                    .lineToLinearHeading(new Pose2d(50,-35,Math.toRadians(0)))
-//                    /*
-//                    .back(20)
-//                    .turn(Math.toRadians(180))
-//                     */
-//                    .lineToLinearHeading(new Pose2d(-30, -35,Math.toRadians(0)))
-//                    .lineToLinearHeading(new Pose2d(-60, -35,Math.toRadians(180)))
-//                    .lineToLinearHeading(new Pose2d(50, -35,Math.toRadians(0)));
-//
-//        } else if (purplePixelPath == ColorDetectionPipeline.StartingPosition.RIGHT) {
-//            // Right
-//        } else {
-//
-//        }
-//
-//        // Park
-//        path.back(5)
-//                .strafeLeft(10);
-
         drive.followTrajectorySequenceAsync(path);
     }
     @Override
