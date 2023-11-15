@@ -8,13 +8,12 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class whitePipeline extends OpenCvPipeline
+public class WhiteDetectionPipeline extends OpenCvPipeline
 {
     private final int threshold = 25;
 

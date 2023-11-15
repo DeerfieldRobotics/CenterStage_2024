@@ -1,19 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import android.graphics.Color;
-
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
-import org.firstinspires.ftc.teamcode.utils.whitePipeline;
+import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -23,7 +16,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @Autonomous(name = "WhiteTEst")
 public class WhiteTest extends OpMode {
-    private final whitePipeline colorDetection = new whitePipeline();
+    private final WhiteDetectionPipeline colorDetection = new WhiteDetectionPipeline();
     private OpenCvInternalCamera frontCamera;
     //private OpenCvCamera frontCamera;
     private double centerx = 0;
