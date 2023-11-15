@@ -73,6 +73,130 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
             endX,
             endY);
 
+    //WHITE POInTS
+
+    Point w1left = new Point(
+            startX,
+            startY);
+    Point w1right = new Point(
+            w1,
+            endY);
+    Point w2left = new Point(
+            w1+1,
+            startY);
+    Point w2right = new Point(
+            w2,
+            endY);
+    Point w3left = new Point(
+            w2+1,
+            startY);
+    Point w3right = new Point(
+            w3,
+            endY);
+    Point w4left = new Point(
+            w3+1,
+            startY);
+    Point w4right = new Point(
+            w4,
+            endY);
+    Point w5left = new Point(
+            w4+1,
+            startY);
+    Point w5right = new Point(
+            w5,
+            endY);
+    Point w6left = new Point(
+            w5+1,
+            startY);
+    Point w6right = new Point(
+            w6,
+            endY);
+    Point w7left = new Point(
+            w6+1,
+            startY);
+    Point w7right = new Point(
+            w7,
+            endY);
+    Point w8left = new Point(
+            w7+1,
+            startY);
+    Point w8right = new Point(
+            w8,
+            endY);
+    Point w9left = new Point(
+            w8+1,
+            startY);
+    Point w9right = new Point(
+            w9,
+            endY);
+    Point w10left = new Point(
+            w9+1,
+            startY);
+    Point w10right = new Point(
+            w10,
+            endY);
+    Point w11left = new Point(
+            w10+1,
+            startY);
+    Point w11right = new Point(
+            w11,
+            endY);
+    Point w12left = new Point(
+            w11+1,
+            startY);
+    Point w12right = new Point(
+            w12,
+            endY);
+    Point w13left = new Point(
+            w12+1,
+            startY);
+    Point w13right = new Point(
+            w13,
+            endY);
+    Point w14left = new Point(
+            w13+1,
+            startY);
+    Point w14right = new Point(
+            w14,
+            endY);
+    Point w15left = new Point(
+            w14+1,
+            startY);
+    Point w15right = new Point(
+            w15,
+            endY);
+    Point w16left = new Point(
+            w15+1,
+            startY);
+    Point w16right = new Point(
+            w16,
+            endY);
+    Point w17left = new Point(
+            w16+1,
+            startY);
+    Point w17right = new Point(
+            w17,
+            endY);
+    Point w18left = new Point(
+            w17+1,
+            startY);
+    Point w18right = new Point(
+            w18,
+            endY);
+    Point w19left = new Point(
+            w18+1,
+            startY);
+    Point w19right = new Point(
+            w19,
+            endY);
+    Point w20left = new Point(
+            w19+1,
+            startY);
+    Point w20right = new Point(
+            endX,
+            endY);
+
+
     @Override
     public Mat processFrame(Mat input) {
         color_counts = new int[] { 0, 0, 0 };
@@ -99,7 +223,6 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
                 //         color_counts[2]++;
                 // }
             }
-        }
 
         leftCnt.add(color_counts[0]);
         centerCnt.add(color_counts[1]);
@@ -155,6 +278,7 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
         Imgproc.rectangle(input, leftA, leftB, new Scalar(0, 0, 255), 1);
         Imgproc.rectangle(input, centerA, centerB, new Scalar(0, 0, 255), 1);
         Imgproc.rectangle(input, rightA, rightB, new Scalar(0, 0, 255), 1);
+
 
         return input;
     }

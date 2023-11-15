@@ -40,6 +40,9 @@ public class Red1Right extends OpMode {
     private OpenCvCamera frontCamera;
 
     private ColorDetectionPipeline.StartingPosition purplePixelPath;
+    private ColorDetectionPipeline cp = new ColorDetectionPipeline("WHITE");
+
+    private double avg = -1;
 
     @Override
     public void init() {
@@ -111,6 +114,17 @@ public class Red1Right extends OpMode {
                     slide.setTargetPosition(-1000);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     slide.setPower(-1);
+                    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                    frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                    frontCamera.setPipeline(cp);
+                    frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                        @Override
+                        public void onOpened() {
+                            frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                        }
+                        @Override
+                        public void onError(int errorCode) {}
+                    });
                 })
                 .strafeRight(5)
                 .waitSeconds(0.05)
@@ -131,7 +145,7 @@ public class Red1Right extends OpMode {
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(-1200);
+                    slide.setTargetPosition(-1250);
                 })
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{
@@ -141,6 +155,7 @@ public class Red1Right extends OpMode {
                 .addTemporalMarker(()->{
                     slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     slide.setPower(1.0);
+
                 })
                 //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
 
@@ -251,9 +266,12 @@ public class Red1Right extends OpMode {
     }
     @Override
     public void loop() {
-
+        avg = cp.getAvg();
         drive.update();
         telemetry.addLine(""+ slide.getPosition()[0]);
+        telemetry.addLine("AVG "+cp.getAvg());
+        telemetry.addLine("WHITE VALUES: "+cp.getWhiteVals());
+
         telemetry.update();
     }
 }
