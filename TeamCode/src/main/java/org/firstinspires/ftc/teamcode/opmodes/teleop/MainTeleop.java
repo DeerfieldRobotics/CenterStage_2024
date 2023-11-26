@@ -14,12 +14,14 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.Launcher;
+import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 @TeleOp(name = "Main Teleop", group = "a")
 public class MainTeleop extends LinearOpMode {
     private DrivetrainKotlin drivetrain;
     private IntakeKotlin intake;
+    private OuttakeKotlin outtake;
     private SlideKotlin slide;
     private Launcher launcher;
     //Sensitivity values for triggers of gamepad 2
@@ -208,15 +210,13 @@ public class MainTeleop extends LinearOpMode {
 //            leftBumperToggle = false;
 //        }
 
-        intake.changeIntakeServo(gamepad2.right_stick_y);
-
-
         //Outtake Code
 
+        outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             circleToggle = true;
-            intake.outtakeToggle();
+            outtake.rightClawToggle();
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -225,33 +225,33 @@ public class MainTeleop extends LinearOpMode {
         //arm code
         if (gamepad2.triangle&&!triangleToggle) { // on triangle press, arm toggles
             triangleToggle = true;
-            intake.armToggle();
+            outtake.armToggle();
         }
         if (!gamepad2.triangle) {
             triangleToggle = false;
         }
 
-        if(gamepad2.cross && !crossToggle) { //brings intake shit out
+        if(gamepad2.cross && !crossToggle) { //toggles arm back and forth
             crossToggle = true;
-            intake.intakeProcedure(true, slide.getMinSlideHeight());
+            outtake.outtakeProcedure();
         }
         if(!gamepad2.cross) {
             crossToggle = false;
         }
-//        if(gamepad2.square && !squareToggle) { //brings intake shit in
-//            squareToggle = true;
-//            intake.intakeProcedure(false, slide.getMinSlideHeight()); //works w
-//        }
-//        if(!gamepad2.square) {
-//            squareToggle = false;
-//        }
+        if(gamepad2.square && !squareToggle) { //brings intake shit in
+            squareToggle = true;
+            outtake.leftClawToggle();
+        }
+        if(!gamepad2.square) {
+            squareToggle = false;
+        }
     }
 
     public void launcher() {
         if (gamepad2.share)
             launcher.fire();
-//        else
-//            launcher.load();
+        else
+            launcher.load();
     }
 
 
