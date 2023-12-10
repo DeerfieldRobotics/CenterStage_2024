@@ -12,20 +12,6 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var intakeStart: Double = 0.0
     private var intakePositions: Array<Double> = arrayOf(0.05, 0.33, 0.67, 1.0) //array of positions for the intake servo to go to
 
-    private var outtakeClosed: Double = 0.0 //closed position
-    private var outtakeOpen: Double = 0.34 //open position
-    private var outtake: Boolean = true
-
-    private var armOut: Double = 0.22
-    private var armIn: Double = 0.46
-    private var arm: Boolean = false
-
-    private var timeSinceArm: Long = 0
-    private var timeSinceOuttake: Long = 0
-    private var minArmTimeIn = 200 //was 700
-    private var minOuttakeTime = 100
-
-    private var t: Thread? = null
 
     init {
         intakeServo.position = intakeStart
