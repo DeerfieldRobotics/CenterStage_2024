@@ -109,7 +109,7 @@ public class Red1Left extends OpMode {
                 .waitSeconds(1.3)
                 .addTemporalMarker(()->{
                     intake.intake(0.0);
-                    intake.outtakeToggle();
+                   // intake.outtakeToggle();
                     intake.getIntakeServo().setPosition(1.0);
                 })
                 .lineToLinearHeading(new Pose2d(28, -12, Math.toRadians(180)))
@@ -121,11 +121,11 @@ public class Red1Left extends OpMode {
                 .splineToConstantHeading(new Vector2d(53.25,-32+7.5*mult), Math.toRadians(-45))
                 //OUTTAKE 2
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+                   // intake.armToggle();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    intake.getOuttakeServo().setPosition(0.34);
+                   // intake.getOuttakeServo().setPosition(0.34);
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
@@ -133,7 +133,7 @@ public class Red1Left extends OpMode {
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+                   // intake.armToggle();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{

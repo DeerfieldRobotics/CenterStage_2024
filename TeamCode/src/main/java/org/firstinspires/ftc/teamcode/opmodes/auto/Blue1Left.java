@@ -128,11 +128,11 @@ public class Blue1Left extends OpMode {
                 .setTangent(Math.toRadians(45))
                 .splineToLinearHeading(new Pose2d(53.5,33+rightBackboard+centerBackboard-7*mult,Math.toRadians(180)), Math.toRadians(-60))
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+                    //intake.armToggle();
                 })
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{
-                    intake.getOuttakeServo().setPosition(0.34);
+                 //   intake.getOuttakeServo().setPosition(0.34);
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
@@ -140,7 +140,7 @@ public class Blue1Left extends OpMode {
                 })
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+                   // intake.armToggle();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
@@ -179,7 +179,7 @@ public class Blue1Left extends OpMode {
                 .waitSeconds(1.5)
                 .addTemporalMarker(()->{
                     intake.intake(-0.1);
-                    intake.outtakeToggle();
+              //      intake.outtakeToggle();
                     intake.getIntakeServo().setPosition(1.0);
                 })
                 .waitSeconds(0.2)
@@ -195,11 +195,11 @@ public class Blue1Left extends OpMode {
                 .splineToConstantHeading(new Vector2d(53.5+leftChange,36), Math.toRadians(45))
                 //OUTTAKE 2
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+             //       intake.armToggle();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    intake.getOuttakeServo().setPosition(0.34);
+                //    intake.getOuttakeServo().setPosition(0.34);
                 })
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
@@ -207,7 +207,7 @@ public class Blue1Left extends OpMode {
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{
-                    intake.armToggle();
+                //    intake.armToggle();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{

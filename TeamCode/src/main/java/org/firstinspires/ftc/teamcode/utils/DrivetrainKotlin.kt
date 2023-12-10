@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.utils
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
+import java.lang.Math.cos
+import java.lang.Math.sin
 
 /**
  * Controls the drivetrain of the robot.
@@ -15,29 +17,25 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
  */
 class DrivetrainKotlin (hardwareMap:HardwareMap) {
 
-    private var frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx //control hub: 0
-    private var frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx //control hub: 1
-    private var rearLeft: DcMotorEx = hardwareMap.get("bl") as DcMotorEx //control hub: 2
-    private var rearRight: DcMotorEx = hardwareMap.get("br") as DcMotorEx //control hub: 3
+    private val frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx //control hub: 0
+    private val frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx //control hub: 1
+    private val rearLeft: DcMotorEx = hardwareMap.get("bl") as DcMotorEx //control hub: 2
+    private val rearRight: DcMotorEx = hardwareMap.get("br") as DcMotorEx //control hub: 3
 
-    private var imu: IMU = hardwareMap.get("imu") as IMU
+    private val motors = listOf(frontLeft, frontRight, rearLeft, rearRight)
+
+    private val imu: IMU = hardwareMap.get("imu") as IMU
 
     private var powerMultiplier = 1.0
+    private var previousPower = 0.0
+    private val maxAcceleration = 0.02 // Adjust this value to change the maximum acceleration
+
 
     init {
         frontRight.direction = DcMotorSimple.Direction.REVERSE
 
-        frontLeft.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        frontRight.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        rearLeft.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        rearRight.mode = DcMotor.RunMode.RUN_USING_ENCODER
-
-        frontLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        frontRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        rearLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        rearRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
-
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
     }
 
     /**
@@ -52,6 +50,42 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
         frontRight.power = powerMultiplier * (forward - turn - strafe)
         rearLeft.power = powerMultiplier * (forward + turn - strafe)
         rearRight.power = powerMultiplier * (forward - turn + strafe)
+    }
+
+    fun moveCentered(forwardBack: Double, rightLeft: Double, rotate: Double) {
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+
+        // Get the current heading of the robot
+        val heading = getHeading()
+
+        // Calculate the rotated forwardBack and rightLeft values
+        val rotatedForwardBack = forwardBack * cos(heading) - rightLeft * sin(heading)
+        val rotatedRightLeft = forwardBack * sin(heading) + rightLeft * cos(heading)
+
+        // Calculate the desired power
+        val desiredPower = powerMultiplier * (rotatedForwardBack + rotate + rotatedRightLeft)
+
+        // Calculate the change in power
+        val powerChange = desiredPower - previousPower
+
+        // Limit the change in power to maxAcceleration
+        val limitedPowerChange = when {
+            powerChange > maxAcceleration -> maxAcceleration
+            powerChange < -maxAcceleration -> -maxAcceleration
+            else -> powerChange
+        }
+
+        // Calculate the new power
+        val newPower = previousPower + limitedPowerChange
+
+        // Set the power of the motors
+        frontLeft.power = newPower
+        frontRight.power = newPower
+        rearLeft.power = newPower
+        rearRight.power = newPower
+
+        // Update previousPower
+        previousPower = newPower
     }
 
     /**
@@ -184,20 +218,14 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
      * Uses [behavior] to determine the [DcMotor.ZeroPowerBehavior] of the motors when the power is set to 0.
      */
     fun setZeroPowerBehavior(behavior: DcMotor.ZeroPowerBehavior) {
-        frontLeft.zeroPowerBehavior = behavior
-        frontRight.zeroPowerBehavior = behavior
-        rearLeft.zeroPowerBehavior = behavior
-        rearRight.zeroPowerBehavior = behavior
+        applyToAllMotors { it.zeroPowerBehavior = behavior }
     }
 
     /**
      * Sets the mode of the motors to [DcMotor.RunMode] [mode]
      */
     fun setMode(mode: DcMotor.RunMode) {
-        frontLeft.mode = mode
-        frontRight.mode = mode
-        rearLeft.mode = mode
-        rearRight.mode = mode
+        applyToAllMotors { it.mode = mode }
     }
 
     /**
@@ -262,9 +290,14 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
      */
     fun isBusy(): Boolean = frontLeft.isBusy || frontRight.isBusy || rearLeft.isBusy || rearRight.isBusy
 
+    private fun applyToAllMotors(action: (DcMotorEx) -> Unit) {
+        motors.forEach(action)
+    }
+
     /**
      *  Returns a string containing the power, position, current, and velocity of all of the motors in the drivetrain.
      */
+
     override fun toString(): String = "frontLeft - power: ${frontLeft.power}, pos: ${frontLeft.currentPosition}, current: ${frontLeft.getCurrent(CurrentUnit.AMPS)}, velocity: ${frontLeft.velocity}\n" +
             "frontRight - power: ${frontRight.power}, pos: ${frontRight.currentPosition}, current: ${frontRight.getCurrent(CurrentUnit.AMPS)}, velocity: ${frontRight.velocity}\n" +
             "rearLeft - power: ${rearLeft.power}, pos: ${rearLeft.currentPosition}, current: ${rearLeft.getCurrent(CurrentUnit.AMPS)}, velocity: ${rearLeft.velocity}\n"+

@@ -216,7 +216,6 @@ public class MainTeleop extends LinearOpMode {
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             circleToggle = true;
-            outtake.rightClawToggle();
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -240,7 +239,7 @@ public class MainTeleop extends LinearOpMode {
         }
         if(gamepad2.square && !squareToggle) { //brings intake shit in
             squareToggle = true;
-            outtake.leftClawToggle();
+            outtake.gateToggle();
         }
         if(!gamepad2.square) {
             squareToggle = false;
@@ -261,14 +260,15 @@ public class MainTeleop extends LinearOpMode {
 
         drive = new SampleMecanumDrive(hardwareMap);
 
-        drivetrain = new DrivetrainKotlin(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
+        outtake = new OuttakeKotlin(hardwareMap, slide);
+        drivetrain = new DrivetrainKotlin(hardwareMap);
         intake = new IntakeKotlin(hardwareMap, slide);
         launcher = new Launcher(hardwareMap);
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.getOuttakeServo().setPosition(0.34);
+//        intake.getOuttakeServo().setPosition(0.34);
         intake.getIntakeServo().setPosition(0.1);
 
         // We want to turn off velocity control for teleop
