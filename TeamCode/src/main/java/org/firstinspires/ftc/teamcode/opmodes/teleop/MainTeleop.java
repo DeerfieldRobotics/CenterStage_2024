@@ -191,7 +191,7 @@ public class MainTeleop extends LinearOpMode {
         double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
         telemetry.addData("intakePower", rightTrigger);
-        intake.intake(0.4*(rightTrigger-leftTrigger));
+        intake.intake(0.8*(rightTrigger-leftTrigger));
 
 //        if (servoCounter != 3&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
 //            rightBumperToggle = true;

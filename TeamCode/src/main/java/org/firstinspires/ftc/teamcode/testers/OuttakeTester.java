@@ -13,12 +13,14 @@ public class OuttakeTester extends LinearOpMode {
     private SlideKotlin slide;
     private OuttakeKotlin outtake;
     private boolean crossToggle = false;
-    private double armAngle = 0;
-    private double wristAngle = 0;
+    private double armAngle;
+    private double wristAngle;
     @Override
     public void runOpMode() throws InterruptedException {
         slide = new SlideKotlin(hardwareMap);
         outtake = new OuttakeKotlin(hardwareMap, slide);
+        armAngle = outtake.getOuttakeAngle()[0];
+        wristAngle = outtake.getOuttakeAngle()[1];
         waitForStart();
         while (opModeIsActive()) {
             outtake.setOuttakeAngle(armAngle, wristAngle, true);
