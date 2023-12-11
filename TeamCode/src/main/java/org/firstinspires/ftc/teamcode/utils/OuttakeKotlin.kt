@@ -81,7 +81,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtake = true
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
-                gateToggle(true) //close both claws
+                gateToggle(true) //close gate
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
@@ -98,7 +98,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtake = false
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
-                gateToggle(false) //open both claws
+                gateToggle(false) //open gate
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
@@ -107,6 +107,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                         break
                     }
                 }
+                slide.bottomOutProcedure() //bottom out slide
                 t?.interrupt() //stops any existing threads
             }
             t!!.start()
@@ -120,6 +121,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtakeProcedure(false)
         }
     }
+    fun getOuttake():Boolean = outtake
 
     init {
         setOuttakeAngle(armInAngle, wristInAngle, true)

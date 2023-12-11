@@ -160,8 +160,9 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("slide ticks", slide.getPosition()[0]);
-            telemetry.addData("slide isBusy", slide.isBusy());
             telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
+            telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
+            telemetry.addLine("PIDF COEFFICIENTS: "+ intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
 
             telemetry.update();
         }
@@ -193,29 +194,18 @@ public class MainTeleop extends LinearOpMode {
         telemetry.addData("intakePower", rightTrigger);
         intake.intake(0.8*(rightTrigger-leftTrigger));
 
-//        if (servoCounter != 3&&gamepad2.right_bumper && !rightBumperToggle) { //Changes intake servo values on release
-//            rightBumperToggle = true;
-//            servoCounter++;
-//            intake.intakeServo(servoCounter);
-//        }
-//        if (!gamepad2.right_bumper) {
-//            rightBumperToggle = false;
-//        }
-//        if (servoCounter != 0&&gamepad2.left_bumper && !leftBumperToggle) {
-//            leftBumperToggle = true;
-//            servoCounter--;
-//            intake.intakeServo(servoCounter);
-//        }
-//        if (!gamepad2.left_bumper) {
-//            leftBumperToggle = false;
-//        }
-
         //Outtake Code
-
         outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
+        if(gamepad2.dpad_up)
+            intake.changeIntakeServo(.5);
+        if(gamepad2.dpad_down)
+            intake.changeIntakeServo(-.5);
+
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             circleToggle = true;
+            outtake.outtakeProcedure(true);
+            intake.intakeServo(IntakeKotlin.IntakePositions.OUT);
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -232,7 +222,7 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.cross && !crossToggle) { //toggles arm back and forth
             crossToggle = true;
-            outtake.outtakeProcedure();
+            outtake.outtakeProcedure(false);
         }
         if(!gamepad2.cross) {
             crossToggle = false;
@@ -244,6 +234,15 @@ public class MainTeleop extends LinearOpMode {
         if(!gamepad2.square) {
             squareToggle = false;
         }
+
+        if(gamepad2.right_bumper && !rightBumperToggle) {
+            rightBumperToggle = true;
+            intake.jig();
+        }
+        else if (!gamepad2.right_bumper) {
+            rightBumperToggle = false;
+        }
+
     }
 
     public void launcher() {
@@ -268,8 +267,6 @@ public class MainTeleop extends LinearOpMode {
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intake.getOuttakeServo().setPosition(0.34);
-        intake.getIntakeServo().setPosition(0.1);
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto

@@ -9,22 +9,32 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
-    private var intakeStart: Double = 0.0
-    private var intakePositions: Array<Double> = arrayOf(0.05, 0.33, 0.67, 1.0) //array of positions for the intake servo to go to
+    private var intakeStart: Double = 1.0
 
+    private var t: Thread? = null
+
+    enum class IntakePositions {
+        IN, OUT, SLIDE, FIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
+    }
+    private val IntakePositionMap = mapOf(
+            IntakePositions.IN to 0.2994,
+            IntakePositions.OUT to 1.0,
+            IntakePositions.SLIDE to 0.6994,
+            IntakePositions.FIVE to 0.8) //TODO
 
     init {
         intakeServo.position = intakeStart
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        intakeMotor.setPositionPIDFCoefficients(30.0)
     }
-    fun intakeServo(position: Int) {
-        intakeServo.position = intakePositions[position]
+    fun intakeServo(intakePosition: IntakePositions) {
+        intakeServo.position = IntakePositionMap[intakePosition]!!
     }
 
 
     fun changeIntakeServo(power: Double){
-        intakeServo.position -= power* 0.25;
+        intakeServo.position -= power* 0.05;
     }
 
     fun intakeServo (position: Double){
@@ -34,7 +44,33 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     fun intake (power: Double) {
         intakeMotor.power = power
     }
+    fun jig() {
 
+        t?.interrupt() //stops any existing threads
+        t = Thread { //makes a new thread to run the outtake procedure
+            try {
+                intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                intakeMotor.targetPosition = -270
+                intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+                intakeMotor.power = -10.0
+                while (intakeMotor.isBusy) {
+                    Thread.sleep(1)
+                }
+                intakeServo(IntakePositions.SLIDE)
+                Thread.sleep(500)
+                intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
+        t!!.start()
+
+    }
+    fun getPosition(): Int {
+        return intakeMotor.currentPosition
+    }
     fun getIntakeMotor(): DcMotorEx = intakeMotor
 
     fun getIntakeServo(): ServoImplEx = intakeServo
