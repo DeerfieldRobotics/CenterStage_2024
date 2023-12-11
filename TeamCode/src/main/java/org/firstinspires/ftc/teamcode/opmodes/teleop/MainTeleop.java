@@ -147,11 +147,9 @@ public class MainTeleop extends LinearOpMode {
 //            if (gamepad1.ps) {
 //                imu.resetYaw();
 //            }
-
 //            driveCentered();
             driveNormal();
 //            driveRRCentered();
-            telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();
             intake();
@@ -182,6 +180,7 @@ public class MainTeleop extends LinearOpMode {
         }
         else
             slide.setPower(0);
+        slide.checkBottomOut();
 
         telemetry.addData("Slide Current", slide.getCurrent());
     }
@@ -196,6 +195,11 @@ public class MainTeleop extends LinearOpMode {
 
         //Outtake Code
         outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
+
+        if(slide.getBottomOut()) {
+            outtake.intakePosition();
+        }
+
         if(gamepad2.dpad_up)
             intake.changeIntakeServo(.5);
         if(gamepad2.dpad_down)
@@ -279,8 +283,6 @@ public class MainTeleop extends LinearOpMode {
         drive.reverseMotors();
 
         waitForStart();
-
-        if (isStopRequested()) return;
     }
 
 }

@@ -54,6 +54,13 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
         }
     }
+    fun checkBottomOut () {
+        if (slide1.isOverCurrent || slide2.isOverCurrent && (getPosition()[0] > -100 || getPosition()[1] > -100)) {
+            bottomOut = true
+            setPower(0.0)
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
+        }
+    }
 
     fun bottomOutProcedure(){
         t?.interrupt() //stop any existing threads

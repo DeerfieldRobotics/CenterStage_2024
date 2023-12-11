@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
-import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
@@ -19,7 +18,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     enum class IntakePositions {
         IN, OUT, SLIDE, FIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
     }
-    private val IntakePositionMap = mapOf(
+    private val intakePositionMap = mapOf(
             IntakePositions.IN to 0.2994,
             IntakePositions.OUT to 1.0,
             IntakePositions.SLIDE to 0.6994,
@@ -33,7 +32,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID))
     }
     fun intakeServo(intakePosition: IntakePositions) {
-        intakeServo.position = IntakePositionMap[intakePosition]!!
+        intakeServo.position = intakePositionMap[intakePosition]!!
     }
 
 
@@ -49,25 +48,24 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         intakeMotor.power = power
     }
     fun jig() {
-
         t?.interrupt() //stops any existing threads
         t = Thread { //makes a new thread to run the outtake procedure
             try {
                 intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                intakeMotor.targetPosition = -270
+                intakeMotor.targetPosition = -240
                 intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
                 intakeMotor.power = 0.8
                 while (intakeMotor.isBusy) {
                     intakeMotor.power = 0.8
                 }
                 intakeServo(IntakePositions.SLIDE)
-                Thread.sleep(500)
+                Thread.sleep(400)
                 intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 val currentTime = System.currentTimeMillis()
-                while(System.currentTimeMillis() - currentTime < 800) {
-                    intakeMotor.power = 0.8
+                while(System.currentTimeMillis() - currentTime < 500) {
+                    intakeMotor.power = 1.0
                 }
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
