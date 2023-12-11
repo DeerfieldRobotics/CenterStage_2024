@@ -209,7 +209,7 @@ public class MainTeleop extends LinearOpMode {
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             circleToggle = true;
             outtake.outtakeProcedure(true);
-            intake.intakeServo(IntakeKotlin.IntakePositions.OUT);
+            intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -269,6 +269,7 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap, slide);
         launcher = new Launcher(hardwareMap);
 
+        outtake.intakePosition();
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

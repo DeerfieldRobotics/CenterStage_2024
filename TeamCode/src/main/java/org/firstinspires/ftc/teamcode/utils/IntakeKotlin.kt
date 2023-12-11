@@ -16,13 +16,14 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var t: Thread? = null
 
     enum class IntakePositions {
-        IN, OUT, SLIDE, FIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
+        IN, OUT, SLIDE, FIVE, DRIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
     }
     private val intakePositionMap = mapOf(
             IntakePositions.IN to 0.2994,
             IntakePositions.OUT to 1.0,
             IntakePositions.SLIDE to 0.6994,
-            IntakePositions.FIVE to 0.8) //TODO
+            IntakePositions.FIVE to 0.8, //TODO
+            IntakePositions.DRIVE to 0.9)
 
     init {
         intakeServo.position = intakeStart
@@ -45,6 +46,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     }
 
     fun intake (power: Double) {
+        intakeServo(IntakePositions.OUT)
         intakeMotor.power = power
     }
     fun jig() {
@@ -53,7 +55,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
             try {
                 intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                intakeMotor.targetPosition = -240
+                intakeMotor.targetPosition = -250
                 intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
                 intakeMotor.power = 0.8
                 while (intakeMotor.isBusy) {

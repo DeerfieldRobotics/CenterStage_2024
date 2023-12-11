@@ -5,28 +5,28 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
-    private var armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 0
-    private var wristServo: ServoImplEx = hardwareMap.get("ws") as ServoImplEx //control hub: 1
-    private var gateServo: ServoImplEx = hardwareMap.get("gs") as ServoImplEx //control hub: 2
+    private val armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 0
+    private val wristServo: ServoImplEx = hardwareMap.get("ws") as ServoImplEx //control hub: 1
+    private val gateServo: ServoImplEx = hardwareMap.get("gs") as ServoImplEx //control hub: 2
 
-    private var armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
-    private var armEndAngle = -174.0 //angle of arm at position 1.0
-    private var armInAngle = -132.0 //angle of arm when it is in the robot
-    private var armOutAngle = -30.8969 //angle of arm when it is out of the robot
-    private var armDownAngle = -128.0 //angle of arm to clear low u channel
+    private val armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
+    private val armEndAngle = -174.0 //angle of arm at position 1.0
+    private val armInAngle = -132.0 //angle of arm when it is in the robot
+    private val armOutAngle = -30.8969 //angle of arm when it is out of the robot
+    private val armDownAngle = -132.0 //angle of arm to clear low u channel
     private var currentArmAngle = armInAngle //current arm angle
-    private var incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
+    private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
     private var arm = false //whether the arm is in or out
 
-    private var wristStartAngle = -164.5 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
-    private var wristEndAngle = 81.0 //angle of wrist at position 1.0
-    private var wristInAngle = 65.5 //angle of wrist when it is in the robot
-    private var wristOutAngle = 8.48 //angle of wrist when it is out of the robot
-    private var wristDownAngle = 15.0 //angle of wrist to clear low u channel
+    private val wristStartAngle = -164.5 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
+    private val wristEndAngle = 81.0 //angle of wrist at position 1.0
+    private val wristInAngle = 65.5 //angle of wrist when it is in the robot
+    private val wristOutAngle = 8.48 //angle of wrist when it is out of the robot
+    private val wristDownAngle = 69.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle
 
-    private var gateOpen = 0.0 //open position TODO
-    private var gateClosed = 0.5 //closed position TODO
+    private val gateOpen = 0.0 //open position TODO
+    private val gateClosed = 0.5 //closed position TODO
 
     private var outtake = false //whether the outtake is out or in
 
@@ -108,16 +108,24 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
                 gateToggle(false) //open gate
+                var currentTime = 0L
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
                         armToggle(false) //bring arm in and wrist up to correct angle
+                        currentTime = System.currentTimeMillis()
                         break
                     }
                 }
-                while(slide.getPosition()[0] < slide.minSlideHeight) {
-                    slide.bottomOut() //bottom out slide
+                while(true) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight && System.currentTimeMillis() - currentTime > 500){
+                        slide.bottomOutProcedure() //bottom out slide
+                        break
+                    }
+                    else {
+                        slide.setPower(0.0)
+                    }
                 }
                 intakePosition()
                 t?.interrupt() //stops any existing threads
