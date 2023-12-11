@@ -11,7 +11,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     private var armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
     private var armEndAngle = -174.0 //angle of arm at position 1.0
-    private var armInAngle = -130.4 //angle of arm when it is in the robot TODO
+    private var armInAngle = -128.0 //angle of arm when it is in the robot TODO
     private var armOutAngle = -30.8969 //angle of arm when it is out of the robot TODO
     private var currentArmAngle = armInAngle //current arm angle
     private var incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
@@ -107,7 +107,9 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                         break
                     }
                 }
-                slide.bottomOutProcedure() //bottom out slide
+                while(slide.getPosition()[0] < slide.minSlideHeight) {
+                    slide.bottomOut() //bottom out slide
+                }
                 t?.interrupt() //stops any existing threads
             }
             t!!.start()

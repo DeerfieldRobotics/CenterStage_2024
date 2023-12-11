@@ -33,6 +33,9 @@ class DrivetrainKotlin (hardwareMap:HardwareMap) {
 
     init {
         frontRight.direction = DcMotorSimple.Direction.REVERSE
+        rearLeft.direction = DcMotorSimple.Direction.REVERSE
+        rearRight.direction = DcMotorSimple.Direction.REVERSE
+        frontLeft.direction = DcMotorSimple.Direction.FORWARD
 
         setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)

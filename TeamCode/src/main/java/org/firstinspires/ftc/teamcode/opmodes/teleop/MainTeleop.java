@@ -149,8 +149,8 @@ public class MainTeleop extends LinearOpMode {
 //            }
 
 //            driveCentered();
-//            driveNormal();
-            driveRRCentered();
+            driveNormal();
+//            driveRRCentered();
             telemetry.addData("Drivetrain Moving", (drivetrain.isBusy() ? "true" : "false"));
 
             slide();

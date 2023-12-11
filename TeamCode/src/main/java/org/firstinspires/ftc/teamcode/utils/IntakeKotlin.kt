@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.utils
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
+import com.qualcomm.robotcore.hardware.PIDCoefficients
+import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
@@ -26,7 +29,8 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         intakeServo.position = intakeStart
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        intakeMotor.setPositionPIDFCoefficients(30.0)
+
+        intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID))
     }
     fun intakeServo(intakePosition: IntakePositions) {
         intakeServo.position = IntakePositionMap[intakePosition]!!
@@ -53,14 +57,18 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 intakeMotor.targetPosition = -270
                 intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-                intakeMotor.power = -10.0
+                intakeMotor.power = 0.8
                 while (intakeMotor.isBusy) {
-                    Thread.sleep(1)
+                    intakeMotor.power = 0.8
                 }
                 intakeServo(IntakePositions.SLIDE)
                 Thread.sleep(500)
                 intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                val currentTime = System.currentTimeMillis()
+                while(System.currentTimeMillis() - currentTime < 800) {
+                    intakeMotor.power = 0.8
+                }
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
             }
