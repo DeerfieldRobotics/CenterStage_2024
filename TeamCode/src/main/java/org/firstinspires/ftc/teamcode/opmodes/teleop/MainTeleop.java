@@ -73,6 +73,8 @@ public class MainTeleop extends LinearOpMode {
     private void driveNormal() {
         speedMult = .7+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
 
+        gamepad1.rumble(gamepad1.left_trigger>0.5?(gamepad1.left_trigger-0.5)/.4:0.0,gamepad1.right_trigger>0.4?(gamepad1.right_trigger-0.4)/0.8:0.0,50);
+
         double forward = gamepad1.left_stick_y * forwardMult * speedMult;
         double turn = -gamepad1.right_stick_x * turnMult * speedMult;
         double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
@@ -170,8 +172,6 @@ public class MainTeleop extends LinearOpMode {
     private void slide() {
         slide.setPower(gamepad2.left_stick_y*l2Sensitivity/l2Max);
         slide.checkBottomOut();
-
-        telemetry.addData("Slide Current", slide.getCurrent());
     }
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
@@ -183,10 +183,6 @@ public class MainTeleop extends LinearOpMode {
 
         //Outtake Code
         outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
-
-//        if(slide.getBottomOut()) {
-//            outtake.intakePosition();
-//        }
 
         if(gamepad2.dpad_up)
             intake.changeIntakeServo(.5);

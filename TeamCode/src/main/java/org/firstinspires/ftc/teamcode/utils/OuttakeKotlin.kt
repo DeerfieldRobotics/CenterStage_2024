@@ -26,10 +26,12 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristDownAngle = 69.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle
 
-    private val gateOpen = 0.8 //open position TODO
+    private val gateOut = 0.8 //open position TODO
+    private val gateIntake = 0.7 //intake position TODO
     private val gateClosed = 0.92 //closed position TODO
 
     private var outtake = false //whether the outtake is out or in
+    private var gate = false //whether the gate is open or closed
 
     private var t: Thread? = null
 
@@ -44,20 +46,34 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     }
 
     fun gateToggle() {
-        gateServo.position = if (gateServo.position == gateOpen) gateClosed else gateOpen
+        gateToggle(!gate)
     }
     fun gateToggle(toggle: Boolean) {
-        gateServo.position = if (toggle) gateClosed else gateOpen
+        if(gate != toggle)
+            if(outtake)
+                if(gate) {
+                    gateServo.position = gateOut
+                    gate = false
+                }
+                else {
+                    gateServo.position = gateClosed
+                    gate = true
+                }
+            else
+                if(gate) {
+                    gateServo.position = gateIntake
+                    gate = false
+                }
+                else {
+                    gateServo.position = gateClosed
+                    gate = true
+                }
     }
     fun armToggle() {
-        if (arm) { //if arm out, bring in
-            armToggle(false)
-        } else { //if arm in, bring out
-            armToggle(true)
-        }
+        armToggle(!arm)
     }
     fun armToggle(toggle:Boolean) {
-        if(toggle!=arm) {
+        if(toggle!=arm)
             if (toggle) {
                 arm = true
                 outtake = true
@@ -67,7 +83,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 outtake = false
                 setOuttakeAngle(armDownAngle, wristDownAngle, true) //bring arm out and wrist down to correct angle
             }
-        }
     }
     fun intakePosition() {
         setOuttakeAngle(armInAngle, wristInAngle, true)
@@ -132,17 +147,12 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         }
     }
     fun outtakeProcedure() {
-        if(!outtake) { //makes sure outtake is not already out or currently going out
-            outtakeProcedure(true)
-        }
-        else { //makes sure outtake is not already in or currently going in
-            outtakeProcedure(false)
-        }
+        outtakeProcedure(!outtake)
     }
     fun getOuttake():Boolean = outtake
 
     init {
         setOuttakeAngle(armInAngle, wristInAngle, true)
-        gateServo.position = gateOpen
+        gateServo.position = gateOut
     }
 }

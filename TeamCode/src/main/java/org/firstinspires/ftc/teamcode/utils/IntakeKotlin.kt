@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2
+import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
@@ -46,8 +48,10 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
 
     fun intake (power: Double) { //if intaking, make sure the intake is out
-        if(power != 0.0)
+        if(abs(power) > 0.2 && intakeServo.position != intakePositionMap[IntakePositions.OUT]!!) {
             intakeServo(IntakePositions.OUT)
+            gamepad2.rumble(0.8, 0.8, 50)
+        }
         intakeMotor.power = power
     }
     fun transfer() {
