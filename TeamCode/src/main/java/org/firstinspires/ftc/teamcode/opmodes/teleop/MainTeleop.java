@@ -166,25 +166,13 @@ public class MainTeleop extends LinearOpMode {
         }
 
     }
-
+    // In MainTeleop.java
     private void slide() {
-        double slidePower = gamepad2.left_stick_y*l2Sensitivity/l2Max;
-        if(slidePower!=0) {
-            slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            if (slidePower >= 1)
-                slide.setPower(1);
-            else if (slidePower <= -1)
-                slide.setPower(-1);
-            else
-                slide.setPower(slidePower);
-        }
-        else
-            slide.setPower(0);
+        slide.setPower(gamepad2.left_stick_y*l2Sensitivity/l2Max);
         slide.checkBottomOut();
 
         telemetry.addData("Slide Current", slide.getCurrent());
     }
-
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
         //Set intake values and clamp them between 0 and 1
@@ -270,7 +258,7 @@ public class MainTeleop extends LinearOpMode {
         slide = new SlideKotlin(hardwareMap);
         outtake = new OuttakeKotlin(hardwareMap, slide);
         drivetrain = new DrivetrainKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap, slide);
+        intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
         outtake.intakePosition();

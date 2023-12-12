@@ -40,7 +40,7 @@ public class Red1Left extends OpMode {
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
         slide = new SlideKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap, slide);
+        intake = new IntakeKotlin(hardwareMap);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 

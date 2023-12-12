@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
-class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
+class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
@@ -85,11 +85,8 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         }
 
     }
-    fun getPosition(): Int {
-        return intakeMotor.currentPosition
-    }
+    fun getPosition(): Int = intakeMotor.currentPosition
     fun getIntakeMotor(): DcMotorEx = intakeMotor
-
     fun getIntakeServo(): ServoImplEx = intakeServo
     fun getIntakePos():Double = intakeServo.position
 }
