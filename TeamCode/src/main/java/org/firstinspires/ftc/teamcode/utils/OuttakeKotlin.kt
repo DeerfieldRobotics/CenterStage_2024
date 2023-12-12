@@ -103,8 +103,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
-                        outtake = true
-                        arm = true
                         armToggle(true) //bring arm out and wrist down to correct angle
                         break
                     }
