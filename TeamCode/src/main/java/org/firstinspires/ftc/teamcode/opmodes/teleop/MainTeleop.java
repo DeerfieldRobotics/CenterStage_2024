@@ -41,9 +41,6 @@ public class MainTeleop extends LinearOpMode {
     private double forwardMult = .7;
     private double turnMult = .65;
     private double strafeMult = .9;
-    //intake time values
-    long timeSinceArm = 0;
-    long timeSinceOuttake = 0;
 
     SampleMecanumDrive drive;
 

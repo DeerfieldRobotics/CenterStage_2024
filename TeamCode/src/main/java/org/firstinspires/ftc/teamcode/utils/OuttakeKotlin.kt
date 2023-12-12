@@ -14,7 +14,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val armEndAngle = -174.0 //angle of arm at position 1.0
     private val armInAngle = -132.0 //angle of arm when it is in the robot
     private val armOutAngle = -30.8969 //angle of arm when it is out of the robot
-    private val armDownAngle = -132.0 //angle of arm to clear low u channel
+    private val armDownAngle = -120.0 //angle of arm to clear low u channel
     private var currentArmAngle = armInAngle //current arm angle
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
     private var arm = false //whether the arm is in or out
@@ -23,7 +23,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristEndAngle = 81.0 //angle of wrist at position 1.0
     private val wristInAngle = 65.5 //angle of wrist when it is in the robot
     private val wristOutAngle = 8.48 //angle of wrist when it is out of the robot
-    private val wristDownAngle = 69.0 //angle of wrist to clear low u channel
+    private val wristDownAngle = 82.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle
 
     private val gateOut = 0.8 //open position TODO
@@ -95,7 +95,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     }
     fun outtakeProcedure(toggle:Boolean) {
         if(toggle && !outtake) { //makes sure outtake is not already out or currently going out
-            outtake = true
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
                 gateToggle(true) //close gate
@@ -104,12 +103,10 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
-                        gamepad2.rumble(0.8, 0.8, 50)
+                        outtake = true
+                        arm = true
                         armToggle(true) //bring arm out and wrist down to correct angle
                         break
-                    }
-                    else {
-                        armToggle(false)
                     }
                 }
                 t?.interrupt() //stops any existing threads

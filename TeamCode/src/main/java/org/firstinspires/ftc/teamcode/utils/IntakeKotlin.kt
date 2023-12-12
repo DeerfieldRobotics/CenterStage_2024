@@ -50,7 +50,6 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     fun intake (power: Double) { //if intaking, make sure the intake is out
         if(abs(power) > 0.2 && intakeServo.position != intakePositionMap[IntakePositions.OUT]!!) {
             intakeServo(IntakePositions.OUT)
-            gamepad2.rumble(0.8, 0.8, 50)
         }
         intakeMotor.power = power
     }
