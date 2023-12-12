@@ -150,6 +150,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     init {
         setOuttakeAngle(armInAngle, wristInAngle, true)
-        gateServo.position = gateOut
+        gateServo.position = gateClosed
     }
 }
