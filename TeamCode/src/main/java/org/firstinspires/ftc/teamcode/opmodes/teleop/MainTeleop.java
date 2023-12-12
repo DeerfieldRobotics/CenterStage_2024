@@ -196,9 +196,9 @@ public class MainTeleop extends LinearOpMode {
         //Outtake Code
         outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
 
-        if(slide.getBottomOut()) {
-            outtake.intakePosition();
-        }
+//        if(slide.getBottomOut()) {
+//            outtake.intakePosition();
+//        }
 
         if(gamepad2.dpad_up)
             intake.changeIntakeServo(.5);
