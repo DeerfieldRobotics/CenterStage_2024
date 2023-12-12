@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils
 
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2
 
 class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
@@ -92,6 +93,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
+                        gamepad2.rumble(0.8, 0.8, 50)
                         armToggle(true) //bring arm out and wrist down to correct angle
                         break
                     }

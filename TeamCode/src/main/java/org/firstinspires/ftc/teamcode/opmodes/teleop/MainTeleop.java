@@ -205,8 +205,11 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad2.dpad_down)
             intake.changeIntakeServo(-.5);
 
+        if(gamepad1.right_trigger>0.3)
+            intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
+            gamepad2.rumble(0.8,0.8,50);
             circleToggle = true;
             outtake.outtakeProcedure(true);
             intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
@@ -216,7 +219,7 @@ public class MainTeleop extends LinearOpMode {
         }
 
         //arm code
-        if (gamepad2.triangle&&!triangleToggle) { // on triangle press, arm toggles
+        if (gamepad2.triangle&&!triangleToggle) { // arm override
             triangleToggle = true;
             outtake.armToggle();
         }
@@ -224,14 +227,14 @@ public class MainTeleop extends LinearOpMode {
             triangleToggle = false;
         }
 
-        if(gamepad2.cross && !crossToggle) { //toggles arm back and forth
+        if(gamepad2.cross && !crossToggle) { //resets arm
             crossToggle = true;
             outtake.outtakeProcedure(false);
         }
         if(!gamepad2.cross) {
             crossToggle = false;
         }
-        if(gamepad2.square && !squareToggle) { //brings intake shit in
+        if(gamepad2.square && !squareToggle) { //gate override
             squareToggle = true;
             outtake.gateToggle();
         }
@@ -240,8 +243,9 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
+            gamepad2.rumble(1.0,1.0,50);
             rightBumperToggle = true;
-            intake.jig();
+            intake.transfer();
         }
         else if (!gamepad2.right_bumper) {
             rightBumperToggle = false;

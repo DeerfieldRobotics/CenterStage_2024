@@ -13,6 +13,8 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
 
     private var intakeStart: Double = 1.0
 
+    private var transfer = false
+
     private var t: Thread? = null
 
     enum class IntakePositions {
@@ -29,51 +31,60 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         intakeServo.position = intakeStart
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-
-        intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID))
     }
     fun intakeServo(intakePosition: IntakePositions) {
+        //if switching off of transfer, make sure can switch back
+        if(intakePosition != IntakePositions.SLIDE && intakeServo.position != intakePositionMap[IntakePositions.SLIDE]!!)
+            transfer = false
         intakeServo.position = intakePositionMap[intakePosition]!!
     }
 
 
     fun changeIntakeServo(power: Double){
-        intakeServo.position -= power* 0.05;
+        intakeServo.position -= power* 0.05
+        transfer = false
     }
 
-    fun intakeServo (position: Double){
-        intakeServo.position = position
-    }
-
-    fun intake (power: Double) {
-        intakeServo(IntakePositions.OUT)
+    fun intake (power: Double) { //if intaking, make sure the intake is out
+        if(power != 0.0)
+            intakeServo(IntakePositions.OUT)
         intakeMotor.power = power
     }
-    fun jig() {
-        t?.interrupt() //stops any existing threads
-        t = Thread { //makes a new thread to run the outtake procedure
-            try {
-                intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                intakeMotor.targetPosition = -250
-                intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-                intakeMotor.power = 0.8
-                while (intakeMotor.isBusy) {
+    fun transfer() {
+        if (intakeServo.position != intakePositionMap[IntakePositions.SLIDE]!! && !transfer) {
+            t?.interrupt() //stops any existing threads
+            t = Thread { //makes a new thread to run the outtake procedure
+                try {
+                    intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                    intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                    intakeMotor.targetPosition = -250
+
+                    val pidfCoefficients = PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID)
+                    intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pidfCoefficients)
+
+                    intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
                     intakeMotor.power = 0.8
+                    while (intakeMotor.isBusy) {
+                        intakeMotor.power = 0.8
+                    }
+                    intakeServo(IntakePositions.SLIDE)
+                    Thread.sleep(400)
+                    intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                    intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                    transfer = true
+                    val currentTime = System.currentTimeMillis()
+                    while (System.currentTimeMillis() - currentTime < 500) {
+                        intakeMotor.power = 1.0
+                    }
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
                 }
-                intakeServo(IntakePositions.SLIDE)
-                Thread.sleep(400)
-                intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                val currentTime = System.currentTimeMillis()
-                while(System.currentTimeMillis() - currentTime < 500) {
-                    intakeMotor.power = 1.0
-                }
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
             }
+            t!!.start()
         }
-        t!!.start()
+        else if (transfer) {
+            intakeMotor.power = 1.0
+        }
 
     }
     fun getPosition(): Int {
