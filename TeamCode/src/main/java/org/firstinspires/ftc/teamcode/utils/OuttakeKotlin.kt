@@ -51,13 +51,9 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     }
     fun armToggle() {
         if (arm) { //if arm out, bring in
-            arm = false
-            outtake = false
-            setOuttakeAngle(armDownAngle, wristDownAngle, true) //bring arm out and wrist down to correct angle
+            armToggle(false)
         } else { //if arm in, bring out
-            outtake = true
-            arm = true
-            setOuttakeAngle(armOutAngle, wristOutAngle, true) //bring arm out and wrist down to correct angle
+            armToggle(true)
         }
     }
     fun armToggle(toggle:Boolean) {
@@ -69,7 +65,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             } else {
                 arm = false
                 outtake = false
-                setOuttakeAngle(armInAngle, wristInAngle, true) //bring arm out and wrist down to correct angle
+                setOuttakeAngle(armDownAngle, wristDownAngle, true) //bring arm out and wrist down to correct angle
             }
         }
     }

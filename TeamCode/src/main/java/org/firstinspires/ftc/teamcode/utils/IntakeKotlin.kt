@@ -18,12 +18,12 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     private var t: Thread? = null
 
     enum class IntakePositions {
-        IN, OUT, SLIDE, FIVE, DRIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
+        IN, OUT, TRANSFER, FIVE, DRIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
     }
     private val intakePositionMap = mapOf(
             IntakePositions.IN to 0.2994,
             IntakePositions.OUT to 1.0,
-            IntakePositions.SLIDE to 0.6994,
+            IntakePositions.TRANSFER to 0.6994,
             IntakePositions.FIVE to 0.8, //TODO
             IntakePositions.DRIVE to 0.9)
 
@@ -34,7 +34,7 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
     }
     fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
-        if(intakePosition != IntakePositions.SLIDE && intakeServo.position != intakePositionMap[IntakePositions.SLIDE]!!)
+        if(intakePosition != IntakePositions.TRANSFER && intakeServo.position == intakePositionMap[IntakePositions.TRANSFER]!!)
             transfer = false
         intakeServo.position = intakePositionMap[intakePosition]!!
     }
@@ -51,25 +51,23 @@ class IntakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin){
         intakeMotor.power = power
     }
     fun transfer() {
-        if (intakeServo.position != intakePositionMap[IntakePositions.SLIDE]!! && !transfer) {
+        if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
             t?.interrupt() //stops any existing threads
-            t = Thread { //makes a new thread to run the outtake procedure
+            t = Thread { //makes a new thread to run the transfer procedure
                 try {
                     intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                    intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                    intakeMotor.targetPosition = -250
+                    intakeMotor.targetPosition = -250 //set value for how much motor needs to outtake to transfer
 
                     val pidfCoefficients = PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID)
                     intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pidfCoefficients)
 
                     intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-                    intakeMotor.power = 0.8
-                    while (intakeMotor.isBusy) {
-                        intakeMotor.power = 0.8
+                    intakeMotor.power = 1.0
+                    while (intakeMotor.isBusy) { //wait for it to finish
+                        intakeMotor.power = 1.0
                     }
-                    intakeServo(IntakePositions.SLIDE)
+                    intakeServo(IntakePositions.TRANSFER)
                     Thread.sleep(400)
-                    intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                     intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                     transfer = true
                     val currentTime = System.currentTimeMillis()
