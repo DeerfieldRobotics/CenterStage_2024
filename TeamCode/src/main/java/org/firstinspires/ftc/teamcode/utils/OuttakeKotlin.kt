@@ -26,8 +26,8 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristDownAngle = 69.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle
 
-    private val gateOpen = 0.0 //open position TODO
-    private val gateClosed = 0.5 //closed position TODO
+    private val gateOpen = 0.8 //open position TODO
+    private val gateClosed = 0.92 //closed position TODO
 
     private var outtake = false //whether the outtake is out or in
 
