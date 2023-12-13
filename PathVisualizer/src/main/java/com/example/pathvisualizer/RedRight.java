@@ -23,33 +23,26 @@ public class RedRight {
                 //.setStartPose(new Pose2d(50, 50))
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 9)
                 .followTrajectorySequence(drive ->
-                                drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(180))) //initial position
-                                        // TODO: RIGHT
-//                                        .setTangent(Math.toRadians(45))
-//                                        .splineToConstantHeading(new Vector2d(29,-32), Math.toRadians(120))
-
-                                            // TODO: Center
-//                                        .setTangent(Math.toRadians(70))
-//                                        .splineToConstantHeading(new Vector2d(20,-23), Math.toRadians(120))
-
+                                drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90))) //initial position
                                         .setTangent(Math.toRadians(90))
-                                        .splineToConstantHeading(new Vector2d(7,-32), Math.toRadians(120))
+                                        .splineToSplineHeading(new Pose2d(9,-37,Math.toRadians(180)), Math.toRadians(120))
 
                                         // TODO: SPIKE PURPLE
+
                                         .setTangent(0)
                                         // TODO: BRING SLIDE UP
                                         .splineToLinearHeading(new Pose2d(50,-35,Math.toRadians(180)), Math.toRadians(0))
                                         .waitSeconds(1.0)
                                         // TODO: OUTTAKE YELLOW
-                                        .setTangent(135)
+                                        .setTangent(Math.toRadians(100))
                                         // TODO: BRING SLIDE DOWN, RAISE INTAKE
-                                        .splineToConstantHeading(new Vector2d(24,-11.8), Math.toRadians(180))
+                                        .splineToSplineHeading(new Pose2d(24,-11.8, Math.toRadians(180)), Math.toRadians(180))
                                         // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
 
-                                        .splineToConstantHeading(new Vector2d(-66,-11.8), Math.toRadians(180))
+                                        .splineToSplineHeading(new Pose2d(-66,-11.8, Math.toRadians(180)), Math.toRadians(180))
                                         .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
                                         // TODO: SLIDE UP
-                                        .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
+                                        .splineToSplineHeading(new Pose2d(50,-37, Math.toRadians(180)), Math.toRadians(-80))
                                         // TODO: OUTTAKE 2 WHITE BOIS
 
                                         // TODO: SLIDE DOWN, INTAKE CHANGE POSITION
