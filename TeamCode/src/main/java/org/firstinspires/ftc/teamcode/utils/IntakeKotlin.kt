@@ -21,7 +21,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         INIT, INTAKE, TRANSFER, FIVE, DRIVE //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving
     }
     private val intakePositionMap = mapOf(
-            IntakePositions.INIT to 0.2994,
+            IntakePositions.INIT to 0.4,
             IntakePositions.INTAKE to 1.0,
             IntakePositions.TRANSFER to 0.6994,
             IntakePositions.FIVE to 0.8, //TODO
