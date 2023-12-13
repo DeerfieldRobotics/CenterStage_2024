@@ -6,31 +6,29 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2
 import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
-    private var intakeStart: Double = 1.0
-
     private var transfer = false
+    var currentPosition = IntakePositions.INIT
 
     private var t: Thread? = null
 
     enum class IntakePositions {
-        IN, OUT, TRANSFER, FIVE, DRIVE //IN FOR INIT POSITION, OUT FOR REGULAR POSITION, SLIDE FOR TRANSFER POSITION, FIVE FOR FIVE STACK POSITION
+        INIT, INTAKE, TRANSFER, FIVE, DRIVE //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving
     }
     private val intakePositionMap = mapOf(
-            IntakePositions.IN to 0.2994,
-            IntakePositions.OUT to 1.0,
+            IntakePositions.INIT to 0.2994,
+            IntakePositions.INTAKE to 1.0,
             IntakePositions.TRANSFER to 0.6994,
             IntakePositions.FIVE to 0.8, //TODO
-            IntakePositions.DRIVE to 0.9)
+            IntakePositions.DRIVE to 0.85)
 
     init {
-        intakeServo.position = intakeStart
+        intakeServo.position = intakePositionMap[IntakePositions.INIT]!!
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
@@ -39,6 +37,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         if(intakePosition != IntakePositions.TRANSFER && intakeServo.position == intakePositionMap[IntakePositions.TRANSFER]!!)
             transfer = false
         intakeServo.position = intakePositionMap[intakePosition]!!
+        currentPosition = intakePosition
     }
 
 
@@ -48,8 +47,8 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
 
     fun intake (power: Double) { //if intaking, make sure the intake is out
-        if(abs(power) > 0.2 && intakeServo.position != intakePositionMap[IntakePositions.OUT]!!) {
-            intakeServo(IntakePositions.OUT)
+        if(abs(power) > 0.2 && intakeServo.position != intakePositionMap[IntakePositions.INTAKE]!!) {
+            intakeServo(IntakePositions.INTAKE)
         }
         intakeMotor.power = power
     }
