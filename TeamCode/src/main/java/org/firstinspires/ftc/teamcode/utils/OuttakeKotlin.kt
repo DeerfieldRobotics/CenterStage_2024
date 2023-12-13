@@ -50,10 +50,10 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         if (gateClosed != toggle) {
             gateClosed = toggle
             gateServo.position = when {
-                outtakeExtended && gateClosed -> gateOuttake
-                outtakeExtended -> gateClose
-                gateClosed -> gateIntake
-                else -> gateClose
+                outtakeExtended && gateClosed -> gateClose
+                outtakeExtended -> gateOuttake
+                gateClosed -> gateClose
+                else -> gateIntake
             }
         }
     }
@@ -133,6 +133,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     init {
         setOuttakeAngle(armInAngle, wristInAngle, true)
-        gateServo.position = gateClose
-    }
+        gateServo.position = gateIntake
+
 }
