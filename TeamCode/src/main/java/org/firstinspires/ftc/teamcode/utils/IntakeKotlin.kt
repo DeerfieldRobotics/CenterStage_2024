@@ -69,6 +69,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeServo(servoPosition)
         intakeMotor.power = motorPower
         motorIsBusy = intakeMotor.isBusy
+        t?.resume()
     } //griddy griddy on the haters - Charlie Jakymiw 2023
     fun transfer() {
         if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
@@ -77,18 +78,21 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                 try {
                     motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                     motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
-
+                    t?.suspend()
                     motorMode = DcMotor.RunMode.RUN_TO_POSITION
                     motorPower = 0.8
+                    t?.suspend()
                     while (motorIsBusy) { //wait for it to finish
                         motorPower = 0.8
                     }
                     servoPosition = IntakePositions.TRANSFER
+                    t?.suspend()
                     var currentTime = System.currentTimeMillis()
                     while(System.currentTimeMillis() - currentTime < 500) {
                         motorPower = 0.0
                     }
                     motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                    t?.suspend()
                     transfer = true
                     currentTime = System.currentTimeMillis()
                     while (System.currentTimeMillis() - currentTime < 500) {

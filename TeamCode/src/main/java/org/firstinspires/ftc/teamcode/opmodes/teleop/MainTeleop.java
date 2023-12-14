@@ -58,6 +58,9 @@ public class MainTeleop extends LinearOpMode {
     private boolean leftBumperToggle = false;
 
     private boolean runToPos = false;
+    private double lastTickTime = 0;
+    private double avgTickTime = 0;
+    private int tickCount = 0;
     private ElapsedTime runtime = new ElapsedTime();
 
     private IMU imu;
@@ -143,6 +146,12 @@ public class MainTeleop extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            tickCount++;
+            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
+            lastTickTime = runtime.milliseconds();
+            avgTickTime = (avgTickTime*(tickCount-1)+runtime.milliseconds()-lastTickTime)/tickCount;
+            telemetry.addData("Avg Tick Time", avgTickTime);
+
 //            if (gamepad1.ps) {
 //                imu.resetYaw();
 //            }
