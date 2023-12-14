@@ -12,6 +12,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     var minSlideHeight = -1000
     var slideTolerance = 100
     var bottomOut = false
+    var bottomOutProcedure = false
     private var t: Thread? = null
 
     init {
@@ -43,7 +44,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide1.targetPosition = position
         slide2.targetPosition = position
     }
-    fun bottomOut () {
+    private fun bottomOut () {
         if(!bottomOut) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             setPower(1.0)
@@ -62,16 +63,14 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
-
-    fun bottomOutProcedure(){
-        t?.interrupt() //stop any existing threads
-        t = Thread { //remake thread but how we want this time
-            while (!bottomOut) {
-                bottomOut()
-            }
-            t?.interrupt()
+    fun update() {
+        checkBottomOut()
+        if(bottomOutProcedure && !bottomOut) {
+            bottomOut()
         }
-        t!!.start()
+        else if (bottomOutProcedure) {
+            bottomOutProcedure = false
+        }
     }
 
     fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)

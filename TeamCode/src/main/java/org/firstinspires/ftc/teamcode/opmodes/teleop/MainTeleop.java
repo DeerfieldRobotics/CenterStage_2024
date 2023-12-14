@@ -56,7 +56,6 @@ public class MainTeleop extends LinearOpMode {
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
     private boolean leftBumperToggle = false;
-    private boolean bottomOut = false;
 
     private boolean runToPos = false;
     private ElapsedTime runtime = new ElapsedTime();
@@ -79,36 +78,6 @@ public class MainTeleop extends LinearOpMode {
 
         drivetrain.move(forward, strafe, turn);
     }
-    @Override
-    public void runOpMode() {
-        initialize();
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-//            if (gamepad1.ps) {
-//                imu.resetYaw();
-//            }
-//            driveCentered();
-            driveNormal();
-//            driveRRCentered();
-
-            slide();
-            intake();
-            launcher();
-
-            telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
-            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
-            telemetry.addData("slide ticks", slide.getPosition()[0]);
-            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
-            telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
-            telemetry.addLine("PIDF COEFFICIENTS: "+ intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
-
-            telemetry.update();
-        }
-
-    }
-
     //mack poop
     private void driveCentered() {
         double y = -gamepad1.left_stick_y;
@@ -167,14 +136,39 @@ public class MainTeleop extends LinearOpMode {
         telemetry.update();
     }
 
+    @Override
+    public void runOpMode() {
+        initialize();
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+//            if (gamepad1.ps) {
+//                imu.resetYaw();
+//            }
+//            driveCentered();
+            driveNormal();
+//            driveRRCentered();
+
+            slide();
+            intake();
+            launcher();
+
+            telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
+            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
+            telemetry.addData("slide ticks", slide.getPosition()[0]);
+            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
+            telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
+            telemetry.addLine("PIDF COEFFICIENTS: "+ intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
+
+            telemetry.update();
+        }
+
+    }
     // In MainTeleop.java
     private void slide() {
         slide.setPower(gamepad2.left_stick_y*l2Sensitivity/l2Max);
-        slide.checkBottomOut();
-        if(bottomOut!=slide.getBottomOut()) {
-            bottomOut = slide.getBottomOut();
-            gamepad2.rumble(1.0,1.0,50);
-        }
+        slide.update();
     }
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
@@ -196,7 +190,7 @@ public class MainTeleop extends LinearOpMode {
             intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
-            gamepad2.rumbleBlips(1);
+            gamepad2.rumble(0.8,0.8,50);
             circleToggle = true;
             outtake.outtakeProcedure(true);
             intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
@@ -208,7 +202,7 @@ public class MainTeleop extends LinearOpMode {
         //arm code
         if (gamepad2.triangle&&!triangleToggle) { // arm override
             triangleToggle = true;
-            outtake.armToggle();
+            outtake.setOuttakeExtended(!outtake.getOuttakeExtended());
         }
         if (!gamepad2.triangle) {
             triangleToggle = false;
@@ -223,32 +217,23 @@ public class MainTeleop extends LinearOpMode {
         }
         if(gamepad2.square && !squareToggle) { //gate override
             squareToggle = true;
-            outtake.gateToggle();
+            outtake.setGateClosed(!outtake.getGateClosed());
         }
         if(!gamepad2.square) {
             squareToggle = false;
         }
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
-            gamepad2.rumbleBlips(1);
+            outtake.setIntakePosition(true);
+            gamepad2.rumble(1.0,1.0,50);
             rightBumperToggle = true;
             intake.transfer();
         }
         else if (!gamepad2.right_bumper) {
             rightBumperToggle = false;
         }
-
-        if(gamepad2.left_bumper && !leftBumperToggle) {
-            gamepad2.rumbleBlips(1);
-            leftBumperToggle = true;
-            if(intake.getCurrentPosition() != IntakeKotlin.IntakePositions.INTAKE)
-                intake.intakeServo(IntakeKotlin.IntakePositions.INTAKE);
-            else
-                intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
-        }
-        else if (!gamepad2.left_bumper) {
-            leftBumperToggle = false;
-        }
+        intake.update();
+        outtake.update();
 
     }
 
@@ -272,7 +257,7 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
-        outtake.intakePosition();
+        outtake.setIntakePosition(true);
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
