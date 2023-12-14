@@ -76,7 +76,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t = Thread { //makes a new thread to run the transfer procedure
                 try {
                     motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                    intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
+                    motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
 
                     motorMode = DcMotor.RunMode.RUN_TO_POSITION
                     motorPower = 0.8
