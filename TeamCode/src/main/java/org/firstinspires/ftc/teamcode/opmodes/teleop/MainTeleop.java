@@ -175,7 +175,6 @@ public class MainTeleop extends LinearOpMode {
         //Set intake values and clamp them between 0 and 1
         double rightTrigger = Math.max((gamepad2.right_trigger-rTriggerStart)/(rTriggerEnd-rTriggerStart),0);
         double leftTrigger = Math.max((gamepad2.left_trigger-lTriggerStart)/(lTriggerEnd-lTriggerStart),0);
-        telemetry.addData("intakePower", rightTrigger);
         intake.intake(0.8*(rightTrigger-leftTrigger));
 
         //Outtake Code
@@ -187,13 +186,13 @@ public class MainTeleop extends LinearOpMode {
             intake.changeIntakeServo(-.5);
 
         if(gamepad1.right_trigger>0.3)
-            intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
+            intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
-            gamepad2.rumble(0.8,0.8,50);
+            gamepad2.rumbleBlips(1);
             circleToggle = true;
             outtake.outtakeProcedure(true);
-            intake.intakeServo(IntakeKotlin.IntakePositions.DRIVE);
+            intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -232,9 +231,18 @@ public class MainTeleop extends LinearOpMode {
         else if (!gamepad2.right_bumper) {
             rightBumperToggle = false;
         }
+
+        if(gamepad2.left_bumper && !leftBumperToggle) {
+            if(intake.getServoPosition()!=IntakeKotlin.IntakePositions.INTAKE)
+                intake.setServoPosition(IntakeKotlin.IntakePositions.INTAKE);
+            else
+                intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+        }
+        else if (!gamepad2.left_bumper) {
+            leftBumperToggle = false;
+        }
         intake.update();
         outtake.update();
-
     }
 
     public void launcher() {

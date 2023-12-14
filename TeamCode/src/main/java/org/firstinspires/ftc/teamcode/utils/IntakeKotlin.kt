@@ -26,7 +26,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             IntakePositions.DRIVE to 0.85)
 
     private var motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-    private var servoPosition = IntakePositions.INIT
+    var servoPosition = IntakePositions.INIT
     private var motorTargetPosition = 0
     private var motorPower = 0.0
     private var motorIsBusy = false
@@ -37,15 +37,15 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         intakeMotor.mode = motorMode
     }
-    fun intakeServo(intakePosition: IntakePositions) {
+    private fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
         if(intakePosition != IntakePositions.TRANSFER)
             transfer = false
         if(intakePosition == IntakePositions.MANUAL) {
             intakeServo.position = manualPosition
-            return
         }
-        intakeServo.position = intakePositionMap[intakePosition]!!
+        else
+            intakeServo.position = intakePositionMap[intakePosition]!!
         currentPosition = intakePosition
     }
 
@@ -59,7 +59,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
 
     fun intake (power: Double) { //if intaking, make sure the intake is out
         if(abs(power) > 0.2 && servoPosition != IntakePositions.INTAKE) {
-            intakeServo(IntakePositions.INTAKE)
+            servoPosition = IntakePositions.INTAKE
         }
         motorPower = power
     }
@@ -84,10 +84,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                         motorPower = 0.8
                     }
                     servoPosition = IntakePositions.TRANSFER
-                    Thread.sleep(400)
+                    var currentTime = System.currentTimeMillis()
+                    while(System.currentTimeMillis() - currentTime < 500) {
+                        motorPower = 0.0
+                    }
                     motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                     transfer = true
-                    val currentTime = System.currentTimeMillis()
+                    currentTime = System.currentTimeMillis()
                     while (System.currentTimeMillis() - currentTime < 500) {
                         motorPower = 1.0
                     }
