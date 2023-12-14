@@ -34,7 +34,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
     fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
-        if(intakePosition != IntakePositions.TRANSFER && intakeServo.position == intakePositionMap[IntakePositions.TRANSFER]!!)
+        if(intakePosition != IntakePositions.TRANSFER)
             transfer = false
         intakeServo.position = intakePositionMap[intakePosition]!!
         currentPosition = intakePosition
@@ -58,15 +58,15 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t = Thread { //makes a new thread to run the transfer procedure
                 try {
                     intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                    intakeMotor.targetPosition = -250 //set value for how much motor needs to outtake to transfer
+                    intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
 
                     val pidfCoefficients = PIDFCoefficients(30.0, 3.0, 0.0, 0.0, MotorControlAlgorithm.LegacyPID)
                     intakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pidfCoefficients)
 
                     intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-                    intakeMotor.power = 1.0
+                    intakeMotor.power = 0.8
                     while (intakeMotor.isBusy) { //wait for it to finish
-                        intakeMotor.power = 1.0
+                        intakeMotor.power = 0.8
                     }
                     intakeServo(IntakePositions.TRANSFER)
                     Thread.sleep(400)
