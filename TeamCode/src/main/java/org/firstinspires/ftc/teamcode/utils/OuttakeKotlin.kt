@@ -12,7 +12,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
     private val armEndAngle = -174.0 //angle of arm at position 1.0
     private val armInAngle = -132.0 //angle of arm for intaking
-    private val armOutAngle = -30.8969 //angle of arm when it is out of the robot
+    private var armOutAngle = -30.8969 //angle of arm when it is out of the robot
     private val armDownAngle = -120.0 //angle of arm to clear low u channel
     private var currentArmAngle = armInAngle //current arm angle
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
@@ -45,7 +45,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     }
     fun outtakeAngleAdjust(armAngleIncrement: Double) {
         if(outtakeExtended) {
-            currentArmAngle += armAngleIncrement*incrementMultiplier
+            armOutAngle += armAngleIncrement*incrementMultiplier
             setOuttakeAngle(currentArmAngle, wristOutAngle, true)
         }
     }
@@ -101,7 +101,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 }
                 while(true) {
                     if(slide.getPosition().average() <= slide.minSlideHeight && System.currentTimeMillis() - currentTime > 500){
-                        slide.bottomOut = true //bottom out slide
+                        slide.bottomOutProcedure = true //bottom out slide
                         break
                     }
                 }

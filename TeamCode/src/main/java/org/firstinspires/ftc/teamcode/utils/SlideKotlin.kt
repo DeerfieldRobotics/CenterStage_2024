@@ -13,6 +13,10 @@ class SlideKotlin (hardwareMap: HardwareMap){
     var slideTolerance = 100
     var bottomOut = false
     var bottomOutProcedure = false
+
+    private var slide1Position = 0
+    private var slide2Position = 0
+
     private var t: Thread? = null
 
     init {
@@ -64,6 +68,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
         }
     }
     fun update() {
+        slide1Position = slide1.currentPosition
+        slide2Position = slide2.currentPosition
         checkBottomOut()
         if(bottomOutProcedure && !bottomOut) {
             bottomOut()
@@ -74,7 +80,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
     }
 
     fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)
-    fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
+    fun getPosition(): Array<Int> = arrayOf(slide1Position, slide2Position)
     fun getTargetPosition(): Array<Int> = arrayOf(slide1.targetPosition, slide2.targetPosition)
     fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))
     fun getAvgCurrent(): Double = getCurrent().average()
