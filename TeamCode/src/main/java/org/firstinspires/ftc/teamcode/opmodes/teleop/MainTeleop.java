@@ -168,7 +168,7 @@ public class MainTeleop extends LinearOpMode {
     // In MainTeleop.java
     private void slide() {
         slide.setPower(gamepad2.left_stick_y*l2Sensitivity/l2Max);
-        slide.checkBottomOut();
+        slide.update();
     }
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
@@ -202,7 +202,7 @@ public class MainTeleop extends LinearOpMode {
         //arm code
         if (gamepad2.triangle&&!triangleToggle) { // arm override
             triangleToggle = true;
-            outtake.armToggle();
+            outtake.setOuttakeExtended(!outtake.getOuttakeExtended());
         }
         if (!gamepad2.triangle) {
             triangleToggle = false;
@@ -217,13 +217,14 @@ public class MainTeleop extends LinearOpMode {
         }
         if(gamepad2.square && !squareToggle) { //gate override
             squareToggle = true;
-            outtake.gateToggle();
+            outtake.setGateClosed(!outtake.getGateClosed());
         }
         if(!gamepad2.square) {
             squareToggle = false;
         }
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
+            outtake.setIntakePosition(true);
             gamepad2.rumble(1.0,1.0,50);
             rightBumperToggle = true;
             intake.transfer();
@@ -232,6 +233,7 @@ public class MainTeleop extends LinearOpMode {
             rightBumperToggle = false;
         }
         intake.update();
+        outtake.update();
 
     }
 
@@ -255,7 +257,7 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
-        outtake.intakePosition();
+        outtake.setIntakePosition(true);
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

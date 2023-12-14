@@ -28,8 +28,9 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
-    private var outtakeExtended = false //whether the outtake is out or in
-    private var gateClosed = false //whether the gate is open or closed
+    var outtakeExtended = false //whether the outtake is out or in
+    var intakePosition = false //whether the outtake is in the intake position
+    var gateClosed = false //whether the gate is open or closed
 
     private var t: Thread? = null
 
@@ -42,53 +43,40 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     fun getOuttakeAngle(): DoubleArray { //get position of arm and wrist servos
         return doubleArrayOf(currentArmAngle, currentWristAngle)
     }
-
-    fun gateToggle() {
-        gateToggle(!gateClosed)
-    }
-    fun gateToggle(toggle: Boolean) {
-        if (gateClosed != toggle) {
-            gateClosed = toggle
-            gateServo.position = when {
-                outtakeExtended && gateClosed -> gateClose
-                outtakeExtended -> gateOuttake
-                gateClosed -> gateClose
-                else -> gateIntake
-            }
-        }
-    }
-    fun armToggle() {
-        armToggle(!outtakeExtended)
-    }
-    fun armToggle(toggle:Boolean) {
-        if (toggle) {
-            outtakeExtended = true
-            setOuttakeAngle(armOutAngle, wristOutAngle, true) //bring arm out and wrist down to correct angle
-        } else {
-            outtakeExtended = false
-            setOuttakeAngle(armDownAngle, wristDownAngle, true) //bring arm out and wrist down to correct angle
-        }
-    }
-    fun intakePosition() {
-        setOuttakeAngle(armInAngle, wristInAngle, true)
-    }
     fun outtakeAngleAdjust(armAngleIncrement: Double) {
         if(outtakeExtended) {
             currentArmAngle += armAngleIncrement*incrementMultiplier
             setOuttakeAngle(currentArmAngle, wristOutAngle, true)
         }
     }
+    fun update() {
+        gateServo.position = when {
+            outtakeExtended && gateClosed -> gateClose
+            outtakeExtended -> gateOuttake
+            gateClosed -> gateClose
+            else -> gateIntake
+        }
+        setOuttakeAngle(when {
+            outtakeExtended -> armOutAngle
+            intakePosition -> armInAngle
+            else -> armDownAngle
+        }, when {
+            outtakeExtended -> wristOutAngle
+            intakePosition -> wristInAngle
+            else -> wristDownAngle
+        }, true)
+    }
     fun outtakeProcedure(toggle:Boolean) {
         if(toggle && !outtakeExtended) { //makes sure outtake is not already out or currently going out
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
-                gateToggle(true) //close gate
-                armToggle(false)
+                gateClosed = true //close gate
+                intakePosition = false
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
-                        armToggle(true) //bring arm out and wrist down to correct angle
+                        outtakeExtended = true
                         break
                     }
                 }
@@ -100,27 +88,24 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtakeExtended = false
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
-                gateToggle(false) //open gate
+                gateClosed = false //open gate
                 var currentTime = 0L
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
                     ) {
-                        armToggle(false) //bring arm in and wrist up to correct angle
+                        outtakeExtended = false //bring outtake in
                         currentTime = System.currentTimeMillis()
                         break
                     }
                 }
                 while(true) {
                     if(slide.getPosition().average() <= slide.minSlideHeight && System.currentTimeMillis() - currentTime > 500){
-                        slide.bottomOutProcedure() //bottom out slide
+                        slide.bottomOut = true //bottom out slide
                         break
                     }
-                    else {
-                        slide.setPower(0.0)
-                    }
                 }
-                intakePosition()
+                intakePosition = true
                 t?.interrupt() //stops any existing threads
             }
             t!!.start()

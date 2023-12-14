@@ -33,9 +33,9 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     private var manualPosition = 0.0
 
     init {
-        intakeServo.position = intakePositionMap[IntakePositions.INIT]!!
+        intakeServo.position = intakePositionMap[servoPosition]!!
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        intakeMotor.mode = motorMode
     }
     fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
