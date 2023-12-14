@@ -231,6 +231,7 @@ public class MainTeleop extends LinearOpMode {
         else if (!gamepad2.right_bumper) {
             rightBumperToggle = false;
         }
+        intake.update();
 
     }
 
