@@ -30,7 +30,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     var outtakeExtended = false //whether the outtake is out or in
     var intakePosition = false //whether the outtake is in the intake position
-    var gateClosed = false //whether the gate is open or closed
+    var gateClosed = true //whether the gate is open or closed
 
     private var t: Thread? = null
 
@@ -77,6 +77,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                             .average() <= slide.minSlideHeight
                     ) {
                         outtakeExtended = true
+                        t?.interrupt() //stops any existing threads
                         break
                     }
                 }
@@ -117,7 +118,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     fun getOuttake():Boolean = outtakeExtended
 
     init {
-        setOuttakeAngle(armInAngle, wristInAngle, true)
-        gateServo.position = gateIntake
+        setOuttakeAngle(armDownAngle, wristDownAngle, true)
+        gateServo.position = gateClose
     }
 }
