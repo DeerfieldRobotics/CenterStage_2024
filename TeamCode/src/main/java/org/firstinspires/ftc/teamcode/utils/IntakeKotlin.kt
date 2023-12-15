@@ -4,6 +4,10 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
@@ -12,6 +16,8 @@ class IntakeKotlin(hardwareMap: HardwareMap){
 
     private var transfer = false
     private var currentPosition = IntakePositions.INIT
+
+    private var updateTick = false
 
     private var t: Thread? = null
 
@@ -69,40 +75,44 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeServo(servoPosition)
         intakeMotor.power = motorPower
         motorIsBusy = intakeMotor.isBusy
+        updateTick = true
     } //griddy griddy on the haters - Charlie Jakymiw 2023
+
+    @OptIn(DelicateCoroutinesApi::class)
     fun transfer() {
-        if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
-            t?.interrupt() //stops any existing threads
-            t = Thread { //makes a new thread to run the transfer procedure
-                try {
-                    motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                    motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
-                    motorMode = DcMotor.RunMode.RUN_TO_POSITION
+        GlobalScope.launch {
+            if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
+                motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
+                waitForTick()
+                motorMode = DcMotor.RunMode.RUN_TO_POSITION
+                waitForTick()
+                motorPower = 0.8
+                while (motorIsBusy) { //wait for it to finish
                     motorPower = 0.8
-                    while (motorIsBusy) { //wait for it to finish
-                        motorPower = 0.8
-                    }
-                    servoPosition = IntakePositions.TRANSFER
-                    var currentTime = System.currentTimeMillis()
-                    while(System.currentTimeMillis() - currentTime < 500) {
-                        motorPower = 0.0
-                    }
-                    motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                    transfer = true
-                    currentTime = System.currentTimeMillis()
-                    while (System.currentTimeMillis() - currentTime < 500) {
-                        motorPower = 1.0
-                    }
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
+                }
+                servoPosition = IntakePositions.TRANSFER
+                waitForTick()
+                var currentTime = System.currentTimeMillis()
+                while(System.currentTimeMillis() - currentTime < 500) {
+                    motorPower = 0.0
+                }
+                motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                waitForTick()
+                transfer = true
+                waitForTick()
+                currentTime = System.currentTimeMillis()
+                while (System.currentTimeMillis() - currentTime < 500) {
+                    motorPower = 1.0
                 }
             }
-            t!!.start()
         }
-        else if (transfer) {
-            motorPower = 1.0
+    }
+    suspend fun waitForTick() {
+        while (!updateTick) {
+            delay(10)
         }
-
+        updateTick = false
     }
     fun getPosition(): Int = intakeMotor.currentPosition
     fun getIntakeMotor(): DcMotorEx = intakeMotor
