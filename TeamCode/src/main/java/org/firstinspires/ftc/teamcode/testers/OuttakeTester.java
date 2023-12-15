@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import android.transition.Slide;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 @TeleOp(name = "Outtake Tester", group = "a")
+@Disabled
 public class OuttakeTester extends LinearOpMode {
     private SlideKotlin slide;
     private OuttakeKotlin outtake;

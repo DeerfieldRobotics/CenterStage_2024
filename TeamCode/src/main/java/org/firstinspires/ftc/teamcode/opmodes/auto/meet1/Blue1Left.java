@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto.meet1;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -18,6 +19,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name = "BlueClose")
+@Disabled
 public class Blue1Left extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private PIDF pidf;

@@ -24,8 +24,10 @@ public class RedRight {
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 9)
                 .followTrajectorySequence(drive ->
                                 drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90))) //initial position
-                                        .setTangent(Math.toRadians(90))
-                                        .splineToSplineHeading(new Pose2d(9,-37,Math.toRadians(180)), Math.toRadians(120))
+
+                                        .setTangent(Math.toRadians(60))
+                                        .splineToSplineHeading(new Pose2d(20,-30, Math.toRadians(180)), Math.toRadians(150))
+
 
                                         // TODO: SPIKE PURPLE
 

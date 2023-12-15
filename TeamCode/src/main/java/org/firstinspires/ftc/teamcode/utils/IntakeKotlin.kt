@@ -31,10 +31,10 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             IntakePositions.FIVE to 0.8, //TODO
             IntakePositions.DRIVE to 0.85)
 
-    private var motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+    var motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     var servoPosition = IntakePositions.INIT
-    private var motorTargetPosition = 0
-    private var motorPower = 0.0
+    var motorTargetPosition = 0
+    var motorPower = 0.0
     private var motorIsBusy = false
     private var manualPosition = 0.0
 

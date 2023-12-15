@@ -26,7 +26,7 @@ public class RedRight extends OpMode {
     private PIDF pidf;
     private SampleMecanumDrive drive;
     private IntakeKotlin intake;
-    private OuttakeKotlin outake;
+    private OuttakeKotlin outtake;
     private SlideKotlin slide;
     private TrajectorySequence path;
 
@@ -35,6 +35,7 @@ public class RedRight extends OpMode {
     private double leftBackboardXOffset = 0.0;
     private double rightBackboardXOffset = 0.0;
     private double centerSpikeYOffset = 0.0;
+    private double centerSpikeBackOffset = 0.0;
 
 
     private OpenCvCamera frontCamera;
@@ -46,9 +47,9 @@ public class RedRight extends OpMode {
     @Override
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
-//        slide = new SlideKotlin(hardwareMap);
-//        intake = new IntakeKotlin(hardwareMap);
-//        outake = new OuttakeKotlin(hardwareMap, slide);
+        slide = new SlideKotlin(hardwareMap);
+        intake = new IntakeKotlin(hardwareMap);
+        outtake = new OuttakeKotlin(hardwareMap, slide);
 //        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -64,67 +65,106 @@ public class RedRight extends OpMode {
             @Override
             public void onError(int errorCode) {}
         });
+
+        outtake.setGateClosed(true);
+        outtake.update();
+
+        outtake.setOuttakeAngle(outtake.getOuttakeAngle()[0], 30, false);
+        //outtake.update();
     }
 
     @Override
     public void init_loop() {
-//        purplePixelPath = colorDetection.getPosition();
-//        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
-//        {
-//            leftSpikeXOffest = 0.0;
-//            leftBackboardXOffset = 0.0;
-//            rightSpikeXOffset = 0.0;
-//            rightBackboardXOffset = 0.0;
-//            centerSpikeYOffset = 0.0;
-//        }
-//        else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
-//        {
-//            leftSpikeXOffest = 0.0;
-//            leftBackboardXOffset = 0.0;
-//            rightSpikeXOffset = 0.0;
-//            rightBackboardXOffset = 0.0;
-//            centerSpikeYOffset = 0.0;
-//        }
-//        else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
-//        {
-//            leftSpikeXOffest = 0.0;
-//            leftBackboardXOffset = 0.0;
-//            rightSpikeXOffset = 0.0;
-//            rightBackboardXOffset = 0.0;
-//            centerSpikeYOffset = 0.0;
-//        }
-//
-////        telemetry.addLine(colorDetection.toString());
-//        telemetry.addData("Purple Pixel Path: ", purplePixelPath);
+        purplePixelPath = colorDetection.getPosition();
+        if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
+        {
+            leftSpikeXOffest = -3.0;
+            leftBackboardXOffset = 0.0;
+            rightSpikeXOffset = 0.0;
+            rightBackboardXOffset = 0.0;
+            centerSpikeYOffset = 0.0;
+            centerSpikeBackOffset = -1.99;
+        }
+        else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
+        {
+            leftSpikeXOffest = 0.0;
+            leftBackboardXOffset = 0.0;
+            rightSpikeXOffset = 0.0;
+            rightBackboardXOffset = 0.0;
+            centerSpikeYOffset = 5.0;
+            centerSpikeBackOffset = 0.0;
+        }
+        else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
+        {
+            leftSpikeXOffest = 3.0;
+            leftBackboardXOffset = 0.0;
+            rightSpikeXOffset = 0.0;
+            rightBackboardXOffset = 0.0;
+            centerSpikeYOffset = 0.0;
+            centerSpikeBackOffset = -1.99;
+        }
+
+        telemetry.addLine(colorDetection.toString());
+        telemetry.addData("Purple Pixel Path: ", purplePixelPath);
 //        telemetry.addLine(""+wp.getAvg());
 //        telemetry.addLine(wp.toString());
-//        telemetry.update();
+        telemetry.update();
     }
 
     @Override
     public void start() {
+        intake.setServoPosition(IntakeKotlin.IntakePositions.INIT);
+        intake.update();
 
         drive.setPoseEstimate(new Pose2d(11,-63, Math.toRadians(90)));
         path = drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90)))
-                .setTangent(Math.toRadians(90))
-                .splineToSplineHeading(new Pose2d(9,-37,Math.toRadians(180)), Math.toRadians(120))
+                .setTangent(Math.toRadians(60))
+                .addTemporalMarker(()->{
+                    intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+                    intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    intake.update();
+                })
+                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,-30+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(150))
 
                 // TODO: SPIKE PURPLE
-
-                .setTangent(0)
-                // TODO: BRING SLIDE UP
-                .splineToLinearHeading(new Pose2d(50,-35,Math.toRadians(180)), Math.toRadians(0))
+//                .addTemporalMarker(()->{
+//                    intake.getIntakeMotor().setPower(-0.5);
+//                })
+//                .waitSeconds(0.5)
+                .back(2-centerSpikeBackOffset)
+                .addTemporalMarker(()->{
+                    intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    intake.setMotorTargetPosition(200);
+                    intake.setMotorPower(0.5);
+                    intake.update();
+//                    slide.setTargetPosition(-1000);
+                })
                 .waitSeconds(1.0)
+                .setTangent(0)
+                .addTemporalMarker(()->{
+                    intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    intake.setMotorPower(0);
+                    intake.update();
+                })
+                // TODO: BRING SLIDE UP
+                .splineToLinearHeading(new Pose2d(53+leftBackboardXOffset+rightBackboardXOffset,-37,Math.toRadians(180)), Math.toRadians(0))
+//                .addTemporalMarker(()->{
+////                    outtake.getWristServo().setPosition();
+//                })
+//                .waitSeconds(1.0)
                 // TODO: OUTTAKE YELLOW
-                .setTangent(Math.toRadians(100))
+                .setTangent(135)
                 // TODO: BRING SLIDE DOWN, RAISE INTAKE
-                .splineToSplineHeading(new Pose2d(24,-11.8, Math.toRadians(180)), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(24,-10), Math.toRadians(180))
+//                .addTemporalMarker(()->{
+//                    outtake.setOuttakeAngle();
+//                })
                 // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
-
-                .splineToSplineHeading(new Pose2d(-66,-11.8, Math.toRadians(180)), Math.toRadians(180))
-                .lineToLinearHeading(new Pose2d(28, -11.8, Math.toRadians(180)))
+                .splineToSplineHeading(new Pose2d(-55,-10, Math.toRadians(180)), Math.toRadians(180))
+                .waitSeconds(1)
+                .lineToLinearHeading(new Pose2d(28, -10, Math.toRadians(180)))
                 // TODO: SLIDE UP
-                .splineToSplineHeading(new Pose2d(50,-37, Math.toRadians(180)), Math.toRadians(-80))
+                .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
                 // TODO: OUTTAKE 2 WHITE BOIS
 
                 // TODO: SLIDE DOWN, INTAKE CHANGE POSITION
@@ -140,6 +180,6 @@ public class RedRight extends OpMode {
 //        telemetry.addLine("AVG "+ avg);
 //        telemetry.addLine("WHITE VALUES: "+cp.getWhiteVals());
 
-//        telemetry.update();
+        telemetry.update();
     }
 }
