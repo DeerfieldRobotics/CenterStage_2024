@@ -21,7 +21,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristEndAngle = 81.0 //angle of wrist at position 1.0
     private val wristInAngle = 65.5 //angle of wrist for intaking
     private val wristOutAngle = 8.48 //angle of wrist when it is out of the robot
-    private val wristDownAngle = 82.0 //angle of wrist to clear low u channel
+    private val wristDownAngle = 30.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle
 
     private val gateOuttake = 0.8 //open position
@@ -64,7 +64,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtakeExtended -> wristOutAngle
             intakePosition -> wristInAngle
             else -> wristDownAngle
-        }, true)
+        }, intakePosition||outtakeExtended)
     }
     fun outtakeProcedure(toggle:Boolean) {
         if(toggle && !outtakeExtended) { //makes sure outtake is not already out or currently going out
