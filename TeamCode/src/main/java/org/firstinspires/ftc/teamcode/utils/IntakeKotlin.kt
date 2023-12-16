@@ -104,7 +104,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                 intakeMotor.power = 0.0
                 intakeServo(IntakePositions.TRANSFER)
                 var currentTime = System.currentTimeMillis()
-                while(currentTime - System.currentTimeMillis() < 400) {
+                while(System.currentTimeMillis() - currentTime < 400) {
 
                 }
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
