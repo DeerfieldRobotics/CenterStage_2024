@@ -55,10 +55,10 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(7.4, 0, 0.2);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7.6, 0, 1.2);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(10, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5.5, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1.4;
+    public static double LATERAL_MULTIPLIER = 1.48;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -297,7 +297,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return 0;
     }
 
     public void reverseMotors() {
@@ -309,7 +309,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return (double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+        return 0.0;
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

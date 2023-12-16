@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
-    private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //control hub: 5
+    private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var transfer = false

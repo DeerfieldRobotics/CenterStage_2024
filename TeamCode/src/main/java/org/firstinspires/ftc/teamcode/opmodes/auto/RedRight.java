@@ -32,8 +32,8 @@ public class RedRight extends OpMode {
 
     private double leftSpikeXOffest = 0.0;
     private double rightSpikeXOffset = 0.0;
-    private double leftBackboardXOffset = 0.0;
-    private double rightBackboardXOffset = 0.0;
+    private double leftBackboardYOffset = 0.0;
+    private double rightBackboardYOffset = 0.0;
     private double centerSpikeYOffset = 0.0;
     private double centerSpikeBackOffset = 0.0;
 
@@ -78,30 +78,30 @@ public class RedRight extends OpMode {
         purplePixelPath = colorDetection.getPosition();
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
-            leftSpikeXOffest = -3.0;
-            leftBackboardXOffset = 0.0;
+            leftSpikeXOffest = -11.0;
+            leftBackboardYOffset = 10.0;
             rightSpikeXOffset = 0.0;
-            rightBackboardXOffset = 0.0;
+            rightBackboardYOffset = 0.0;
             centerSpikeYOffset = 0.0;
-            centerSpikeBackOffset = -1.99;
+            centerSpikeBackOffset = 0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
         {
             leftSpikeXOffest = 0.0;
-            leftBackboardXOffset = 0.0;
+            leftBackboardYOffset = 0.0;
             rightSpikeXOffset = 0.0;
-            rightBackboardXOffset = 0.0;
-            centerSpikeYOffset = 5.0;
+            rightBackboardYOffset = 0.0;
+            centerSpikeYOffset = 5.8;
             centerSpikeBackOffset = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
         {
-            leftSpikeXOffest = 3.0;
-            leftBackboardXOffset = 0.0;
-            rightSpikeXOffset = 0.0;
-            rightBackboardXOffset = 0.0;
+            leftSpikeXOffest = 0.0;
+            leftBackboardYOffset = 0.0;
+            rightSpikeXOffset = 5.0;
+            rightBackboardYOffset = -4.0;
             centerSpikeYOffset = 0.0;
-            centerSpikeBackOffset = -1.99;
+            centerSpikeBackOffset = -5;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -127,17 +127,12 @@ public class RedRight extends OpMode {
                 .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,-30+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(150))
 
                 // TODO: SPIKE PURPLE
-//                .addTemporalMarker(()->{
-//                    intake.getIntakeMotor().setPower(-0.5);
-//                })
-//                .waitSeconds(0.5)
                 .back(2-centerSpikeBackOffset)
                 .addTemporalMarker(()->{
                     intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    intake.setMotorTargetPosition(200);
+                    intake.setMotorTargetPosition(250);
                     intake.setMotorPower(0.5);
                     intake.update();
-//                    slide.setTargetPosition(-1000);
                 })
                 .waitSeconds(1.0)
                 .setTangent(0)
@@ -145,24 +140,60 @@ public class RedRight extends OpMode {
                     intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     intake.setMotorPower(0);
                     intake.update();
+
+                    slide.setTargetPosition(-1400);
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(0.7);
+                    slide.update();
                 })
                 // TODO: BRING SLIDE UP
-                .splineToLinearHeading(new Pose2d(53+leftBackboardXOffset+rightBackboardXOffset,-37,Math.toRadians(180)), Math.toRadians(0))
-//                .addTemporalMarker(()->{
-////                    outtake.getWristServo().setPosition();
-//                })
-//                .waitSeconds(1.0)
+                .splineToLinearHeading(new Pose2d(54,-37+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
-                .setTangent(135)
-                // TODO: BRING SLIDE DOWN, RAISE INTAKE
-                .splineToConstantHeading(new Vector2d(24,-10), Math.toRadians(180))
-//                .addTemporalMarker(()->{
-//                    outtake.setOuttakeAngle();
-//                })
-                // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
-                .splineToSplineHeading(new Pose2d(-55,-10, Math.toRadians(180)), Math.toRadians(180))
+                .addTemporalMarker(()->{
+                    outtake.setOuttakeExtended(true);
+                    outtake.update();
+                })
+                .waitSeconds(2)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-400);
+                    slide.update();
+                })
                 .waitSeconds(1)
-                .lineToLinearHeading(new Pose2d(28, -10, Math.toRadians(180)))
+                .back(2)
+                .waitSeconds(1)
+                .addTemporalMarker(()->{
+                    outtake.setGateClosed(false);
+                    outtake.update();
+                })
+                .waitSeconds(2)
+                .addTemporalMarker(()-> {
+                    slide.setTargetPosition(-1400);
+                    slide.update();
+                })
+                .waitSeconds(2)
+                .addTemporalMarker(()->{
+                    outtake.setOuttakeExtended(false);
+                    outtake.update();
+                })
+                .waitSeconds(2)
+                .setTangent(135)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(0);
+                    slide.setPower(1);
+                    slide.update();
+                })
+                // TODO: BRING SLIDE DOWN, RAISE INTAKE
+                .splineToSplineHeading(new  Pose2d(24,-10, Math.toRadians(170)), Math.toRadians(180))
+                .addTemporalMarker(()->{
+                    slide.setPower(0);
+                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    slide.update();
+                })
+                .waitSeconds(0.5)
+                // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
+                .splineToSplineHeading(new Pose2d(-55,-9, Math.toRadians(170)), Math.toRadians(180))
+                .waitSeconds(1)
+                .lineToLinearHeading(new Pose2d(28, -10, Math.toRadians(170)))
                 // TODO: SLIDE UP
                 .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
                 // TODO: OUTTAKE 2 WHITE BOIS
