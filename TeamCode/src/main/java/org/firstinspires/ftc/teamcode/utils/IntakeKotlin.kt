@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.utils
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
+import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
@@ -15,6 +13,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var transfer = false
+    var transferring = false
     private var currentPosition = IntakePositions.INIT
 
     private var updateTick = false
@@ -73,46 +72,72 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         motorPower = power
     }
     fun update() {
-        intakeMotor.targetPosition = motorTargetPosition
-        intakeMotor.mode = motorMode
-        intakeServo(servoPosition)
-        intakeMotor.power = motorPower
-        motorIsBusy = intakeMotor.isBusy
-        motorPosition = intakeMotor.currentPosition
-        updateTick = true
+        if(!transferring) {
+            intakeMotor.targetPosition = motorTargetPosition
+            intakeMotor.mode = motorMode
+            intakeServo(servoPosition)
+            intakeMotor.power = motorPower
+            motorIsBusy = intakeMotor.isBusy
+            motorPosition = intakeMotor.currentPosition
+            updateTick = true
+        }
     } //griddy griddy on the haters - Charlie Jakymiw 2023
 
     fun transfer() {
         t?.interrupt() //stops any existing threads
         if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
-            intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-            motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-            intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
-            motorTargetPosition = -240
-            intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-            motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.power = 0.8
-            motorPower = 0.8
+            transferring = true
+//            intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+//            motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+//            intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
+//            motorTargetPosition = -240
+//            intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+//            motorMode = DcMotor.RunMode.RUN_TO_POSITION
+//            intakeMotor.power = 0.8
+//            motorPower = 0.8
+//            t = Thread { //makes a new thread to run the transfer procedure
+//                while (motorIsBusy) {
+//                    waitForTick()
+//                }
+//                servoPosition = IntakePositions.TRANSFER
+//                waitForTick()
+////                var currentTime = System.currentTimeMillis()
+//                motorPower = 0.0
+//                motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+//                waitForTick()
+//                transfer = true
+//                waitForTick()
+//                val currentTime = System.currentTimeMillis()
+//                while (System.currentTimeMillis() - currentTime < 500) {
+//                    motorPower = 1.0
+//                }
+//                motorPower = 0.0
+//                t?.interrupt()
+//            }
+//            t?.start()
+            t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the transfer procedure
-                while (motorIsBusy) {
-                    waitForTick()
+                intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
+                intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+                intakeMotor.power = 1.0
+                while (intakeMotor.isBusy) { //wait for it to finish
+                    intakeMotor.power = 1.0
                 }
-                servoPosition = IntakePositions.TRANSFER
-                waitForTick()
-//                var currentTime = System.currentTimeMillis()
-                motorPower = 0.0
-                motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                waitForTick()
+                intakeServo(IntakePositions.TRANSFER)
+                var currentTime = System.currentTimeMillis()
+                while(currentTime - System.currentTimeMillis() < 400) {
+
+                }
+                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 transfer = true
-                waitForTick()
-                val currentTime = System.currentTimeMillis()
+                currentTime = System.currentTimeMillis()
                 while (System.currentTimeMillis() - currentTime < 500) {
-                    motorPower = 1.0
+                    intakeMotor.power = 1.0
                 }
-                motorPower = 0.0
+                transferring = false
                 t?.interrupt()
             }
-            t?.start()
         }
     }
     fun waitForTick() {
