@@ -11,7 +11,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     private val armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
     private val armEndAngle = -174.0 //angle of arm at position 1.0
-    private val armInAngle = -132.0 //angle of arm for intaking
+    private val armInAngle = -130.0 //angle of arm for intaking
     private var armOutAngle = -30.8969 //angle of arm when it is out of the robot
     private val armDownAngle = -117.0 //angle of arm to clear low u channel
     private var currentArmAngle = armInAngle //current arm angle
@@ -19,7 +19,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     private val wristStartAngle = -164.5 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
     private val wristEndAngle = 81.0 //angle of wrist at position 1.0
-    private val wristInAngle = 65.5 //angle of wrist for intaking
+    private val wristInAngle = 60.0 //angle of wrist for intaking
     private val wristOutAngle = 8.48 //angle of wrist when it is out of the robot
     private val wristDownAngle = 30.0 //angle of wrist to clear low u channel
     private var currentWristAngle = wristInAngle //current wrist angle

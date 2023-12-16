@@ -36,6 +36,8 @@ public class RedRight extends OpMode {
     private double rightBackboardYOffset = 0.0;
     private double centerSpikeYOffset = 0.0;
     private double centerSpikeBackOffset = 0.0;
+    private double leftIntakeYOffset = 0.0;
+    private double rightIntakeYOffset = 0.0;
 
 
     private OpenCvCamera frontCamera;
@@ -79,9 +81,11 @@ public class RedRight extends OpMode {
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
             leftSpikeXOffest = -11.0;
-            leftBackboardYOffset = 10.0;
+            leftBackboardYOffset = 8.0;
+            leftIntakeYOffset = -2.0;
             rightSpikeXOffset = 0.0;
             rightBackboardYOffset = 0.0;
+            rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
         }
@@ -89,7 +93,9 @@ public class RedRight extends OpMode {
         {
             leftSpikeXOffest = 0.0;
             leftBackboardYOffset = 0.0;
+            leftIntakeYOffset = 0.0;
             rightSpikeXOffset = 0.0;
+            rightIntakeYOffset = 0.0;
             rightBackboardYOffset = 0.0;
             centerSpikeYOffset = 5.8;
             centerSpikeBackOffset = 0.0;
@@ -98,10 +104,12 @@ public class RedRight extends OpMode {
         {
             leftSpikeXOffest = 0.0;
             leftBackboardYOffset = 0.0;
+            leftIntakeYOffset = 0.0;
             rightSpikeXOffset = 5.0;
-            rightBackboardYOffset = -4.0;
+            rightBackboardYOffset = -8.0;
+            rightIntakeYOffset = 2.0;
             centerSpikeYOffset = 0.0;
-            centerSpikeBackOffset = -5;
+            centerSpikeBackOffset = -8;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -134,7 +142,7 @@ public class RedRight extends OpMode {
                     intake.setMotorPower(0.5);
                     intake.update();
                 })
-                .waitSeconds(1.0)
+                .waitSeconds(0.5)
                 .setTangent(0)
                 .addTemporalMarker(()->{
                     intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -143,60 +151,140 @@ public class RedRight extends OpMode {
 
                     slide.setTargetPosition(-1400);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    slide.setPower(0.7);
+                    slide.setPower(1);
                     slide.update();
                 })
                 // TODO: BRING SLIDE UP
-                .splineToLinearHeading(new Pose2d(54,-37+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(54,-35+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
                     outtake.setOuttakeExtended(true);
                     outtake.update();
                 })
-                .waitSeconds(2)
+                .waitSeconds(1)
                 .addTemporalMarker(()->{
                     slide.setTargetPosition(-400);
                     slide.update();
                 })
-                .waitSeconds(1)
+                .waitSeconds(0.7)
                 .back(2)
-                .waitSeconds(1)
+                .waitSeconds(0.3)
                 .addTemporalMarker(()->{
                     outtake.setGateClosed(false);
                     outtake.update();
                 })
-                .waitSeconds(2)
+                .waitSeconds(0.7)
                 .addTemporalMarker(()-> {
                     slide.setTargetPosition(-1400);
                     slide.update();
                 })
-                .waitSeconds(2)
+                .forward(10)
+                .waitSeconds(0.5)
                 .addTemporalMarker(()->{
                     outtake.setOuttakeExtended(false);
                     outtake.update();
                 })
-                .waitSeconds(2)
-                .setTangent(135)
+                .waitSeconds(1)
                 .addTemporalMarker(()->{
-                    slide.setTargetPosition(0);
-                    slide.setPower(1);
-                    slide.update();
+                    slide.bottomOutProcedure();
                 })
                 // TODO: BRING SLIDE DOWN, RAISE INTAKE
-                .splineToSplineHeading(new  Pose2d(24,-10, Math.toRadians(170)), Math.toRadians(180))
+                .setTangent(135)
+                .splineToSplineHeading(new  Pose2d(24,-10, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new  Pose2d(50,-10, Math.toRadians(180)), Math.toRadians(180))
                 .addTemporalMarker(()->{
-                    slide.setPower(0);
-                    slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    slide.update();
+                    intake.getIntakeServo().setPosition(0.775);
+                    intake.update();
+                })
+                .splineToSplineHeading(new Pose2d(-57,-11, Math.toRadians(180)), Math.toRadians(180))
+                // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
+                .addTemporalMarker(()->{
+                    intake.setMotorPower(0.8);
+                    intake.update();
+                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{
+                    intake.setMotorPower(0);
+                    intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
+                    intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    intake.update();
+                    outtake.setTransferPosition(true);
+                    outtake.update();
                 })
                 .waitSeconds(0.5)
-                // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
-                .splineToSplineHeading(new Pose2d(-55,-9, Math.toRadians(170)), Math.toRadians(180))
-                .waitSeconds(1)
-                .lineToLinearHeading(new Pose2d(28, -10, Math.toRadians(170)))
+                .addTemporalMarker(()->{
+                    outtake.update();
+                    intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    intake.setMotorTargetPosition(-240);
+                    intake.setMotorPower(0.8);
+                    intake.update();
+                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{
+                    intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    intake.setMotorPower(1);
+                    intake.update();
+                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{
+                    intake.setMotorPower(0);
+                    intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+                    intake.update();
+                    outtake.setTransferPosition(false);
+                    outtake.update();
+                })
+                .waitSeconds(0.2)
+                .addTemporalMarker(()->{
+                    outtake.setGateClosed(true);
+                    outtake.update();
+                })
+                .lineToLinearHeading(new Pose2d(28, -10, Math.toRadians(180)))
+                .addTemporalMarker(()->{
+                    outtake.setTransferPosition(false);
+                    outtake.update();
+                    slide.setTargetPosition(-1400);
+                    slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    slide.setPower(1);
+                    slide.update();
+
+                })
                 // TODO: SLIDE UP
-                .splineToConstantHeading(new Vector2d(50,-37), Math.toRadians(-45))
+                .setTangent(Math.toRadians(-45))
+                .splineToConstantHeading(new Vector2d(53,-35), Math.toRadians(-45))
                 // TODO: OUTTAKE 2 WHITE BOIS
+//                .addTemporalMarker(()->{
+//                    outtake.setOuttakeExtended(true);
+//                    outtake.update();
+//                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{
+                    slide.setTargetPosition(-300);
+                    slide.update();
+                })
+                .waitSeconds(0.7)
+                .back(2)
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{
+                    outtake.setGateClosed(false);
+                    outtake.update();
+                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()-> {
+                    slide.setTargetPosition(-1400);
+                    slide.update();
+                })
+                .waitSeconds(0.7)
+//                .addTemporalMarker(()->{
+//                    outtake.setOuttakeExtended(false);
+//                    outtake.update();
+//                })
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{
+                    slide.bottomOutProcedure();
+                })
+                .forward(5)
+                .strafeRight(30)
+                .back(15)
 
                 // TODO: SLIDE DOWN, INTAKE CHANGE POSITION
                 .build();

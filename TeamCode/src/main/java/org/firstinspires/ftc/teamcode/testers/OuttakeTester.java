@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
 import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
 
 @TeleOp(name = "Outtake Tester", group = "a")
-@Disabled
 public class OuttakeTester extends LinearOpMode {
     private SlideKotlin slide;
     private OuttakeKotlin outtake;

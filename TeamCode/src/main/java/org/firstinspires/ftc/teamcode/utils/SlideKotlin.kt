@@ -68,7 +68,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             setPower(1.0)
             t = Thread {
-                while(!bottomOut) {
+                val currentTime = System.currentTimeMillis()
+                while(!bottomOut && System.currentTimeMillis() - currentTime < 5000) {
                     bottomOutProcedure = true
                 }
                 t?.interrupt()
