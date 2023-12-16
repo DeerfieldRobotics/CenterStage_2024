@@ -28,6 +28,9 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
+    private var transferPause = false
+    private var transferTime = 0L
+
     var outtakeExtended = false //whether the outtake is out or in
     var transferPosition = false //whether the outtake is in the intake position
     var gateClosed = true //whether the gate is open or closed
@@ -57,13 +60,19 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             else -> gateIntake
         }
         if(!outtakeExtended && transferPosition) {
-            val currentTime = System.currentTimeMillis()
-            if(currentTime < 500)
+            if(!transferPause) {
+                transferTime = System.currentTimeMillis()
+                transferPause = true
+            }
+
+            if(System.currentTimeMillis() - transferTime < 300)
                 setOuttakeAngle(armDownAngle, wristInAngle, true)
-            else
+            else {
                 setOuttakeAngle(armInAngle, wristInAngle, true)
+            }
         }
         else {
+            transferPause = false
             setOuttakeAngle(
                 when {
                     outtakeExtended -> armOutAngle
