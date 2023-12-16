@@ -168,7 +168,7 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("slide ticks", slide.getPosition()[0]);
             telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
-            telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
+            //telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
             telemetry.addData("BOTTOMOUT: ", slide.getBottomOut());
 
             telemetry.update();
@@ -233,7 +233,7 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
-            outtake.setIntakePosition(true);
+            outtake.setTransferPosition(true);
             outtake.setGateClosed(false);
             gamepad2.rumble(1.0,1.0,100);
             rightBumperToggle = true;
@@ -276,7 +276,7 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
-        outtake.setIntakePosition(false);
+        outtake.setTransferPosition(false);
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

@@ -29,7 +29,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateClose = 0.92 //closed position
 
     var outtakeExtended = false //whether the outtake is out or in
-    var intakePosition = false //whether the outtake is in the intake position
+    var transferPosition = false //whether the outtake is in the intake position
     var gateClosed = true //whether the gate is open or closed
 
     private var t: Thread? = null
@@ -56,22 +56,33 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             gateClosed -> gateClose
             else -> gateIntake
         }
-        setOuttakeAngle(when {
-            outtakeExtended -> armOutAngle
-            intakePosition -> armInAngle
-            else -> armDownAngle
-        }, when {
-            outtakeExtended -> wristOutAngle
-            intakePosition -> wristInAngle
-            else -> wristDownAngle
-        }, intakePosition||outtakeExtended)
+        if(!outtakeExtended && transferPosition) {
+            val currentTime = System.currentTimeMillis()
+            if(currentTime < 500)
+                setOuttakeAngle(armDownAngle, wristInAngle, true)
+            else
+                setOuttakeAngle(armInAngle, wristInAngle, true)
+        }
+        else {
+            setOuttakeAngle(
+                when {
+                    outtakeExtended -> armOutAngle
+                    transferPosition -> armInAngle
+                    else -> armDownAngle
+                }, when {
+                    outtakeExtended -> wristOutAngle
+                    transferPosition -> wristInAngle
+                    else -> wristDownAngle
+                }, transferPosition || outtakeExtended
+            )
+        }
     }
     fun outtakeProcedure(toggle:Boolean) {
         if(toggle && !outtakeExtended) { //makes sure outtake is not already out or currently going out
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
                 gateClosed = true //close gate
-                intakePosition = false
+                transferPosition = false
                 while(true) {
                     if (slide.getPosition()
                             .average() <= slide.minSlideHeight
@@ -105,7 +116,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                         break
                     }
                 }
-                intakePosition = false
+                transferPosition = false
                 t?.interrupt() //stops any existing threads
             }
             t!!.start()
