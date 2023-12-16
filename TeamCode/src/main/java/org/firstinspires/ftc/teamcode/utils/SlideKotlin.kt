@@ -60,8 +60,9 @@ class SlideKotlin (hardwareMap: HardwareMap){
         }
     }
     fun checkBottomOut () {
-        if (slide1.isOverCurrent || slide2.isOverCurrent && (getPosition()[0] > -100 || getPosition()[1] > -100)) {
+        if ((slide1.isOverCurrent || slide2.isOverCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
             bottomOut = true
+            bottomOutProcedure = false
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
@@ -70,13 +71,13 @@ class SlideKotlin (hardwareMap: HardwareMap){
     fun update() {
         slide1Position = slide1.currentPosition
         slide2Position = slide2.currentPosition
-        checkBottomOut()
         if(bottomOutProcedure && !bottomOut) {
             bottomOut()
         }
         else if (bottomOutProcedure) {
             bottomOutProcedure = false
         }
+        checkBottomOut()
     }
 
     fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)

@@ -233,6 +233,7 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
             outtake.setIntakePosition(true);
+            outtake.setGateClosed(false);
             gamepad2.rumble(1.0,1.0,50);
             rightBumperToggle = true;
             intake.transfer();

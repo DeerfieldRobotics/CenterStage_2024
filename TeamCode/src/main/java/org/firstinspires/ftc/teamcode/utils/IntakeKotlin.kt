@@ -35,6 +35,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     var servoPosition = IntakePositions.INIT
     var motorTargetPosition = 0
     var motorPower = 0.0
+    var motorPosition = 0
     private var motorIsBusy = false
     private var manualPosition = 0.0
 
@@ -75,21 +76,24 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeServo(servoPosition)
         intakeMotor.power = motorPower
         motorIsBusy = intakeMotor.isBusy
+        motorPosition = intakeMotor.currentPosition
         updateTick = true
     } //griddy griddy on the haters - Charlie Jakymiw 2023
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun transfer() {
-        GlobalScope.launch {
-            if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
+        if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
+            t?.interrupt() //stops any existing threads
+            t = Thread { //makes a new thread to run the outtake procedure
                 motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
                 waitForTick()
                 motorMode = DcMotor.RunMode.RUN_TO_POSITION
                 waitForTick()
                 motorPower = 0.8
+                waitForTick()
                 while (motorIsBusy) { //wait for it to finish
                     motorPower = 0.8
+                    waitForTick()
                 }
                 servoPosition = IntakePositions.TRANSFER
                 waitForTick()
@@ -105,12 +109,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                 while (System.currentTimeMillis() - currentTime < 500) {
                     motorPower = 1.0
                 }
+                t?.interrupt()
             }
+            t?.start()
         }
     }
-    suspend fun waitForTick() {
+    fun waitForTick() {
         while (!updateTick) {
-            delay(10)
         }
         updateTick = false
     }
