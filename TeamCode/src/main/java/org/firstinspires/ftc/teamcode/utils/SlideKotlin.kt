@@ -57,6 +57,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
             bottomOut = true
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
     fun checkBottomOut () {
@@ -73,6 +74,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide2Position = slide2.currentPosition
         if(bottomOutProcedure && !bottomOut) {
             bottomOut()
+            checkBottomOut()
         }
         else if (bottomOutProcedure) {
             bottomOutProcedure = false

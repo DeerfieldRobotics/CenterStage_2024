@@ -144,6 +144,7 @@ public class MainTeleop extends LinearOpMode {
         initialize();
 
         waitForStart();
+        runtime = new ElapsedTime();
 
         while (opModeIsActive()) {
             tickCount++;
@@ -168,7 +169,7 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("slide ticks", slide.getPosition()[0]);
             telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
             telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
-            telemetry.addLine("PIDF COEFFICIENTS: "+ intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d + " " + intake.getIntakeMotor().getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
+            telemetry.addData("BOTTOMOUT: ", slide.getBottomOut());
 
             telemetry.update();
         }
@@ -234,11 +235,11 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad2.right_bumper && !rightBumperToggle) {
             outtake.setIntakePosition(true);
             outtake.setGateClosed(false);
-            gamepad2.rumble(1.0,1.0,50);
+            gamepad2.rumble(1.0,1.0,100);
             rightBumperToggle = true;
             intake.transfer();
         }
-        else if (!gamepad2.right_bumper) {
+        if (!gamepad2.right_bumper) {
             rightBumperToggle = false;
         }
 
@@ -248,7 +249,7 @@ public class MainTeleop extends LinearOpMode {
             else
                 intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
         }
-        else if (!gamepad2.left_bumper) {
+        if (!gamepad2.left_bumper) {
             leftBumperToggle = false;
         }
         intake.update();
@@ -275,7 +276,7 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
-        outtake.setIntakePosition(true);
+        outtake.setIntakePosition(false);
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

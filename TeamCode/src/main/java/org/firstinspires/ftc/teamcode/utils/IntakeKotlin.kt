@@ -46,8 +46,10 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
     private fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
-        if(intakePosition != IntakePositions.TRANSFER)
+        if(intakePosition != IntakePositions.TRANSFER) {
             transfer = false
+        }
+
         if(intakePosition == IntakePositions.MANUAL) {
             intakeServo.position = manualPosition
         }
@@ -81,34 +83,31 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     } //griddy griddy on the haters - Charlie Jakymiw 2023
 
     fun transfer() {
+        t?.interrupt() //stops any existing threads
         if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
-            t?.interrupt() //stops any existing threads
+            intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            intakeMotor.targetPosition = -240 //set value for how much motor needs to outtake to transfer
+            motorTargetPosition = -240
+            intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+            motorMode = DcMotor.RunMode.RUN_TO_POSITION
+            intakeMotor.power = 0.8
+            motorPower = 0.8
             t = Thread { //makes a new thread to run the outtake procedure
-                motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                motorTargetPosition = -240 //set value for how much motor needs to outtake to transfer
                 waitForTick()
-                motorMode = DcMotor.RunMode.RUN_TO_POSITION
-                waitForTick()
-                motorPower = 0.8
-                waitForTick()
-                while (motorIsBusy) { //wait for it to finish
-                    motorPower = 0.8
-                    waitForTick()
-                }
                 servoPosition = IntakePositions.TRANSFER
                 waitForTick()
-                var currentTime = System.currentTimeMillis()
-                while(System.currentTimeMillis() - currentTime < 500) {
-                    motorPower = 0.0
-                }
+//                var currentTime = System.currentTimeMillis()
+                motorPower = 0.0
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 waitForTick()
                 transfer = true
                 waitForTick()
-                currentTime = System.currentTimeMillis()
+                val currentTime = System.currentTimeMillis()
                 while (System.currentTimeMillis() - currentTime < 500) {
                     motorPower = 1.0
                 }
+                motorPower = 0.0
                 t?.interrupt()
             }
             t?.start()

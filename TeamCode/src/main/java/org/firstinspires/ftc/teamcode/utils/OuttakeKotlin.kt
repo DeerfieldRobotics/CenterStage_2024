@@ -13,7 +13,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val armEndAngle = -174.0 //angle of arm at position 1.0
     private val armInAngle = -132.0 //angle of arm for intaking
     private var armOutAngle = -30.8969 //angle of arm when it is out of the robot
-    private val armDownAngle = -120.0 //angle of arm to clear low u channel
+    private val armDownAngle = -117.0 //angle of arm to clear low u channel
     private var currentArmAngle = armInAngle //current arm angle
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
 
@@ -88,7 +88,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         else if (!toggle && outtakeExtended) { //makes sure outtake is not already in or currently going in
             t?.interrupt() //stops any existing threads
             t = Thread { //makes a new thread to run the outtake procedure
-                gateClosed = false //open gate
+                gateClosed = true //open gate
                 var currentTime = 0L
                 while(true) {
                     if (slide.getPosition()
