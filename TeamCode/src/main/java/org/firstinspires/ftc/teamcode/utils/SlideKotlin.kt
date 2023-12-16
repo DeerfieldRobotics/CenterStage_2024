@@ -17,6 +17,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
     private var slide1Position = 0
     private var slide2Position = 0
 
+    private var overCurrent = false
+
     private var t: Thread? = null
 
     init {
@@ -53,15 +55,29 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             setPower(1.0)
         }
-        if (slide1.isOverCurrent || slide2.isOverCurrent) {
+        if (overCurrent) {
             bottomOut = true
             setPower(0.0)
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
+    fun bottomOutProcedure () {
+        t?.interrupt()
+        if(!bottomOut) {
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+            setPower(1.0)
+            t = Thread {
+                while(!bottomOut) {
+                    bottomOutProcedure = true
+                }
+                t?.interrupt()
+            }
+            t!!.start()
+        }
+    }
     fun checkBottomOut () {
-        if ((slide1.isOverCurrent || slide2.isOverCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
+        if ((overCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
             bottomOut = true
             bottomOutProcedure = false
             setPower(0.0)
@@ -72,9 +88,9 @@ class SlideKotlin (hardwareMap: HardwareMap){
     fun update() {
         slide1Position = slide1.currentPosition
         slide2Position = slide2.currentPosition
+        overCurrent = slide1.isOverCurrent || slide2.isOverCurrent
         if(bottomOutProcedure && !bottomOut) {
             bottomOut()
-            checkBottomOut()
         }
         else if (bottomOutProcedure) {
             bottomOutProcedure = false

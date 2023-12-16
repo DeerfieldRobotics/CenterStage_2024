@@ -93,8 +93,10 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
             intakeMotor.power = 0.8
             motorPower = 0.8
-            t = Thread { //makes a new thread to run the outtake procedure
-                waitForTick()
+            t = Thread { //makes a new thread to run the transfer procedure
+                while (motorIsBusy) {
+                    waitForTick()
+                }
                 servoPosition = IntakePositions.TRANSFER
                 waitForTick()
 //                var currentTime = System.currentTimeMillis()

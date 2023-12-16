@@ -101,7 +101,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 }
                 while(true) {
                     if(slide.getPosition().average() <= slide.minSlideHeight && System.currentTimeMillis() - currentTime > 500){
-                        slide.bottomOutProcedure = true //bottom out slide
+                        slide.bottomOutProcedure() //bottom out slide
                         break
                     }
                 }
