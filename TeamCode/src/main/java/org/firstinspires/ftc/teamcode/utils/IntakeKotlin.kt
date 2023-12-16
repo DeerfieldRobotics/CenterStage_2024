@@ -66,7 +66,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
 
     fun intake (power: Double) { //if intaking, make sure the intake is out
-        if(abs(power) > 0.2 && servoPosition != IntakePositions.INTAKE) {
+        if(power > 0.2 && servoPosition != IntakePositions.INTAKE) {
             servoPosition = IntakePositions.INTAKE
         }
         motorPower = power
@@ -91,8 +91,8 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t?.interrupt() //stops any existing threads
             intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.targetPosition = -270 //set value for how much motor needs to outtake to transfer
-            motorTargetPosition = -270
+            intakeMotor.targetPosition = -290 //set value for how much motor needs to outtake to transfer
+            motorTargetPosition = -290
             intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
             intakeMotor.power = 1.0
