@@ -21,14 +21,16 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     private var t: Thread? = null
 
     enum class IntakePositions {
-        INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving, OTHER for custom values
+        INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving, OTHER for custom values
     }
     private val intakePositionMap = mapOf(
             IntakePositions.INIT to 0.5,
             IntakePositions.INTAKE to 1.0,
             IntakePositions.TRANSFER to 0.67,
-            IntakePositions.FIVE to 0.8, //TODO
-            IntakePositions.DRIVE to 0.85)
+            IntakePositions.FIVE to 0.76, //TODO
+            IntakePositions.FOUR to 0.8,
+            IntakePositions.DRIVE to 0.85,
+            IntakePositions.HIGH to 0.6)
 
     var motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     var servoPosition = IntakePositions.INIT
@@ -69,7 +71,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         if(power > 0.2 && servoPosition != IntakePositions.INTAKE) {
             servoPosition = IntakePositions.INTAKE
         }
-        motorPower = power
+        motorPower = power*0.75
     }
     fun update() {
         if(!transferring) {
@@ -91,29 +93,26 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t?.interrupt() //stops any existing threads
             intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.targetPosition = -290 //set value for how much motor needs to outtake to transfer
-            motorTargetPosition = -290
+            intakeMotor.targetPosition = -220 //set value for how much motor needs to outtake to transfer
+            motorTargetPosition = -220
             intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
             intakeMotor.power = 1.0
             motorPower = 1.0
             t = Thread { //makes a new thread to run the transfer procedure
-                while (intakeMotor.isBusy) { //wait for it to finish
-                    intakeMotor.power = 1.0
-                }
+                while (intakeMotor.isBusy);
+
                 intakeMotor.power = 0.0
                 intakeServo(IntakePositions.TRANSFER)
                 servoPosition = IntakePositions.TRANSFER
                 var currentTime = System.currentTimeMillis()
-                while(System.currentTimeMillis() - currentTime < 600) {
 
-                }
+                while(System.currentTimeMillis() - currentTime < 600);
+
                 intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 intakeMotor.power = 1.0
                 currentTime = System.currentTimeMillis()
-                while (System.currentTimeMillis() - currentTime < 1000) {
-                    intakeMotor.power = 1.0
-                }
+                while (System.currentTimeMillis() - currentTime < 1000);
                 transfer = true
                 transferring = false
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -122,10 +121,8 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t?.start()
         }
     }
-    fun waitForTick() {
-        while (!updateTick) {
-        }
-        updateTick = false
+    fun threadKill() {
+        t?.interrupt()
     }
     fun getPosition(): Int = intakeMotor.currentPosition
     fun getIntakeMotor(): DcMotorEx = intakeMotor

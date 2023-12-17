@@ -56,6 +56,7 @@ public class MainTeleop extends LinearOpMode {
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
     private boolean leftBumperToggle = false;
+    private boolean dpadLeftToggle = false;
 
     private boolean runToPos = false;
     private double lastTickTime = 0;
@@ -195,14 +196,24 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad2.dpad_down)
             intake.changeIntakeServo(-.5);
 
-        if(gamepad1.right_trigger>0.3)
+//        if(gamepad2.dpad_left && !dpadLeftToggle) {
+//            dpadLeftToggle = true;
+//            slide.threadKill();
+//            outtake.threadKill();
+//            intake.threadKill();
+//        }
+//        if(!gamepad2.dpad_left) {
+//            dpadLeftToggle = false;
+//        }
+
+        if(gamepad1.right_trigger>0.3 && intake.getServoPosition()==IntakeKotlin.IntakePositions.INTAKE)
             intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             gamepad2.rumbleBlips(1);
             circleToggle = true;
             outtake.outtakeProcedure(true);
-            intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+            intake.setServoPosition(IntakeKotlin.IntakePositions.HIGH);
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -220,6 +231,7 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad2.cross && !crossToggle) { //resets arm
             crossToggle = true;
             outtake.outtakeProcedure(false);
+            outtake.setGateClosed(true);
         }
         if(!gamepad2.cross) {
             crossToggle = false;
@@ -276,7 +288,6 @@ public class MainTeleop extends LinearOpMode {
         intake = new IntakeKotlin(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
-        outtake.setTransferPosition(false);
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

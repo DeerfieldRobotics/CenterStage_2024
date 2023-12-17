@@ -28,8 +28,11 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
-    private var transferPause = false
-    private var transferTime = 0L
+    private var transferPause1 = false
+    private var transferPause2 = false
+    private var transferTime1 = 0L
+    private var transferTime2 = 0L
+
 
     var outtakeExtended = false //whether the outtake is out or in
     var transferPosition = false //whether the outtake is in the intake position
@@ -60,19 +63,34 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             else -> gateIntake
         }
         if(!outtakeExtended && transferPosition) {
-            if(!transferPause) {
-                transferTime = System.currentTimeMillis()
-                transferPause = true
+            transferPause2 = false
+            if(!transferPause1) {
+                transferTime1 = System.currentTimeMillis()
+                transferPause1 = true
             }
 
-            if(System.currentTimeMillis() - transferTime < 300)
+            if(System.currentTimeMillis() - transferTime1 < 300)
                 setOuttakeAngle(armDownAngle, wristInAngle, true)
             else {
                 setOuttakeAngle(armInAngle, wristInAngle, true)
             }
         }
+        else if (!outtakeExtended && !transferPosition) {
+            transferPause1 = false
+            if(!transferPause2) {
+                transferTime2 = System.currentTimeMillis()
+                transferPause2 = true
+            }
+
+            if(System.currentTimeMillis() - transferTime2 < 300)
+                setOuttakeAngle(armDownAngle, wristInAngle, true)
+            else {
+                setOuttakeAngle(armDownAngle, wristDownAngle, false)
+            }
+        }
         else {
-            transferPause = false
+            transferPause1 = false
+            transferPause2 = false
             setOuttakeAngle(
                 when {
                     outtakeExtended -> armOutAngle
@@ -130,6 +148,9 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             }
             t!!.start()
         }
+    }
+    fun threadKill() {
+        t?.interrupt()
     }
     fun outtakeProcedure() {
         outtakeProcedure(!outtakeExtended)

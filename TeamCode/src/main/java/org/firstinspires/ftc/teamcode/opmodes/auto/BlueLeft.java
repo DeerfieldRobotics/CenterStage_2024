@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
@@ -18,10 +19,9 @@ import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-@Autonomous(name = "RedRight")
-public class RedRight extends OpMode {
-    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
+@Autonomous(name ="Blue Left")
+public class BlueLeft extends OpMode{
+    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
     private PIDF pidf;
     private SampleMecanumDrive drive;
@@ -39,6 +39,7 @@ public class RedRight extends OpMode {
     private double leftIntakeYOffset = 0.0;
     private double rightIntakeYOffset = 0.0;
     private double secondBackboardYOffset = 0.0;
+    private double secondBackboardXOffset = 0.0;
 
 
     private OpenCvCamera frontCamera;
@@ -81,15 +82,16 @@ public class RedRight extends OpMode {
         purplePixelPath = colorDetection.getPosition();
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
-            leftSpikeXOffest = -12.0;
-            leftBackboardYOffset = 5.0;
-            leftIntakeYOffset = -1.2;
+            leftSpikeXOffest = 9.5;
+            leftBackboardYOffset = 4.5;
+            leftIntakeYOffset = 4.0;
             rightSpikeXOffset = 0.0;
             rightBackboardYOffset = 0.0;
             rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
-            secondBackboardYOffset = -7.0;
+            secondBackboardYOffset = -5.0;
+            secondBackboardXOffset = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
         {
@@ -99,21 +101,23 @@ public class RedRight extends OpMode {
             rightSpikeXOffset = 0.0;
             rightIntakeYOffset = 0.0;
             rightBackboardYOffset = 0.0;
-            centerSpikeYOffset = 7.3;
+            centerSpikeYOffset = -5.8;
             centerSpikeBackOffset = 0.0;
-            secondBackboardYOffset = -7.0;
+            secondBackboardYOffset = -6.0;
+            secondBackboardXOffset = -2.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
         {
             leftSpikeXOffest = 0.0;
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
-            rightSpikeXOffset = 3.0;
-            rightBackboardYOffset = -7;
-            rightIntakeYOffset = -.75;
+            rightSpikeXOffset = -10.5;
+            rightBackboardYOffset = -7.5;
+            rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
-            centerSpikeBackOffset = -8;
-            secondBackboardYOffset = 4.0;
+            centerSpikeBackOffset = 0;
+            secondBackboardYOffset = 6.0;
+            secondBackboardXOffset = 0.0;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -128,15 +132,15 @@ public class RedRight extends OpMode {
         intake.setServoPosition(IntakeKotlin.IntakePositions.INIT);
         intake.update();
 
-        drive.setPoseEstimate(new Pose2d(11,-63, Math.toRadians(90)));
-        path = drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90)))
-                .setTangent(Math.toRadians(60))
+        drive.setPoseEstimate(new Pose2d(16,63, Math.toRadians(270)));
+        path = drive.trajectorySequenceBuilder(new Pose2d(16,63, Math.toRadians(270)))
+                .setTangent(Math.toRadians(300))
                 .addTemporalMarker(()->{
                     intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
                 })
-                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,-32+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(150))
+                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,30+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(210))
 
                 // TODO: SPIKE PURPLE
                 .back(3.5-centerSpikeBackOffset)
@@ -160,7 +164,7 @@ public class RedRight extends OpMode {
                     slide.update();
                 })
 
-                .splineToLinearHeading(new Pose2d(54,-35+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(55,38+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
                     outtake.setOuttakeExtended(true);
@@ -173,7 +177,7 @@ public class RedRight extends OpMode {
                 })
                 .waitSeconds(0.2)
                 .back(3.5)
-                .waitSeconds(0.6)
+                .waitSeconds(0.3)
                 // DROP
                 .addTemporalMarker(()->{
                     outtake.setGateClosed(false);
@@ -192,22 +196,21 @@ public class RedRight extends OpMode {
                     outtake.setOuttakeExtended(false);
                     outtake.update();
                 })
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
                 // TODO: BRING SLIDE DOWN, RAISE INTAKE
-                .setTangent(135)
+                .setTangent(225)
                 .addTemporalMarker(()->{
                     slide.bottomOutProcedure();
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
-
                 })
 
-                .splineToSplineHeading(new  Pose2d(24,-10, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new  Pose2d(24,11, Math.toRadians(180)), Math.toRadians(180))
                 .addTemporalMarker(()->{
                     outtake.setGateClosed(false);
                     outtake.update();
                 })
-                .splineToSplineHeading(new Pose2d(-57,-6.5+leftIntakeYOffset+rightIntakeYOffset, Math.toRadians(180)), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-57,16+rightIntakeYOffset+leftIntakeYOffset, Math.toRadians(180)), Math.toRadians(180))
                 // TODO: INTAKE 2 WHITE BOIS AND TRANSFER TO BOX
                 .addTemporalMarker(()->{
                     intake.setMotorTargetPosition(800);
@@ -216,7 +219,6 @@ public class RedRight extends OpMode {
                 })
                 .waitSeconds(.6)
                 .back(4)
-
                 .addTemporalMarker(()-> {
                     intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -244,11 +246,11 @@ public class RedRight extends OpMode {
                     outtake.update();
                 })
                 .setTangent(0)
-                .splineToSplineHeading(new Pose2d(28, -10, Math.toRadians(180)), 0)
+                .splineToSplineHeading(new Pose2d(28, 10, Math.toRadians(180)), 0)
 
                 // TODO: SLIDE UP
 //                .setTangent(Math.toRadians(-45))
-                .splineToSplineHeading(new Pose2d(51,-35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(-45))
+                .splineToSplineHeading(new Pose2d(55,35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(45))
                 .addTemporalMarker(()->{
                     outtake.setTransferPosition(false);
                     outtake.update();
@@ -270,7 +272,7 @@ public class RedRight extends OpMode {
                     slide.update();
                 })
                 .waitSeconds(0.2)
-                .back(6)
+                .back(6+secondBackboardXOffset)
                 .waitSeconds(0.6)
                 // DROP
                 .addTemporalMarker(()->{
@@ -295,9 +297,8 @@ public class RedRight extends OpMode {
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
                 })
-                .back(5)
+//                .back(5)
 
-                // TODO: SLIDE DOWN, INTAKE CHANGE POSITION
                 .build();
 
         drive.followTrajectorySequenceAsync(path);

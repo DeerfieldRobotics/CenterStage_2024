@@ -86,6 +86,9 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
+    fun threadKill() {
+        t?.interrupt()
+    }
     fun update() {
         slide1Position = slide1.currentPosition
         slide2Position = slide2.currentPosition
