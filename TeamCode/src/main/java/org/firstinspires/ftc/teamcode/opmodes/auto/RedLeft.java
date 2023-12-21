@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous
 public class RedLeft extends OpMode{
-    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
+    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
     private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
     private PIDF pidf;
     private SampleMecanumDrive drive;

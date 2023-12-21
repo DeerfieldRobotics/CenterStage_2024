@@ -39,6 +39,8 @@ public class RedRight extends OpMode {
     private double leftIntakeYOffset = 0.0;
     private double rightIntakeYOffset = 0.0;
     private double secondBackboardYOffset = 0.0;
+    private double rightConstant = 0.0;
+    private double rightConstant2 = 0.0;
 
 
     private OpenCvCamera frontCamera;
@@ -90,6 +92,8 @@ public class RedRight extends OpMode {
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
             secondBackboardYOffset = -7.0;
+            rightConstant = 0.0;
+            rightConstant2 = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
         {
@@ -102,18 +106,22 @@ public class RedRight extends OpMode {
             centerSpikeYOffset = 7.3;
             centerSpikeBackOffset = 0.0;
             secondBackboardYOffset = -7.0;
+            rightConstant = 0.0;
+            rightConstant2 = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
         {
             leftSpikeXOffest = 0.0;
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
-            rightSpikeXOffset = 3.0;
-            rightBackboardYOffset = -7;
-            rightIntakeYOffset = -.75;
+            rightSpikeXOffset = 2.0;
+            rightBackboardYOffset = -6;
+            rightIntakeYOffset = 0.5;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = -8;
             secondBackboardYOffset = 4.0;
+            rightConstant = -1.0;
+            rightConstant2 = 1.0;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -248,7 +256,7 @@ public class RedRight extends OpMode {
 
                 // TODO: SLIDE UP
 //                .setTangent(Math.toRadians(-45))
-                .splineToSplineHeading(new Pose2d(51,-35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(-45))
+                .splineToSplineHeading(new Pose2d(51+rightConstant2,-35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(-45))
                 .addTemporalMarker(()->{
                     outtake.setTransferPosition(false);
                     outtake.update();
@@ -270,7 +278,7 @@ public class RedRight extends OpMode {
                     slide.update();
                 })
                 .waitSeconds(0.2)
-                .back(6)
+                .back(6-rightConstant)
                 .waitSeconds(0.6)
                 // DROP
                 .addTemporalMarker(()->{

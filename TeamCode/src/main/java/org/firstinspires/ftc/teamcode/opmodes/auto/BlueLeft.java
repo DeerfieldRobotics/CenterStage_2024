@@ -83,14 +83,14 @@ public class BlueLeft extends OpMode{
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
             leftSpikeXOffest = 9.5;
-            leftBackboardYOffset = 4.5;
+            leftBackboardYOffset = 5.5;
             leftIntakeYOffset = 4.0;
             rightSpikeXOffset = 0.0;
             rightBackboardYOffset = 0.0;
             rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
-            secondBackboardYOffset = -5.0;
+            secondBackboardYOffset = -4.5;
             secondBackboardXOffset = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
@@ -103,7 +103,7 @@ public class BlueLeft extends OpMode{
             rightBackboardYOffset = 0.0;
             centerSpikeYOffset = -5.8;
             centerSpikeBackOffset = 0.0;
-            secondBackboardYOffset = -6.0;
+            secondBackboardYOffset = -4.5;
             secondBackboardXOffset = -2.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
@@ -112,11 +112,11 @@ public class BlueLeft extends OpMode{
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
             rightSpikeXOffset = -10.5;
-            rightBackboardYOffset = -7.5;
+            rightBackboardYOffset = -6.5;
             rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
-            secondBackboardYOffset = 6.0;
+            secondBackboardYOffset = 4.5;
             secondBackboardXOffset = 0.0;
         }
 
@@ -164,7 +164,7 @@ public class BlueLeft extends OpMode{
                     slide.update();
                 })
 
-                .splineToLinearHeading(new Pose2d(55,38+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(55.5,37+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
                     outtake.setOuttakeExtended(true);

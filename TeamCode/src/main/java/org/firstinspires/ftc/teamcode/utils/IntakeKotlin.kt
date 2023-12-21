@@ -24,7 +24,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving, OTHER for custom values
     }
     private val intakePositionMap = mapOf(
-            IntakePositions.INIT to 0.5,
+            IntakePositions.INIT to 0.45,
             IntakePositions.INTAKE to 1.0,
             IntakePositions.TRANSFER to 0.67,
             IntakePositions.FIVE to 0.76, //TODO
@@ -93,8 +93,8 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             t?.interrupt() //stops any existing threads
             intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.targetPosition = -220 //set value for how much motor needs to outtake to transfer
-            motorTargetPosition = -220
+            intakeMotor.targetPosition = -110 //set value for how much motor needs to outtake to transfer
+            motorTargetPosition = -110
             intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
             motorMode = DcMotor.RunMode.RUN_TO_POSITION
             intakeMotor.power = 1.0
@@ -105,6 +105,11 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                 intakeMotor.power = 0.0
                 intakeServo(IntakePositions.TRANSFER)
                 servoPosition = IntakePositions.TRANSFER
+                intakeMotor.targetPosition = -110 //set value for how much motor needs to outtake to transfer
+                motorTargetPosition = -110
+                intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
+                motorMode = DcMotor.RunMode.RUN_TO_POSITION
+
                 var currentTime = System.currentTimeMillis()
 
                 while(System.currentTimeMillis() - currentTime < 600);
