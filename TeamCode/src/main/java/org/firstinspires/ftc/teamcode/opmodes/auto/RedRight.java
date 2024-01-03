@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -74,7 +73,7 @@ public class RedRight extends OpMode {
         outtake.setGateClosed(true);
         outtake.update();
 
-        outtake.setOuttakeAngle(outtake.getOuttakeAngle()[0], 30, false);
+        outtake.setOuttakeKinematics(outtake.getOuttakeAngle()[0], 30, false);
         //outtake.update();
     }
 
@@ -171,7 +170,7 @@ public class RedRight extends OpMode {
                 .splineToLinearHeading(new Pose2d(54,-35+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -197,7 +196,7 @@ public class RedRight extends OpMode {
                 .forward(10)
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)
@@ -229,7 +228,7 @@ public class RedRight extends OpMode {
                     intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
-                    outtake.setTransferPosition(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.TRANSFER);
                     outtake.update();
                 })
                 .waitSeconds(0.4)
@@ -243,7 +242,7 @@ public class RedRight extends OpMode {
                     intake.setMotorPower(0);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
                     intake.update();
-                    outtake.setTransferPosition(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.2)
@@ -258,7 +257,7 @@ public class RedRight extends OpMode {
 //                .setTangent(Math.toRadians(-45))
                 .splineToSplineHeading(new Pose2d(51+rightConstant2,-35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(-45))
                 .addTemporalMarker(()->{
-                    outtake.setTransferPosition(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                     slide.setTargetPosition(-1400);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -269,7 +268,7 @@ public class RedRight extends OpMode {
                 .waitSeconds(0.7)
                 // TODO: OUTTAKE 2 WHITE BOIS
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -294,7 +293,7 @@ public class RedRight extends OpMode {
                 })
                 .forward(7)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)

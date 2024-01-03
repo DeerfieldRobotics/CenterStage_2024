@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.testers;
 
-import android.transition.Slide;
-
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -24,7 +21,7 @@ public class OuttakeTester extends LinearOpMode {
         wristAngle = outtake.getOuttakeAngle()[1];
         waitForStart();
         while (opModeIsActive()) {
-            outtake.setOuttakeAngle(armAngle, wristAngle, true);
+            outtake.setOuttakeKinematics(armAngle, wristAngle, true);
             armAngle += gamepad2.right_stick_y*.1;
             wristAngle += gamepad2.left_stick_y*.1;
             telemetry.addData("arm Angle", outtake.getOuttakeAngle()[0]);

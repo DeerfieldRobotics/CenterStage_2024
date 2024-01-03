@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -72,7 +71,7 @@ public class BlueRight extends OpMode {
         outtake.setGateClosed(true);
         outtake.update();
 
-        outtake.setOuttakeAngle(outtake.getOuttakeAngle()[0], 30, false);
+        outtake.setOuttakeKinematics(outtake.getOuttakeAngle()[0], 30, false);
         //outtake.update();
     }
 

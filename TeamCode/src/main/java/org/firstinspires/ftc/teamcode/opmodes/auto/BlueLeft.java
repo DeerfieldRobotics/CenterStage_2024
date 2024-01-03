@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
@@ -73,7 +71,7 @@ public class BlueLeft extends OpMode{
         outtake.setGateClosed(true);
         outtake.update();
 
-        outtake.setOuttakeAngle(outtake.getOuttakeAngle()[0], 30, false);
+        outtake.setOuttakeKinematics(outtake.getOuttakeAngle()[0], 30, false);
         //outtake.update();
     }
 
@@ -167,7 +165,7 @@ public class BlueLeft extends OpMode{
                 .splineToLinearHeading(new Pose2d(55.5,37+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -193,7 +191,7 @@ public class BlueLeft extends OpMode{
                 .forward(10)
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.7)
@@ -223,7 +221,7 @@ public class BlueLeft extends OpMode{
                     intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
-                    outtake.setTransferPosition(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.TRANSFER);
                     outtake.update();
                 })
                 .waitSeconds(0.4)
@@ -237,7 +235,7 @@ public class BlueLeft extends OpMode{
                     intake.setMotorPower(0);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
                     intake.update();
-                    outtake.setTransferPosition(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.2)
@@ -252,7 +250,7 @@ public class BlueLeft extends OpMode{
 //                .setTangent(Math.toRadians(-45))
                 .splineToSplineHeading(new Pose2d(55,35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(45))
                 .addTemporalMarker(()->{
-                    outtake.setTransferPosition(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                     slide.setTargetPosition(-1400);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -263,7 +261,7 @@ public class BlueLeft extends OpMode{
                 .waitSeconds(0.7)
                 // TODO: OUTTAKE 2 WHITE BOIS
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(true);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -288,7 +286,7 @@ public class BlueLeft extends OpMode{
                 })
                 .forward(7)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeExtended(false);
+                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)

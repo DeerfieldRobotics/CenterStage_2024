@@ -50,7 +50,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide1.targetPosition = position
         slide2.targetPosition = position
     }
-    private fun bottomOut () {
+    fun bottomOut () {
         if(!bottomOut) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             setPower(1.0)
