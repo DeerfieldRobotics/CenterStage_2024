@@ -22,8 +22,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
-    private var outtakeProcedureTarget = OuttakePositions.OUTSIDE //target position for outtake procedure
-    private var outtakeProcedureRunning = false //whether the outtake procedure is running
+    var outtakeProcedureTarget = OuttakePositions.OUTSIDE //target position for outtake procedure
 
     var gateClosed = true //whether the gate is open or closed
 
@@ -60,28 +59,26 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         }
     }
     fun update() {
-        if(outtakeProcedureTarget != outtakePosition && !outtakeProcedureRunning) {
-            outtakeProcedureRunning = true
+        if(outtakeProcedureTarget != outtakePosition) {
             when (outtakeProcedureTarget) {
                 OuttakePositions.OUTSIDE -> {
                     gateClosed = true
                     outtakePosition = OuttakePositions.INSIDE
                     if(slide.getPosition().average() <= slide.minSlideHeight) {
                         outtakePosition = OuttakePositions.OUTSIDE
-                        outtakeProcedureRunning = false
                     }
                 }
                 OuttakePositions.INSIDE -> {
                     gateClosed = false
                     var currentTime = 0L
                     if(slide.getPosition().average() <= slide.minSlideHeight) {
-                        outtakePosition = OuttakePositions.INSIDE
+                        setOuttakeKinematics(insideKinematics.armAngle, insideKinematics.wristAngle, insideKinematics.absPos)
                         currentTime = System.currentTimeMillis()
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) {
                         slide.bottomOut()
                         if(slide.bottomOut)
-                            outtakeProcedureRunning = false
+                            outtakePosition = OuttakePositions.INSIDE
                     }
                 }
                 OuttakePositions.TRANSFER -> {
@@ -95,7 +92,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                         slide.bottomOut()
                         if(slide.bottomOut) {
                             outtakePosition = OuttakePositions.TRANSFER
-                            outtakeProcedureRunning = false
                         }
                     }
                 }
@@ -112,12 +108,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtakePositionMap[outtakePosition]!!.wristAngle,
             outtakePositionMap[outtakePosition]!!.absPos
         )
-    }
-    fun outtakeProcedure(target: OuttakePositions) {
-        if(outtakeProcedureTarget != target && outtakeProcedureTarget != outtakePosition) {
-            outtakeProcedureTarget = target
-            outtakeProcedureRunning = true
-        }
     }
     init {
         update()

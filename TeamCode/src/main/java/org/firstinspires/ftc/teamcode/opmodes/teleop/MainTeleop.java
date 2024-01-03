@@ -212,7 +212,7 @@ public class MainTeleop extends LinearOpMode {
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             gamepad2.rumbleBlips(1);
             circleToggle = true;
-            outtake.outtakeProcedure(OuttakeKotlin.OuttakePositions.OUTSIDE);
+            outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
             intake.setServoPosition(IntakeKotlin.IntakePositions.HIGH);
         }
         if (!gamepad2.circle) {
@@ -234,7 +234,7 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.cross && !crossToggle) { //resets arm
             crossToggle = true;
-            outtake.outtakeProcedure(OuttakeKotlin.OuttakePositions.INSIDE);
+            outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
             outtake.setGateClosed(true);
         }
         if(!gamepad2.cross) {
