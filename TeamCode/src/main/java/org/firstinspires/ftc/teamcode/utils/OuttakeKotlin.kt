@@ -38,8 +38,10 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         OuttakePositions.OUTSIDE to outsideKinematics
     )
     private class OuttakeKinematics (var armAngle: Double, var wristAngle: Double, var absPos: Boolean)
+
     private var currentWristAngle = outtakePositionMap[outtakePosition]!!.wristAngle //current wrist angle
     private var currentArmAngle = outtakePositionMap[outtakePosition]!!.armAngle //current arm angle
+
     fun setOuttakeKinematics(armAngle: Double, wristAngle: Double, absPos: Boolean) { //set position of arm and wrist servos, absPos is if the angle is absolute or relative to the arm
         armServo.position = (armAngle - armStartAngle) / (armEndAngle - armStartAngle)
         currentArmAngle = armAngle
@@ -49,9 +51,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 (wristAngle - wristStartAngle) / (wristEndAngle - wristStartAngle)
         currentWristAngle = wristAngle
     }
-    fun getOuttakeAngle(): DoubleArray { //get position of arm and wrist servos
-        return doubleArrayOf(currentArmAngle, currentWristAngle)
-    }
+    fun getOuttakeAngle() = arrayOf(currentArmAngle, currentWristAngle)
     fun outtakeAngleAdjust(armAngleIncrement: Double) {
         if(outtakePosition == OuttakePositions.OUTSIDE) {
             outsideKinematics.armAngle += armAngleIncrement*incrementMultiplier
@@ -59,6 +59,20 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         }
     }
     fun update() {
+        outtakeProcedure()
+        gateServo.position = when {
+            outtakePosition == OuttakePositions.OUTSIDE && gateClosed -> gateClose
+            outtakePosition == OuttakePositions.OUTSIDE -> gateOuttake
+            gateClosed -> gateClose
+            else -> gateIntake
+        }
+        setOuttakeKinematics(
+            outtakePositionMap[outtakePosition]!!.armAngle,
+            outtakePositionMap[outtakePosition]!!.wristAngle,
+            outtakePositionMap[outtakePosition]!!.absPos
+        )
+    }
+    private fun outtakeProcedure() {
         if(outtakeProcedureTarget != outtakePosition) {
             when (outtakeProcedureTarget) {
                 OuttakePositions.OUTSIDE -> {
@@ -97,17 +111,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 }
             }
         }
-        gateServo.position = when {
-            outtakePosition == OuttakePositions.OUTSIDE && gateClosed -> gateClose
-            outtakePosition == OuttakePositions.OUTSIDE -> gateOuttake
-            gateClosed -> gateClose
-            else -> gateIntake
-        }
-        setOuttakeKinematics(
-            outtakePositionMap[outtakePosition]!!.armAngle,
-            outtakePositionMap[outtakePosition]!!.wristAngle,
-            outtakePositionMap[outtakePosition]!!.absPos
-        )
+
     }
     init {
         update()

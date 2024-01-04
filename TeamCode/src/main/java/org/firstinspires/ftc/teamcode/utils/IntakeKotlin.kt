@@ -3,23 +3,15 @@ package org.firstinspires.ftc.teamcode.utils
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
-import com.qualcomm.robotcore.hardware.MotorControlAlgorithm
-import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.ServoImplEx
-import kotlin.math.abs
 
 class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
-    private var transfer = false
-    var transferring = false
     private var currentPosition = IntakePositions.INIT
 
-    private var updateTick = false
-
-    private var t: Thread? = null
-
+    private var timeDelayMillis = 0L
     enum class IntakePositions {
         INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH //INIT for init, INTAKE for intaking, TRANSFER for transferring, FIVE for 5 stack, DRIVE for driving, OTHER for custom values
     }
@@ -36,10 +28,14 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     var servoPosition = IntakePositions.INIT
     var motorTargetPosition = 0
     var motorPower = 0.0
-    var motorPosition = 0
+    private var motorPosition = 0
     private var motorIsBusy = false
     private var manualPosition = 0.0
 
+    enum class TransferStage {
+        INIT, OUTTAKE, TRANSFER, INTAKE, NONE
+    }
+    private var transferStage = TransferStage.NONE
     init {
         intakeServo.position = intakePositionMap[servoPosition]!!
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -47,10 +43,6 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
     private fun intakeServo(intakePosition: IntakePositions) {
         //if switching off of transfer, make sure can switch back
-        if(intakePosition != IntakePositions.TRANSFER) {
-            transfer = false
-        }
-
         if(intakePosition == IntakePositions.MANUAL) {
             intakeServo.position = manualPosition
         }
@@ -64,7 +56,6 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         manualPosition = intakeServo.position
         servoPosition = IntakePositions.MANUAL
         manualPosition -= power* 0.05
-        transfer = false
     }
 
     fun intake (power: Double) { //if intaking, make sure the intake is out
@@ -74,63 +65,55 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         motorPower = power*0.75
     }
     fun update() {
-        if(!transferring) {
-            intakeMotor.targetPosition = motorTargetPosition
-            intakeMotor.mode = motorMode
-            intakeServo(servoPosition)
-            intakeMotor.power = motorPower
-            motorIsBusy = intakeMotor.isBusy
-            motorPosition = intakeMotor.currentPosition
-            updateTick = true
-        }
-    } //griddy griddy on the haters - Charlie Jakymiw 2023
-
-    fun transfer() {
-        t?.interrupt() //stops any existing threads
-        if (intakeServo.position != intakePositionMap[IntakePositions.TRANSFER]!! && !transfer) {
-            transferring = true
-            transfer = true
-            t?.interrupt() //stops any existing threads
-            intakeMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-            motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.targetPosition = -110 //set value for how much motor needs to outtake to transfer
-            motorTargetPosition = -110
-            intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-            motorMode = DcMotor.RunMode.RUN_TO_POSITION
-            intakeMotor.power = 1.0
-            motorPower = 1.0
-            t = Thread { //makes a new thread to run the transfer procedure
-                while (intakeMotor.isBusy);
-
-                intakeMotor.power = 0.0
-                intakeServo(IntakePositions.TRANSFER)
-                servoPosition = IntakePositions.TRANSFER
-                intakeMotor.targetPosition = -110 //set value for how much motor needs to outtake to transfer
-                motorTargetPosition = -110
-                intakeMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-                motorMode = DcMotor.RunMode.RUN_TO_POSITION
-
-                var currentTime = System.currentTimeMillis()
-
-                while(System.currentTimeMillis() - currentTime < 600);
-
-                intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                intakeMotor.power = 1.0
-                currentTime = System.currentTimeMillis()
-                while (System.currentTimeMillis() - currentTime < 1000);
-                transfer = true
-                transferring = false
-                motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                t?.interrupt()
+        when(transferStage) {
+            TransferStage.INIT -> {
+                motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                transferStage = TransferStage.OUTTAKE
             }
-            t?.start()
+            TransferStage.OUTTAKE -> {
+                motorTargetPosition = -110
+                motorMode = DcMotor.RunMode.RUN_TO_POSITION
+                motorPower = 1.0
+                if(!motorIsBusy) {
+                    transferStage = TransferStage.TRANSFER
+                    motorPower = 0.0
+                }
+            }
+            TransferStage.TRANSFER -> {
+                if(timeDelayMillis == 0L) {
+                    timeDelayMillis = System.currentTimeMillis()
+                }
+                servoPosition = IntakePositions.TRANSFER
+                if(System.currentTimeMillis() - timeDelayMillis > 600) {
+                    transferStage = TransferStage.INTAKE
+                    timeDelayMillis = 0L
+                }
+            }
+            TransferStage.INTAKE -> {
+                motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                motorPower = 1.0
+                if(timeDelayMillis == 0L) {
+                    timeDelayMillis = System.currentTimeMillis()
+                }
+                if(System.currentTimeMillis() - timeDelayMillis > 1000) {
+                    transferStage = TransferStage.NONE
+                    timeDelayMillis = 0L
+                }
+            }
+            TransferStage.NONE -> {
+            }
         }
+        intakeMotor.targetPosition = motorTargetPosition
+        intakeMotor.mode = motorMode
+        intakeServo(servoPosition)
+        intakeMotor.power = motorPower
+        motorIsBusy = intakeMotor.isBusy
+        motorPosition = intakeMotor.currentPosition
     }
-    fun threadKill() {
-        t?.interrupt()
+    fun transfer() {
+        transferStage = TransferStage.INIT
     }
     fun getPosition(): Int = intakeMotor.currentPosition
-    fun getIntakeMotor(): DcMotorEx = intakeMotor
     fun getIntakeServo(): ServoImplEx = intakeServo
     fun getIntakePos():Double = intakeServo.position
 }

@@ -203,7 +203,7 @@ public class RedRight extends OpMode {
                 // TODO: BRING SLIDE DOWN, RAISE INTAKE
                 .setTangent(135)
                 .addTemporalMarker(()->{
-                    slide.bottomOutProcedure();
+                    slide.setBottomOutProcedure(true);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
 
@@ -298,7 +298,7 @@ public class RedRight extends OpMode {
                 })
                 .waitSeconds(0.8)
                 .addTemporalMarker(()->{
-                    slide.bottomOutProcedure();
+                    slide.setBottomOutProcedure(true);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
                 })

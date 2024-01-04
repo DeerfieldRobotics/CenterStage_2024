@@ -198,7 +198,7 @@ public class BlueLeft extends OpMode{
                 // TODO: BRING SLIDE DOWN, RAISE INTAKE
                 .setTangent(225)
                 .addTemporalMarker(()->{
-                    slide.bottomOutProcedure();
+                    slide.setBottomOutProcedure(true);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
                 })
@@ -291,7 +291,7 @@ public class BlueLeft extends OpMode{
                 })
                 .waitSeconds(0.8)
                 .addTemporalMarker(()->{
-                    slide.bottomOutProcedure();
+                    slide.setBottomOutProcedure(true);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
                     intake.update();
                 })
