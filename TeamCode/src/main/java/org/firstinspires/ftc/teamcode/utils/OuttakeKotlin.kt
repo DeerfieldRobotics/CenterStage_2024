@@ -29,6 +29,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val transferKinematics = OuttakeKinematics(-130.0, 60.0, true)
     private val insideKinematics = OuttakeKinematics(-117.0, 30.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
+
     enum class OuttakePositions {
         TRANSFER, INSIDE, OUTSIDE //TRANSFER for transferring, INSIDE for inside robot, OUTSIDE for out of robot
     }
@@ -58,6 +59,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             update()
         }
     }
+
     fun update() {
         outtakeProcedure()
         gateServo.position = when {
@@ -72,6 +74,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
             outtakePositionMap[outtakePosition]!!.absPos
         )
     }
+
     private fun outtakeProcedure() {
         if(outtakeProcedureTarget != outtakePosition) {
             when (outtakeProcedureTarget) {
@@ -98,7 +101,7 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 OuttakePositions.TRANSFER -> {
                     gateClosed = false
                     var currentTime = 0L
-                    if(slide.getPosition().average() <= slide.minSlideHeight) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight || outtakePosition == OuttakePositions.INSIDE) {
                         outtakePosition = OuttakePositions.INSIDE
                         currentTime = System.currentTimeMillis()
                     }
@@ -111,7 +114,6 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 }
             }
         }
-
     }
     init {
         update()

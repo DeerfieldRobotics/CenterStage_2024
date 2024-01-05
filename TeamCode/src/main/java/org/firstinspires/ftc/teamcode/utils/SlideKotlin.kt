@@ -73,12 +73,10 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide1Position = slide1.currentPosition
         slide2Position = slide2.currentPosition
         overCurrent = slide1.isOverCurrent || slide2.isOverCurrent
-        if(bottomOutProcedure && !bottomOut) {
+        if(bottomOutProcedure && !bottomOut)
             bottomOut()
-        }
-        else if (bottomOutProcedure) {
+        else if (bottomOutProcedure)
             bottomOutProcedure = false
-        }
         checkBottomOut()
     }
 
