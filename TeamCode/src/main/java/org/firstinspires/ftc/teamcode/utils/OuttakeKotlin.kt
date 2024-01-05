@@ -8,12 +8,8 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristServo: ServoImplEx = hardwareMap.get("ws") as ServoImplEx //control hub: 1
     private val gateServo: ServoImplEx = hardwareMap.get("gs") as ServoImplEx //control hub: 2
 
-    var outtakePosition = OuttakePositions.INSIDE
-
     private val armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
     private val armEndAngle = -174.0 //angle of arm at position 1.0
-
-    private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
 
     private val wristStartAngle = -164.5 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
     private val wristEndAngle = 81.0 //angle of wrist at position 1.0
@@ -22,10 +18,15 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
-    var outtakeProcedureTarget = OuttakePositions.OUTSIDE //target position for outtake procedure
+    private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
+
+    var outtakePosition = OuttakePositions.INSIDE //Only use to get current position
+        private set
+    var outtakeProcedureTarget = OuttakePositions.INSIDE //target position for outtake procedure, use to change outtake position
 
     var gateClosed = true //whether the gate is open or closed
 
+    //Position definitions for outtake
     private val transferKinematics = OuttakeKinematics(-130.0, 60.0, true)
     private val insideKinematics = OuttakeKinematics(-117.0, 30.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
@@ -52,12 +53,12 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 (wristAngle - wristStartAngle) / (wristEndAngle - wristStartAngle)
         currentWristAngle = wristAngle
     }
+
     fun getOuttakeAngle() = arrayOf(currentArmAngle, currentWristAngle)
+
     fun outtakeAngleAdjust(armAngleIncrement: Double) {
-        if(outtakePosition == OuttakePositions.OUTSIDE) {
+        if(outtakePosition == OuttakePositions.OUTSIDE)
             outsideKinematics.armAngle += armAngleIncrement*incrementMultiplier
-            update()
-        }
     }
 
     fun update() {
@@ -81,18 +82,19 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 OuttakePositions.OUTSIDE -> {
                     gateClosed = true
                     outtakePosition = OuttakePositions.INSIDE
-                    if(slide.getPosition().average() <= slide.minSlideHeight) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight) //When slide is high enough, bring arm out
                         outtakePosition = OuttakePositions.OUTSIDE
-                    }
                 }
                 OuttakePositions.INSIDE -> {
-                    gateClosed = false
+                    gateClosed = true
+                    if(outtakePosition == OuttakePositions.TRANSFER) //Guard clause-ish, if already transfer, just go to inside position
+                        outtakePosition = OuttakePositions.INSIDE
                     var currentTime = 0L
                     if(slide.getPosition().average() <= slide.minSlideHeight) {
-                        setOuttakeKinematics(insideKinematics.armAngle, insideKinematics.wristAngle, insideKinematics.absPos)
+                        setOuttakeKinematics(insideKinematics.armAngle, insideKinematics.wristAngle, insideKinematics.absPos) //Need to use manual command in order to not break out of condition
                         currentTime = System.currentTimeMillis()
                     }
-                    if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) {
+                    if(System.currentTimeMillis() - currentTime > 500 && currentTime != 0L) {
                         slide.bottomOut()
                         if(slide.bottomOut)
                             outtakePosition = OuttakePositions.INSIDE
@@ -101,20 +103,20 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
                 OuttakePositions.TRANSFER -> {
                     gateClosed = false
                     var currentTime = 0L
-                    if(slide.getPosition().average() <= slide.minSlideHeight || outtakePosition == OuttakePositions.INSIDE) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight) {
                         outtakePosition = OuttakePositions.INSIDE
                         currentTime = System.currentTimeMillis()
                     }
-                    if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) {
+                    if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
                         slide.bottomOut()
-                        if(slide.bottomOut) {
+                        if(slide.bottomOut)
                             outtakePosition = OuttakePositions.TRANSFER
-                        }
                     }
                 }
             }
         }
     }
+
     init {
         update()
         gateServo.position = gateClose

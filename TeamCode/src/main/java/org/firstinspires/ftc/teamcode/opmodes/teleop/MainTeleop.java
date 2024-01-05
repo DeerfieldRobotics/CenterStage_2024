@@ -223,9 +223,9 @@ public class MainTeleop extends LinearOpMode {
         if (gamepad2.triangle&&!triangleToggle) { // arm override
             triangleToggle = true;
             if (outtake.getOuttakePosition() == OuttakeKotlin.OuttakePositions.OUTSIDE) {
-                outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
+                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
             } else {
-                outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
             }
         }
         if (!gamepad2.triangle) {
@@ -250,7 +250,7 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
             if(outtake.getOuttakePosition()!=OuttakeKotlin.OuttakePositions.OUTSIDE)
-                outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.TRANSFER);
+                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.TRANSFER);
             outtake.setGateClosed(false);
             gamepad2.rumble(1.0,1.0,100);
             rightBumperToggle = true;

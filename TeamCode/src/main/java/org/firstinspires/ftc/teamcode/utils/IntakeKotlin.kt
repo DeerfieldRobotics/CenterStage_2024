@@ -15,7 +15,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH
     }
 
-    private val intakePositionMap = mapOf(
+    private val intakePositionMap = mapOf( //TODO: find positions
         IntakePositions.INIT to 0.45,
         IntakePositions.INTAKE to 1.0,
         IntakePositions.TRANSFER to 0.67,
@@ -25,13 +25,14 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         IntakePositions.HIGH to 0.6
     )
 
+    //Servo variables
     var servoPosition = IntakePositions.INIT
+    private var manualServoPosition = 0.0
+
+    //Motor Variables
     var motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     var motorTargetPosition = 0
     var motorPower = 0.0
-    private var motorPosition = 0
-    private var motorIsBusy = false
-    private var manualPosition = 0.0
     private val motorPowerMultiplier = 0.75
 
     enum class TransferStage {
@@ -41,14 +42,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     private var transferStage = TransferStage.IDLE
 
     init {
-        intakeServo.position = intakePositionMap[servoPosition]!!
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        intakeMotor.mode = motorMode
+        update()
     }
 
     private fun intakeServo(intakePosition: IntakePositions) {
         if(intakePosition == IntakePositions.MANUAL) {
-            intakeServo.position = manualPosition
+            intakeServo.position = manualServoPosition
         }
         else
             intakeServo.position = intakePositionMap[intakePosition]!!
@@ -56,9 +56,9 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
 
     fun changeIntakeServo(power: Double){
-        manualPosition = intakeServo.position
+        manualServoPosition = intakeServo.position
         servoPosition = IntakePositions.MANUAL
-        manualPosition -= power* 0.05
+        manualServoPosition -= power* 0.05
     }
 
     fun intake (power: Double) {
@@ -67,6 +67,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         }
         motorPower = power*motorPowerMultiplier
     }
+
     fun update() {
         when(transferStage) {
             TransferStage.INIT -> {
@@ -77,7 +78,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
                 motorTargetPosition = -110
                 motorMode = DcMotor.RunMode.RUN_TO_POSITION
                 motorPower = 1.0
-                if(!motorIsBusy) {
+                if(!intakeMotor.isBusy) {
                     transferStage = TransferStage.TRANSFER
                     motorPower = 0.0
                 }
@@ -110,13 +111,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeMotor.mode = motorMode
         intakeServo(servoPosition)
         intakeMotor.power = motorPower
-        motorIsBusy = intakeMotor.isBusy
-        motorPosition = intakeMotor.currentPosition
     }
+
     fun transfer() {
         if(transferStage == TransferStage.IDLE)
             transferStage = TransferStage.INIT
     }
+
     fun getPosition(): Int = intakeMotor.currentPosition
     fun getIntakeServo(): ServoImplEx = intakeServo
     fun getIntakePos():Double = intakeServo.position

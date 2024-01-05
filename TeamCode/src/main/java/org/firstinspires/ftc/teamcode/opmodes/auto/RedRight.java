@@ -170,7 +170,7 @@ public class RedRight extends OpMode {
                 .splineToLinearHeading(new Pose2d(54,-35+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -196,7 +196,7 @@ public class RedRight extends OpMode {
                 .forward(10)
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)
@@ -228,7 +228,7 @@ public class RedRight extends OpMode {
                     intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.TRANSFER);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.TRANSFER);
                     outtake.update();
                 })
                 .waitSeconds(0.4)
@@ -242,7 +242,7 @@ public class RedRight extends OpMode {
                     intake.setMotorPower(0);
                     intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
                     intake.update();
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.2)
@@ -257,7 +257,7 @@ public class RedRight extends OpMode {
 //                .setTangent(Math.toRadians(-45))
                 .splineToSplineHeading(new Pose2d(51+rightConstant2,-35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(-45))
                 .addTemporalMarker(()->{
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                     slide.setTargetPosition(-1400);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -268,7 +268,7 @@ public class RedRight extends OpMode {
                 .waitSeconds(0.7)
                 // TODO: OUTTAKE 2 WHITE BOIS
                 .addTemporalMarker(()->{
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -293,7 +293,7 @@ public class RedRight extends OpMode {
                 })
                 .forward(7)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakePosition(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)

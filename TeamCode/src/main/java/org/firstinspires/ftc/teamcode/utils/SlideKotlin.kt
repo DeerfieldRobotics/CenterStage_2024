@@ -14,10 +14,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
     var bottomOut = false
     var bottomOutProcedure = false
 
-    private var slide1Position = 0
-    private var slide2Position = 0
-
     private var overCurrent = false
+
     init {
         slide1.direction = DcMotorSimple.Direction.FORWARD
         slide2.direction = DcMotorSimple.Direction.FORWARD
@@ -39,14 +37,17 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide1.power = s
         slide2.power = s
     }
+
     fun setMode (mode: DcMotor.RunMode) {
         slide1.mode = mode
         slide2.mode = mode
     }
+
     fun setTargetPosition (position: Int) {
         slide1.targetPosition = position
         slide2.targetPosition = position
     }
+
     fun bottomOut () {
         if (overCurrent) {
             bottomOut = true
@@ -60,6 +61,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setPower(1.0)
         }
     }
+
     private fun checkBottomOut () {
         if ((overCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
             bottomOut = true
@@ -69,9 +71,8 @@ class SlideKotlin (hardwareMap: HardwareMap){
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
+
     fun update() {
-        slide1Position = slide1.currentPosition
-        slide2Position = slide2.currentPosition
         overCurrent = slide1.isOverCurrent || slide2.isOverCurrent
         if(bottomOutProcedure && !bottomOut)
             bottomOut()
@@ -80,9 +81,7 @@ class SlideKotlin (hardwareMap: HardwareMap){
         checkBottomOut()
     }
 
-    fun getPosition(): Array<Int> = arrayOf(slide1Position, slide2Position)
-    fun getTargetPosition(): Array<Int> = arrayOf(slide1.targetPosition, slide2.targetPosition)
+    fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
     private fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))
     fun getAvgCurrent(): Double = getCurrent().average()
-    fun getMode(): Array<DcMotor.RunMode> = arrayOf(slide1.mode, slide2.mode)
 }
