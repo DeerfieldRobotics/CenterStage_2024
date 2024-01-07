@@ -1,50 +1,49 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import androidx.annotation.NonNull;
-
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
-
 import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class WhiteDetectionPipeline extends OpenCvPipeline {
     private final int threshold = 240;
-    private ArrayList<WhiteFrame> whiteFrames;
+    private final ArrayList<WhiteFrame> whiteFrames;
     private final int startY = 120;
     private final int endY = 240;
     private final int startX = 0;
     private final int endX = 200;
-    private int numDivs;
+    private final int numSectors;
     double avg = -2;
     private static String selectedSectors;
 
     public WhiteDetectionPipeline() {
-        numDivs = 10;
+        numSectors = 10;
         whiteFrames = new ArrayList<>();
         selectedSectors = "";
     }
 
-    public WhiteDetectionPipeline(int numDivs) {
+    public WhiteDetectionPipeline(int numSectors) {
         whiteFrames= new ArrayList<>();
-        this.numDivs = numDivs;
+        this.numSectors = numSectors;
         selectedSectors = "";
     }
 
     @Override
     public Mat processFrame(Mat input) {
-        WhiteFrame frame = new WhiteFrame(numDivs, 3);
+        WhiteFrame frame = new WhiteFrame(numSectors, 3); //3 sector wide pixel image
 
-        for(int i = 0; i < numDivs; i++) frame.addSector(new WhiteSector(0,i));
+        for(int i = 0; i < numSectors; i++) frame.addSector(new WhiteSector(0,i));
 
+        //loop through each pixel in the frame and puts it in the correct sector
         for (int i = startY; i < endY; i++) {
             for (int j = startX; j < endX; j++) {
                 if (input.get(i, j)[0] > threshold && input.get(i, j)[1] > threshold && input.get(i, j)[2] > threshold) {
                     //increment at that index
-                    frame.incrementSector(j*numDivs/endX);
+                    frame.incrementSector(j* numSectors /endX);
                 }
             }
         }
@@ -64,8 +63,8 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
         //draw horizontal line
         Imgproc.line(input, new Point(startX, startY), new Point(endX, startY), new Scalar(0, 0, 0), 1);
         //draw lines on screen
-        for(int i = 0; i < numDivs-1; i++){
-            Imgproc.line(input, new Point(i*endX/numDivs, startY), new Point(i*endX/numDivs, endY), new Scalar(0, 0, 0), 1);
+        for(int i = 0; i < numSectors -1; i++){
+            Imgproc.line(input, new Point((double)i*endX/ numSectors, startY), new Point((double)i*endX/ numSectors, endY), new Scalar(0, 0, 0), 1);
         }
 
         return input;
@@ -79,10 +78,10 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
     public String toString() {
         if(whiteFrames.size()==0) return "";
         //return number of pixels in each sector in each frame
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for(int i = 0; i < whiteFrames.size(); i++){
-            s += "Frame " + i + ": ";
-            s += whiteFrames.get(i).toString();
+            s.append("Frame ").append(i).append(": ");
+            s.append(whiteFrames.get(i).toString());
             // for(WhiteSector sector : frame.getSectors()){
             //     s += sector.getWhiteCount() + " ";
             // }
@@ -91,19 +90,18 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
 //
 //        //add overall average
 //        String s = "Overall Average: " + avg;
-        return s;
+        return s.toString();
     }
 
     static class WhiteFrame {
-        int maxSize = 20;
+        int maxSize;
         //number of sectors to consider
-        int numSectors;
-        private ArrayList<WhiteSector> whiteSectors;
-        double avg = -1;
+        int numSectors; //pixel width in sectors
+        private final ArrayList<WhiteSector> whiteSectors;
 
         public WhiteFrame(int maxSize, int numSectors) {
             this.numSectors = numSectors;
-            whiteSectors = new ArrayList<WhiteSector>();
+            whiteSectors = new ArrayList<>();
             this.maxSize = maxSize;
         }
 
@@ -119,31 +117,32 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
         }
 
         public double getAvgIndex(){
-            selectedSectors = "";
             TreeSet<WhiteSector> sortedSectors = new TreeSet<>(whiteSectors);
 
             //get the average index of the first numSectors sectors
             int sum = 0;
-            for(int i = 0; i < Math.min(3,sortedSectors.size()); i++){
+            StringBuilder selectedSectorsStringBuilder = new StringBuilder();
+            for(int i = 0; i < Math.min(numSectors,sortedSectors.size()); i++){
                 WhiteSector ws = sortedSectors.pollFirst();
                 sum += ws.getIndex();
-                selectedSectors += ws.getIndex() + " ";
+                selectedSectorsStringBuilder.append(ws.getIndex()).append(" ");
             }
 
-            selectedSectors+= "\n";
+            selectedSectors = selectedSectorsStringBuilder.append("\n").toString();
 
             sortedSectors.clear();
 
             return ((double) sum)/numSectors;
         }
 
+        @NonNull
         public String toString(){
-            String s = "";
-            for(WhiteSector se : whiteSectors) s += ((se.getWhiteCount()) + " ");
+            StringBuilder s = new StringBuilder();
+            for(WhiteSector se : whiteSectors) s.append(se.getWhiteCount()).append(" ");
 
-            s +="\n"+selectedSectors + "\n";
+            s.append("\n").append(selectedSectors).append("\n");
 
-            return s;
+            return s.toString();
         }
     }
 
@@ -151,11 +150,6 @@ public class WhiteDetectionPipeline extends OpenCvPipeline {
         private int whiteCount;
         private final int index;
 
-        //default constructor
-        public WhiteSector() {
-            whiteCount = 0;
-            index = 0;
-        }
         public WhiteSector(int whiteCount, int index) {
             this.whiteCount = whiteCount;
             this.index = index;
