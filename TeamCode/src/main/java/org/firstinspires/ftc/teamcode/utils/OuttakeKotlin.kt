@@ -8,8 +8,8 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     private val wristServo: ServoImplEx = hardwareMap.get("ws") as ServoImplEx //control hub: 1
     private val gateServo: ServoImplEx = hardwareMap.get("gs") as ServoImplEx //control hub: 2
 
-    private val armStartAngle = 42.5 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
-    private val armEndAngle = -174.0 //angle of arm at position 1.0
+    private val armStartAngle = 90.0 //angle of arm at position 0.0 relative to horizontal, positive values ccw, towards outside of robot
+    private val armEndAngle = -180.07843 //angle of arm at position 1.0
 
     private val wristStartAngle = -164.5 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
     private val wristEndAngle = 81.0 //angle of wrist at position 1.0
@@ -27,24 +27,31 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     var gateClosed = true //whether the gate is open or closed
 
     //Position definitions for outtake
-    private val transferKinematics = OuttakeKinematics(-130.0, 60.0, true)
+    private val transferKinematics = OuttakeKinematics(-130.0, 60.0, true) //TODO
     private val insideKinematics = OuttakeKinematics(-117.0, 30.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
 
     enum class OuttakePositions {
         TRANSFER, INSIDE, OUTSIDE //TRANSFER for transferring, INSIDE for inside robot, OUTSIDE for out of robot
     }
+    
     private val outtakePositionMap = mapOf(
         OuttakePositions.TRANSFER to transferKinematics,
         OuttakePositions.INSIDE to insideKinematics,
         OuttakePositions.OUTSIDE to outsideKinematics
     )
-    private class OuttakeKinematics (var armAngle: Double, var wristAngle: Double, var absPos: Boolean)
+
+    private class OuttakeKinematics (var armAngle: Double, var wristAngle: Double, var absPos: Boolean) //subclass for outtake kinematics behavior 
 
     private var currentWristAngle = outtakePositionMap[outtakePosition]!!.wristAngle //current wrist angle
     private var currentArmAngle = outtakePositionMap[outtakePosition]!!.armAngle //current arm angle
 
-    fun setOuttakeKinematics(armAngle: Double, wristAngle: Double, absPos: Boolean) { //set position of arm and wrist servos, absPos is if the angle is absolute or relative to the arm
+    init {
+        update()
+        gateServo.position = gateClose
+    }
+
+    fun setOuttakeKinematics(armAngle: Double, wristAngle: Double, absPos: Boolean) { //set position of arm and wrist servos, absPos is if angle is absolute or relative to arm
         armServo.position = (armAngle - armStartAngle) / (armEndAngle - armStartAngle)
         currentArmAngle = armAngle
         wristServo.position = if(absPos)
@@ -64,9 +71,8 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
     fun update() {
         outtakeProcedure()
         gateServo.position = when {
-            outtakePosition == OuttakePositions.OUTSIDE && gateClosed -> gateClose
-            outtakePosition == OuttakePositions.OUTSIDE -> gateOuttake
             gateClosed -> gateClose
+            outtakePosition == OuttakePositions.OUTSIDE -> gateOuttake
             else -> gateIntake
         }
         setOuttakeKinematics(
@@ -117,8 +123,4 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
         }
     }
 
-    init {
-        update()
-        gateServo.position = gateClose
-    }
 }
