@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils
 
+import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -7,7 +8,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
-    private var boosterServo: ServoImplEx = hardware.get("bs") as CRServoImplEx //expansion hub: TODO
+    private var boosterServo: ServoImplEx = hardwareMap.get("bs") as ServoImplEx //expansion hub: TODO
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var timeDelayMillis = 0L
@@ -96,13 +97,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             TransferStage.INTAKE -> {
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 motorPower = 1.0 //intake pixels into outtake
-                boosterServo.setPower(1.0)
+                boosterServo.setPosition(1.0) //FIX yo shit
                 if(timeDelayMillis == 0L) {
                     timeDelayMillis = System.currentTimeMillis()
                 }
                 if(System.currentTimeMillis() - timeDelayMillis > 1000) { //wait for pixels to fully intake
                     motorPower = 0.0
-                    boosterServo.setPower(0.0)
+                    boosterServo.setPosition(0.0) // FIX
                     transferStage = TransferStage.IDLE
                     timeDelayMillis = 0L
                 }

@@ -29,11 +29,14 @@ public class RedRight extends OpMode {
     private SlideKotlin slide;
     private TrajectorySequence path;
 
-    private double leftSpikeXOffest = 0.0;
-    private double rightSpikeXOffset = 0.0;
+    private double leftSpikeX = 0.0;
+    private double rightSpikeX= 0.0;
+    private double centerSpikeX = 0.0;
+    private double leftSpikeY = 0.0;
+    private double rightSpikeY =0.0;
+    private double centerSpikeY = 0.0;
     private double leftBackboardYOffset = 0.0;
     private double rightBackboardYOffset = 0.0;
-    private double centerSpikeYOffset = 0.0;
     private double centerSpikeBackOffset = 0.0;
     private double leftIntakeYOffset = 0.0;
     private double rightIntakeYOffset = 0.0;
@@ -82,13 +85,16 @@ public class RedRight extends OpMode {
         purplePixelPath = colorDetection.getPosition();
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
-            leftSpikeXOffest = -12.0;
+            leftSpikeX = 11.0;
+            rightSpikeX= 0.0;
+            centerSpikeX = 0.0;
+            leftSpikeY = -32.0;
+            rightSpikeY = 0.0;
+            centerSpikeY = 0.0;
             leftBackboardYOffset = 5.0;
             leftIntakeYOffset = -1.2;
-            rightSpikeXOffset = 0.0;
             rightBackboardYOffset = 0.0;
             rightIntakeYOffset = 0.0;
-            centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
             secondBackboardYOffset = -7.0;
             rightConstant = 0.0;
@@ -96,13 +102,16 @@ public class RedRight extends OpMode {
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
         {
-            leftSpikeXOffest = 0.0;
+            leftSpikeX = 0.0;
+            rightSpikeX= 0.0;
+            centerSpikeX = 23.0;
+            leftSpikeY = 0.0;
+            rightSpikeY = 0.0;
+            centerSpikeY = -24.7;
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
-            rightSpikeXOffset = 0.0;
             rightIntakeYOffset = 0.0;
             rightBackboardYOffset = 0.0;
-            centerSpikeYOffset = 7.3;
             centerSpikeBackOffset = 0.0;
             secondBackboardYOffset = -7.0;
             rightConstant = 0.0;
@@ -110,13 +119,16 @@ public class RedRight extends OpMode {
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
         {
-            leftSpikeXOffest = 0.0;
+            leftSpikeX = 0.0;
+            rightSpikeX= 25.0;
+            centerSpikeX = 0.0;
+            leftSpikeY = 0.0;
+            rightSpikeY = -32.0;
+            centerSpikeY = 0.0;
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
-            rightSpikeXOffset = 2.0;
             rightBackboardYOffset = -6;
             rightIntakeYOffset = 0.5;
-            centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = -8;
             secondBackboardYOffset = 4.0;
             rightConstant = -1.0;
@@ -143,7 +155,7 @@ public class RedRight extends OpMode {
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
                 })
-                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,-32+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(150))
+                .splineToSplineHeading(new Pose2d(centerSpikeX + leftSpikeX + rightSpikeX,centerSpikeY+leftSpikeY+rightSpikeY, Math.toRadians(180)), Math.toRadians(150))
 
                 // TODO: SPIKE PURPLE
                 .back(3.5-centerSpikeBackOffset)
