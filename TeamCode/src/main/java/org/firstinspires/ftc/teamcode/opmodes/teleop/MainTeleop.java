@@ -38,9 +38,9 @@ public class MainTeleop extends LinearOpMode {
     private double l2Max = 0.8;
     //driving values
     private double speedMult;
-    private double forwardMult = .7;
-    private double turnMult = .65;
-    private double strafeMult = .9;
+    private double forwardMult = 1;
+    private double turnMult = .75;
+    private double strafeMult = 1;
 
     SampleMecanumDrive drive;
 
@@ -72,7 +72,7 @@ public class MainTeleop extends LinearOpMode {
     ));
 
     private void driveNormal() {
-        speedMult = .7+0.3 * gamepad1.right_trigger-0.5*gamepad1.left_trigger;
+        speedMult = .7+0.3 * gamepad1.right_trigger-0.3*gamepad1.left_trigger;
 
         gamepad1.rumble(gamepad1.left_trigger>0.5?(gamepad1.left_trigger-0.5)/.4:0.0,gamepad1.right_trigger>0.4?(gamepad1.right_trigger-0.4)/0.8:0.0,50);
 
