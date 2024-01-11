@@ -11,9 +11,9 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
-import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -24,8 +24,8 @@ public class Blue1Left extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private PIDF pidf;
     private SampleMecanumDrive drive;
-    private IntakeKotlin intake;
-    private SlideKotlin slide;
+    private Intake intake;
+    private Slide slide;
     private TrajectorySequence path;
     private double mult = 0.0;
     private double righty = 0.0;
@@ -45,8 +45,8 @@ public class Blue1Left extends OpMode {
     @Override
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
-        slide = new SlideKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap);
+        slide = new Slide(hardwareMap);
+        intake = new Intake(hardwareMap);
 //        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
 import com.arcrobotics.ftclib.hardware.ServoEx
 import com.qualcomm.robotcore.hardware.HardwareMap

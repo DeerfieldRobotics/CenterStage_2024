@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
 import com.qualcomm.robotcore.util.Range
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
-class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
+class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val armServo: ServoImplEx = hardwareMap.get("as") as ServoImplEx //control hub: 0
     private val wristServo: ServoImplEx = hardwareMap.get("ws") as ServoImplEx //control hub: 1
     private val gateServo: ServoImplEx = hardwareMap.get("gs") as ServoImplEx //control hub: 2
@@ -23,7 +23,8 @@ class OuttakeKotlin (hardwareMap: HardwareMap, private var slide: SlideKotlin) {
 
     var outtakePosition = OuttakePositions.INSIDE //Only use to get current position
         private set
-    var outtakeProcedureTarget = OuttakePositions.INSIDE //target position for outtake procedure, use to change outtake position
+    var outtakeProcedureTarget =
+        OuttakePositions.INSIDE //target position for outtake procedure, use to change outtake position
 
     var gateClosed = true //whether the gate is open or closed
 

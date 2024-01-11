@@ -3,20 +3,20 @@ package org.firstinspires.ftc.teamcode.testers;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 
 @TeleOp(name = "Outtake Tester", group = "a")
 public class OuttakeTester extends LinearOpMode {
-    private SlideKotlin slide;
-    private OuttakeKotlin outtake;
+    private Slide slide;
+    private Outtake outtake;
     private boolean crossToggle = false;
     private double armAngle;
     private double wristAngle;
     @Override
     public void runOpMode() throws InterruptedException {
-        slide = new SlideKotlin(hardwareMap);
-        outtake = new OuttakeKotlin(hardwareMap, slide);
+        slide = new Slide(hardwareMap);
+        outtake = new Outtake(hardwareMap, slide);
         armAngle = outtake.getOuttakeAngle()[0];
         wristAngle = outtake.getOuttakeAngle()[1];
         waitForStart();

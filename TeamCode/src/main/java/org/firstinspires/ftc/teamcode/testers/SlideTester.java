@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode.testers;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 
 
 
 @TeleOp(name="SlideTester", group="b")
 public class SlideTester extends LinearOpMode {
 
-    private SlideKotlin slide;
+    private Slide slide;
 
     @Override
     public void runOpMode() {
@@ -27,6 +26,6 @@ public class SlideTester extends LinearOpMode {
     }
 
     private void initialize() {
-        slide = new SlideKotlin(hardwareMap);
+        slide = new Slide(hardwareMap);
     }
 }

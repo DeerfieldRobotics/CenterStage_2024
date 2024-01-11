@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -15,7 +15,7 @@ import java.lang.Math.sin
  * @param hardwareMap The hardware map of the robot.
  * @constructor Creates a drivetrain object using 4 [DcMotorEx] objects from the given [HardwareMap].
  */
-class DrivetrainKotlin (hardwareMap:HardwareMap) {
+class Drivetrain (hardwareMap:HardwareMap) {
 
     private val frontLeft: DcMotorEx = hardwareMap.get("fl") as DcMotorEx //control hub: 0
     private val frontRight: DcMotorEx = hardwareMap.get("fr") as DcMotorEx //control hub: 1

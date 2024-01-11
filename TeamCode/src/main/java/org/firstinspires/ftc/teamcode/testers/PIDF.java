@@ -14,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.utils.AprilTagDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
+import org.firstinspires.ftc.teamcode.utils.detection.AprilTagDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -62,7 +62,7 @@ public class PIDF extends LinearOpMode {
     //need to calibrate
     public static double targetX = 0, targetZ = 0.2, targetYaw = 0;
     public double[] currentX = {0, 0, 0}, currentZ = {0, 0, 0}, currentYaw = {0, 0, 0}; //left tag is 0, center tag is 1, right tag is 2
-    private DrivetrainKotlin drivetrain;
+    private Drivetrain drivetrain;
 
     @Override
     public void runOpMode()
@@ -256,7 +256,7 @@ public class PIDF extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drivetrain = new DrivetrainKotlin(hardwareMap);
+        drivetrain = new Drivetrain(hardwareMap);
     }
 
 

@@ -9,11 +9,11 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
-import org.firstinspires.ftc.teamcode.utils.ColorDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
-import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
+import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -23,9 +23,9 @@ public class BlueLeft extends OpMode{
     private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
     private PIDF pidf;
     private SampleMecanumDrive drive;
-    private IntakeKotlin intake;
-    private OuttakeKotlin outtake;
-    private SlideKotlin slide;
+    private Intake intake;
+    private Outtake outtake;
+    private Slide slide;
     private TrajectorySequence path;
 
     private double leftSpikeXOffest = 0.0;
@@ -49,9 +49,9 @@ public class BlueLeft extends OpMode{
     @Override
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
-        slide = new SlideKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap);
-        outtake = new OuttakeKotlin(hardwareMap, slide);
+        slide = new Slide(hardwareMap);
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap, slide);
 //        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -127,14 +127,14 @@ public class BlueLeft extends OpMode{
 
     @Override
     public void start() {
-        intake.setServoPosition(IntakeKotlin.IntakePositions.INIT);
+        intake.setServoPosition(Intake.IntakePositions.INIT);
         intake.update();
 
         drive.setPoseEstimate(new Pose2d(16,63, Math.toRadians(270)));
         path = drive.trajectorySequenceBuilder(new Pose2d(16,63, Math.toRadians(270)))
                 .setTangent(Math.toRadians(300))
                 .addTemporalMarker(()->{
-                    intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+                    intake.setServoPosition(Intake.IntakePositions.DRIVE);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
                 })
@@ -165,7 +165,7 @@ public class BlueLeft extends OpMode{
                 .splineToLinearHeading(new Pose2d(55.5,37+leftBackboardYOffset+rightBackboardYOffset,Math.toRadians(180)), Math.toRadians(0))
                 // TODO: OUTTAKE YELLOW
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -191,7 +191,7 @@ public class BlueLeft extends OpMode{
                 .forward(10)
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.7)
@@ -199,7 +199,7 @@ public class BlueLeft extends OpMode{
                 .setTangent(225)
                 .addTemporalMarker(()->{
                     slide.setBottomOutProcedure(true);
-                    intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
+                    intake.setServoPosition(Intake.IntakePositions.FIVE);
                     intake.update();
                 })
 
@@ -218,10 +218,10 @@ public class BlueLeft extends OpMode{
                 .waitSeconds(.6)
                 .back(4)
                 .addTemporalMarker(()-> {
-                    intake.setServoPosition(IntakeKotlin.IntakePositions.TRANSFER);
+                    intake.setServoPosition(Intake.IntakePositions.TRANSFER);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.TRANSFER);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER);
                     outtake.update();
                 })
                 .waitSeconds(0.4)
@@ -233,9 +233,9 @@ public class BlueLeft extends OpMode{
                 .waitSeconds(0.7)
                 .addTemporalMarker(()->{
                     intake.setMotorPower(0);
-                    intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+                    intake.setServoPosition(Intake.IntakePositions.DRIVE);
                     intake.update();
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.2)
@@ -250,7 +250,7 @@ public class BlueLeft extends OpMode{
 //                .setTangent(Math.toRadians(-45))
                 .splineToSplineHeading(new Pose2d(55,35+secondBackboardYOffset, Math.toRadians(180)), Math.toRadians(45))
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
                     outtake.update();
                     slide.setTargetPosition(-1400);
                     slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -261,7 +261,7 @@ public class BlueLeft extends OpMode{
                 .waitSeconds(0.7)
                 // TODO: OUTTAKE 2 WHITE BOIS
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.5)
@@ -286,13 +286,13 @@ public class BlueLeft extends OpMode{
                 })
                 .forward(7)
                 .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
                     outtake.update();
                 })
                 .waitSeconds(0.8)
                 .addTemporalMarker(()->{
                     slide.setBottomOutProcedure(true);
-                    intake.setServoPosition(IntakeKotlin.IntakePositions.FIVE);
+                    intake.setServoPosition(Intake.IntakePositions.FIVE);
                     intake.update();
                 })
 //                .back(5)

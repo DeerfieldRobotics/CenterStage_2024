@@ -11,18 +11,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
-import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.Launcher;
-import org.firstinspires.ftc.teamcode.utils.OuttakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
+import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Launcher;
+import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 
 @TeleOp(name = "Main Teleop", group = "a")
 public class MainTeleop extends LinearOpMode {
-    private DrivetrainKotlin drivetrain;
-    private IntakeKotlin intake;
-    private OuttakeKotlin outtake;
-    private SlideKotlin slide;
+    private Drivetrain drivetrain;
+    private Intake intake;
+    private Outtake outtake;
+    private Slide slide;
     private Launcher launcher;
     //Sensitivity values for triggers of gamepad 2
     private final double rTriggerStart = 0.05;
@@ -206,14 +206,14 @@ public class MainTeleop extends LinearOpMode {
 //            dpadLeftToggle = false;
 //        }
 
-        if(gamepad1.right_trigger>0.3 && intake.getServoPosition()==IntakeKotlin.IntakePositions.INTAKE)
-            intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+        if(gamepad1.right_trigger>0.3 && intake.getServoPosition()== Intake.IntakePositions.INTAKE)
+            intake.setServoPosition(Intake.IntakePositions.DRIVE);
 
         if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
             gamepad2.rumbleBlips(1);
             circleToggle = true;
-            outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
-            intake.setServoPosition(IntakeKotlin.IntakePositions.HIGH);
+            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
+            intake.setServoPosition(Intake.IntakePositions.HIGH);
         }
         if (!gamepad2.circle) {
             circleToggle = false;
@@ -222,10 +222,10 @@ public class MainTeleop extends LinearOpMode {
         //arm code
         if (gamepad2.triangle&&!triangleToggle) { // arm override
             triangleToggle = true;
-            if (outtake.getOuttakePosition() == OuttakeKotlin.OuttakePositions.OUTSIDE) {
-                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+            if (outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) {
+                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
             } else {
-                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.OUTSIDE);
+                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
             }
         }
         if (!gamepad2.triangle) {
@@ -234,7 +234,7 @@ public class MainTeleop extends LinearOpMode {
 
         if(gamepad2.cross && !crossToggle) { //resets arm
             crossToggle = true;
-            outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.INSIDE);
+            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
             outtake.setGateClosed(true);
         }
         if(!gamepad2.cross) {
@@ -249,8 +249,8 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
-            if(outtake.getOuttakePosition()!=OuttakeKotlin.OuttakePositions.OUTSIDE)
-                outtake.setOuttakeProcedureTarget(OuttakeKotlin.OuttakePositions.TRANSFER);
+            if(outtake.getOuttakePosition()!= Outtake.OuttakePositions.OUTSIDE)
+                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER);
             outtake.setGateClosed(false);
             gamepad2.rumble(1.0,1.0,100);
             rightBumperToggle = true;
@@ -261,10 +261,10 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.left_bumper && !leftBumperToggle) {
-            if(intake.getServoPosition()!=IntakeKotlin.IntakePositions.INTAKE)
-                intake.setServoPosition(IntakeKotlin.IntakePositions.INTAKE);
+            if(intake.getServoPosition()!= Intake.IntakePositions.INTAKE)
+                intake.setServoPosition(Intake.IntakePositions.INTAKE);
             else
-                intake.setServoPosition(IntakeKotlin.IntakePositions.DRIVE);
+                intake.setServoPosition(Intake.IntakePositions.DRIVE);
         }
         if (!gamepad2.left_bumper) {
             leftBumperToggle = false;
@@ -287,10 +287,10 @@ public class MainTeleop extends LinearOpMode {
 
         drive = new SampleMecanumDrive(hardwareMap);
 
-        slide = new SlideKotlin(hardwareMap);
-        outtake = new OuttakeKotlin(hardwareMap, slide);
-        drivetrain = new DrivetrainKotlin(hardwareMap);
-        intake = new IntakeKotlin(hardwareMap);
+        slide = new Slide(hardwareMap);
+        outtake = new Outtake(hardwareMap, slide);
+        drivetrain = new Drivetrain(hardwareMap);
+        intake = new Intake(hardwareMap);
         launcher = new Launcher(hardwareMap);
 
         //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

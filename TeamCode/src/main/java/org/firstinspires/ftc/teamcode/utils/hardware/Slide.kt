@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
-class SlideKotlin (hardwareMap: HardwareMap){
+class Slide (hardwareMap: HardwareMap){
     private var slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
 

@@ -3,19 +3,16 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.checkerframework.checker.units.qual.K;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.testers.PIDF;
-import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
-import org.firstinspires.ftc.teamcode.utils.WhiteDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.IntakeKotlin;
-import org.firstinspires.ftc.teamcode.utils.SlideKotlin;
+import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
+import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
+import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @Autonomous(name = "WhiteTest")
 public class WhiteTest extends OpMode {
@@ -27,9 +24,9 @@ public class WhiteTest extends OpMode {
 
     private PIDF pidf;
 //    private SampleMecanumDrive drive;
-    private DrivetrainKotlin drive;
-    private IntakeKotlin intake;
-    private SlideKotlin slide;
+    private Drivetrain drive;
+    private Intake intake;
+    private Slide slide;
     private TrajectorySequence path;
     private double stackOffset = 0;
 
@@ -63,7 +60,7 @@ public class WhiteTest extends OpMode {
             }
         });
 
-        drive = new DrivetrainKotlin(hardwareMap);
+        drive = new Drivetrain(hardwareMap);
     }
 
     @Override

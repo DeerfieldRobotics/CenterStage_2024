@@ -1,13 +1,14 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
+import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
-class IntakeKotlin(hardwareMap: HardwareMap){
+class Intake(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
-    private var boosterServo: ServoImplEx = hardware.get("bs") as CRServoImplEx //expansion hub: TODO
+    private var boosterServo: CRServoImplEx = hardwareMap.get("bs") as CRServoImplEx //expansion hub: TODO
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var timeDelayMillis = 0L
@@ -77,7 +78,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
         intakeMotor.power = motorPower
     }
 
-    fun transferProcedure() {
+    private fun transferProcedure() {
         when(transferStage) {
             TransferStage.INIT -> {
                 motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -96,13 +97,13 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             TransferStage.INTAKE -> {
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 motorPower = 1.0 //intake pixels into outtake
-                boosterServo.setPower(1.0)
+                boosterServo.power = 1.0
                 if(timeDelayMillis == 0L) {
                     timeDelayMillis = System.currentTimeMillis()
                 }
                 if(System.currentTimeMillis() - timeDelayMillis > 1000) { //wait for pixels to fully intake
                     motorPower = 0.0
-                    boosterServo.setPower(0.0)
+                    boosterServo.power = 0.0
                     transferStage = TransferStage.IDLE
                     timeDelayMillis = 0L
                 }
