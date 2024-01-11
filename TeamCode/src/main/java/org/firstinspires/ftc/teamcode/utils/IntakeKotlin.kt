@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class IntakeKotlin(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
+    private var boosterServo: ServoImplEx = hardware.get("bs") as CRServoImplEx //expansion hub: TODO
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     private var timeDelayMillis = 0L
@@ -36,7 +37,7 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     private val motorPowerMultiplier = 0.75
 
     enum class TransferStage {
-        INIT, OUTTAKE, TRANSFER, INTAKE, IDLE
+        INIT, TRANSFER, INTAKE, IDLE
     }
 
     private var transferStage = TransferStage.IDLE
@@ -69,37 +70,39 @@ class IntakeKotlin(hardwareMap: HardwareMap){
     }
 
     fun update() {
+        transferProcedure()
+        intakeMotor.targetPosition = motorTargetPosition
+        intakeMotor.mode = motorMode
+        intakeServo(servoPosition)
+        intakeMotor.power = motorPower
+    }
+
+    fun transferProcedure() {
         when(transferStage) {
             TransferStage.INIT -> {
                 motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                transferStage = TransferStage.OUTTAKE
-            }
-            TransferStage.OUTTAKE -> {
-                motorTargetPosition = -110
-                motorMode = DcMotor.RunMode.RUN_TO_POSITION
-                motorPower = 1.0
-                if(!intakeMotor.isBusy) {
-                    transferStage = TransferStage.TRANSFER
-                    motorPower = 0.0
-                }
+                transferStage = TransferStage.TRANSFER //reset motor
             }
             TransferStage.TRANSFER -> {
                 if(timeDelayMillis == 0L) {
                     timeDelayMillis = System.currentTimeMillis()
                 }
-                servoPosition = IntakePositions.TRANSFER
-                if(System.currentTimeMillis() - timeDelayMillis > 600) {
+                servoPosition = IntakePositions.TRANSFER //move servo
+                if(System.currentTimeMillis() - timeDelayMillis > 600) { //wait for servo to move to advance
                     transferStage = TransferStage.INTAKE
                     timeDelayMillis = 0L
                 }
             }
             TransferStage.INTAKE -> {
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                motorPower = 1.0
+                motorPower = 1.0 //intake pixels into outtake
+                boosterServo.setPower(1.0)
                 if(timeDelayMillis == 0L) {
                     timeDelayMillis = System.currentTimeMillis()
                 }
-                if(System.currentTimeMillis() - timeDelayMillis > 1000) {
+                if(System.currentTimeMillis() - timeDelayMillis > 1000) { //wait for pixels to fully intake
+                    motorPower = 0.0
+                    boosterServo.setPower(0.0)
                     transferStage = TransferStage.IDLE
                     timeDelayMillis = 0L
                 }
@@ -107,10 +110,6 @@ class IntakeKotlin(hardwareMap: HardwareMap){
             TransferStage.IDLE -> {
             }
         }
-        intakeMotor.targetPosition = motorTargetPosition
-        intakeMotor.mode = motorMode
-        intakeServo(servoPosition)
-        intakeMotor.power = motorPower
     }
 
     fun transfer() {

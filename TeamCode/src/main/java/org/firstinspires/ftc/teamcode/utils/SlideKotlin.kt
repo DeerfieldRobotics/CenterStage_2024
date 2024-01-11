@@ -11,7 +11,9 @@ class SlideKotlin (hardwareMap: HardwareMap){
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
 
     var minSlideHeight = -1000
+        private set
     var bottomOut = false
+        private set
     var bottomOutProcedure = false
 
     private var overCurrent = false
