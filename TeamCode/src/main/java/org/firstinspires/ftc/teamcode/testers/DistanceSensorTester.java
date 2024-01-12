@@ -17,6 +17,9 @@ public class DistanceSensorTester extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Distance", distanceSensors.getDistance());
+            telemetry.addData("Distance Error", distanceSensors.getDistance()-distanceSensors.getTargetDistance());
+            telemetry.addData("Heading", distanceSensors.getHeading());
+            telemetry.addData("Heading Error", distanceSensors.getHeading()-distanceSensors.getTargetHeading());
             telemetry.update();
 
             if(gamepad1.left_bumper) distanceSensors.driveToTarget();

@@ -10,7 +10,7 @@ import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: Drivetrain, private var targetDistance: Double, private var targetHeading: Double) {
+class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: Drivetrain, var targetDistance: Double, var targetHeading: Double) {
     private val distanceSensor0:DistanceSensor = hardwareMap.get("ds0") as DistanceSensor //control hub: 0
     private val distanceSensor1:DistanceSensor = hardwareMap.get("ds1") as DistanceSensor //control hub: 1
 
