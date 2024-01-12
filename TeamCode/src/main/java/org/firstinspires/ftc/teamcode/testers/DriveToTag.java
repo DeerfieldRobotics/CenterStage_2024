@@ -11,11 +11,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +38,8 @@ public class DriveToTag extends LinearOpMode {
 
     private static final int TAG_ID = 6; // -1 for any tag
     private VisionPortal visionPortal;
-    private AprilTagProcessor processor; // Used for managing the AprilTag detection process.
+    private final AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder().addTag(6, "RedRight", 6.5, DistanceUnit.INCH).build();
+    private AprilTagProcessorImpl processor = new AprilTagProcessorImpl(0, 0, 0, 0, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
     private AprilTagDetection detection = null; // Used to hold the data for a detected AprilTag
 
     //driving values
@@ -136,9 +141,6 @@ public class DriveToTag extends LinearOpMode {
     }
 
     private void initAprilTag() {
-        // Create the AprilTag processor by using a builder.
-        processor = new AprilTagProcessor.Builder().build();
-
         // Create the vision portal by using a builder.
             visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
