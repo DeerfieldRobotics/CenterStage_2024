@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode.testers;
 
-import com.acmerobotics.roadrunner.control.PIDFController;
+import android.util.Size;
+
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -35,8 +37,18 @@ public class DriveToTag extends LinearOpMode {
     private AprilTagProcessor processor; // Used for managing the AprilTag detection process.
     private AprilTagDetection detection = null; // Used to hold the data for a detected AprilTag
 
+    //driving values
+    private double speedMult;
+    private double forwardMult = 1;
+    private double turnMult = .75;
+    private double strafeMult = 1;
+
+//    DrivetrainKotlin drivetrain;
+
+    SampleMecanumDrive drivetrain;
     @Override public void runOpMode()
     {
+        drivetrain = new SampleMecanumDrive(hardwareMap);
         boolean targetFound = false;
         double drive = 0;
         double strafe = 0;
@@ -44,10 +56,10 @@ public class DriveToTag extends LinearOpMode {
 
         initAprilTag();
 
-        DrivetrainKotlin drivetrain = new DrivetrainKotlin(hardwareMap);
-        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        drivetrain = new DrivetrainKotlin(hardwareMap);
+//        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        setManualExposure(6, 250);
+//        setManualExposure(6, 250);
 
         telemetry.update();
         waitForStart();
@@ -97,9 +109,30 @@ public class DriveToTag extends LinearOpMode {
            }
             telemetry.update();
 
-            drivetrain.move(drive, strafe, turn);
+            drivetrain.setWeightedDrivePower(
+                    new Pose2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    )
+            );
+
+            drivetrain.update();
+
             sleep(10);
         }
+    }
+
+    private void driveNormal() {
+        speedMult = .7+0.3 * gamepad1.right_trigger-0.3*gamepad1.left_trigger;
+
+        gamepad1.rumble(gamepad1.left_trigger>0.5?(gamepad1.left_trigger-0.5)/.4:0.0,gamepad1.right_trigger>0.4?(gamepad1.right_trigger-0.4)/0.8:0.0,50);
+
+        double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+        double turn = -gamepad1.right_stick_x * turnMult * speedMult;
+        double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
+
+//        drivetrain.move(forward, strafe, turn);
     }
 
     private void initAprilTag() {
@@ -109,6 +142,7 @@ public class DriveToTag extends LinearOpMode {
         // Create the vision portal by using a builder.
             visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .setCameraResolution(new Size(800, 600))
                     .addProcessor(processor)
                     .build();
     }
