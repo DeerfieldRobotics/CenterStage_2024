@@ -10,16 +10,17 @@ import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: Drivetrain) {
+class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: Drivetrain, private var targetDistance: Double, private var targetHeading: Double) {
     private val distanceSensor0:DistanceSensor = hardwareMap.get("ds0") as DistanceSensor //control hub: 0
     private val distanceSensor1:DistanceSensor = hardwareMap.get("ds1") as DistanceSensor //control hub: 1
 
     private val distanceSensorOffset = .1345 //distance between the two distance sensors in meters
-    private val targetDistance = 0.5 //distance from the wall in meters
-    private val targetHeading = 0.0 //heading of the robot relative to the wall in degrees
 
     private val headingPID: PIDController = PIDController(10.0, 0.0, 0.0) //TODO
     private val distancePID: PIDController = PIDController(10.0, 0.0, 0.0) //TODO
+
+    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain, targetDistance: Double) : this(hardwareMap, drivetrain, targetDistance, 0.0)
+    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain) : this(hardwareMap, drivetrain, 0.5, 0.0)
 
     init {
         headingPID.setTolerance(5.0)
@@ -52,5 +53,4 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
         } else
             drivetrain.move(forward, strafe, turn)
     }
-
 }
