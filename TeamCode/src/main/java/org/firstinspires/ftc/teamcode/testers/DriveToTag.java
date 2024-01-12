@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.DrivetrainKotlin;
+import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -41,7 +41,7 @@ public class DriveToTag extends LinearOpMode {
     private double speedMult;
     private double forwardMult = 1;
     private double turnMult = .75;
-    private double strafeMult = 1;
+    private double strafeMult = 1.48;
 
 //    DrivetrainKotlin drivetrain;
 
