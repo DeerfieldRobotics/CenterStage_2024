@@ -32,13 +32,13 @@ public class DriveToTag extends LinearOpMode {
     final double MAX_STRAFE = 0.5;
     final double MAX_TURN = 0.3;
 
-    PIDController speedController   = new PIDController(1, 0, 0);
+    PIDController speedController   = new PIDController(10, 0, 0);
     PIDController headingController = new PIDController(0.01, 0, 0);
-    PIDController strafeController  = new PIDController(1, 0, 0);
+    PIDController strafeController  = new PIDController(10, 0, 0);
 
     private static final int TAG_ID = 6; // -1 for any tag
     private VisionPortal visionPortal;
-    private final AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder().addTag(6, "RedRight", 6.5, DistanceUnit.INCH).build();
+    private final AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder().addTag(6, "RedRight", 2, DistanceUnit.INCH).build();
     private AprilTagProcessorImpl processor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
     private AprilTagDetection detection = null; // Used to hold the data for a detected AprilTag
 
@@ -112,6 +112,9 @@ public class DriveToTag extends LinearOpMode {
                 strafe = -gamepad1.left_stick_x  / 2.0;  // Reduce strafe rate to 50%.
                 turn   = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
            }
+            telemetry.addData("Drive",  "%5.2f", drive);
+            telemetry.addData("Strafe", "%5.2f", strafe);
+            telemetry.addData("Turn",   "%5.2f", turn);
             telemetry.update();
 
             drivetrainKotlin.move(drive, strafe, turn);
