@@ -48,7 +48,7 @@ public class DriveToTag extends LinearOpMode {
     private double turnMult = .75;
     private double strafeMult = 1.48;
 
-//    DrivetrainKotlin drivetrain;
+    Drivetrain drivetrainKotlin;
 
     SampleMecanumDrive drivetrain;
     @Override public void runOpMode()
@@ -114,16 +114,7 @@ public class DriveToTag extends LinearOpMode {
            }
             telemetry.update();
 
-            drivetrain.setWeightedDrivePower(
-                    new Pose2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x,
-                            -gamepad1.right_stick_x
-                    )
-            );
-
-            drivetrain.update();
-
+            drivetrainKotlin.move(drive, strafe, turn);
             sleep(10);
         }
     }
