@@ -32,14 +32,14 @@ public class DriveToTag extends LinearOpMode {
     final double MAX_STRAFE = 0.5;
     final double MAX_TURN = 0.3;
 
-    PIDController speedController   = new PIDController(0.02, 0, 0);
+    PIDController speedController   = new PIDController(1, 0, 0);
     PIDController headingController = new PIDController(0.01, 0, 0);
-    PIDController strafeController  = new PIDController(0.015, 0, 0);
+    PIDController strafeController  = new PIDController(1, 0, 0);
 
     private static final int TAG_ID = 6; // -1 for any tag
     private VisionPortal visionPortal;
     private final AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder().addTag(6, "RedRight", 6.5, DistanceUnit.INCH).build();
-    private AprilTagProcessorImpl processor = new AprilTagProcessorImpl(0, 0, 0, 0, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
+    private AprilTagProcessorImpl processor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
     private AprilTagDetection detection = null; // Used to hold the data for a detected AprilTag
 
     //driving values
@@ -144,7 +144,7 @@ public class DriveToTag extends LinearOpMode {
         // Create the vision portal by using a builder.
             visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                    .setCameraResolution(new Size(800, 600))
+                    .setCameraResolution(new Size(1280, 720))
                     .addProcessor(processor)
                     .build();
     }

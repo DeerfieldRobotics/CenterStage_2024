@@ -51,13 +51,13 @@ public class AprilTagDemo extends LinearOpMode
     // UNITS ARE PIXELS
     // NOTE: this calibration is for the C920 webcam at 800x448.
     // You will need to do your own calibration for other configurations!
-    double fx = 578.272;
-    double fy = 578.272;
-    double cx = 402.145;
-    double cy = 221.506;
+    double fx = 902.125;
+    double fy = 902.125;
+    double cx = 604.652;
+    double cy = 368.362;
 
     // UNITS ARE METERS
-    double tagsize = 0.0508;
+    double tagsize = 0.05081 ;
 
     int numFramesWithoutDetection = 0;
 
@@ -81,7 +81,7 @@ public class AprilTagDemo extends LinearOpMode
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
