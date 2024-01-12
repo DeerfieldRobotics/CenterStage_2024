@@ -8,10 +8,12 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 
 @TeleOp(name="Distance Sensor Tester")
 public class DistanceSensorTester extends LinearOpMode {
-    private final Drivetrain drivetrain = new Drivetrain(hardwareMap);
-    private final DistanceSensorAlignment distanceSensors = new DistanceSensorAlignment(hardwareMap, drivetrain, 0.5, 0.0);
+    private Drivetrain drivetrain;
+    private DistanceSensorAlignment distanceSensors;
     @Override
     public void runOpMode() throws InterruptedException {
+        drivetrain = new Drivetrain(hardwareMap);
+        distanceSensors = new DistanceSensorAlignment(hardwareMap, drivetrain);
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Distance", distanceSensors.getDistance());
