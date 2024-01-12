@@ -12,8 +12,6 @@ public class DistanceSensorTester extends LinearOpMode {
     private final DistanceSensorAlignment distanceSensors = new DistanceSensorAlignment(hardwareMap, drivetrain, 0.5, 0.0);
     @Override
     public void runOpMode() throws InterruptedException {
-        init();
-
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("Distance", distanceSensors.getDistance());
