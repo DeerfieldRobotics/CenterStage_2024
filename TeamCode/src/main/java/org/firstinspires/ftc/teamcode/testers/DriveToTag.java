@@ -61,7 +61,7 @@ public class DriveToTag extends LinearOpMode {
 
         initAprilTag();
 
-//        drivetrain = new DrivetrainKotlin(hardwareMap);
+        drivetrainKotlin = new Drivetrain(hardwareMap);
 //        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 //        setManualExposure(6, 250);
