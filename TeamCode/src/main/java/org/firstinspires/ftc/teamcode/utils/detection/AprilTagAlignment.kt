@@ -15,7 +15,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl
 import kotlin.math.cos
 import kotlin.math.sin
 
-class AprilTagAlignment (hardwareMap: HardwareMap,
+class AprilTagAlignment (private val camera: WebcamName,
                          private val drivetrain: Drivetrain,
                          var targetX: Double,
                          var targetY: Double,
@@ -38,7 +38,7 @@ class AprilTagAlignment (hardwareMap: HardwareMap,
     private val processor = AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3) // Used for managing the AprilTag detection process.
 
     private var visionPortal: VisionPortal = VisionPortal.Builder()
-        .setCamera(hardwareMap.get("Webcam 1") as WebcamName)
+        .setCamera(camera)
         .setCameraResolution(Size(1280, 720))
         .addProcessor(processor)
         .build()
@@ -58,9 +58,9 @@ class AprilTagAlignment (hardwareMap: HardwareMap,
     private var forwardMultiplier = 1.0
     private var strafeMultiplier = 1.48
     private var turnMultiplier = 0.75
-    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain, targetX: Double, targetY: Double,
+    constructor(camera: WebcamName, drivetrain: Drivetrain, targetX: Double, targetY: Double,
                 targetHeading: Double, xPID: PIDController, yPID: PIDController,
-                headingPID: PIDController) : this(hardwareMap, drivetrain, targetX, targetY, targetHeading) {
+                headingPID: PIDController) : this(camera, drivetrain, targetX, targetY, targetHeading) {
         xController = xPID
         yController = yPID
         headingController = headingPID

@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 
@@ -13,6 +14,7 @@ import java.util.Collections;
 @TeleOp(name = "AprilTagTester")
 public class AprilTagAlignmentTester extends LinearOpMode {
     private Drivetrain drivetrain;
+    private WebcamName webcam;
     private AprilTagAlignment aprilTagAlignment;
     private boolean dpadLeftToggle = false;
     private boolean dpadRightToggle = false;
@@ -21,7 +23,9 @@ public class AprilTagAlignmentTester extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         drivetrain = new Drivetrain(hardwareMap);
-        aprilTagAlignment = new AprilTagAlignment(hardwareMap, drivetrain, 0.0, 12.0, 0.0,
+        webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        aprilTagAlignment = new AprilTagAlignment(webcam, drivetrain, 0.0, 12.0, 0.0,
             (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
             (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
             (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
