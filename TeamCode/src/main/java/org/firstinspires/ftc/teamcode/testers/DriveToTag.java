@@ -32,9 +32,9 @@ public class DriveToTag extends LinearOpMode {
     final double MAX_STRAFE = 0.5;
     final double MAX_TURN = 0.3;
 
-    PIDController speedController   = new PIDController(10, 0, 0);
-    PIDController headingController = new PIDController(0.01, 0, 0);
-    PIDController strafeController  = new PIDController(10, 0, 0);
+    PIDController speedController   = new PIDController(.0174, 0, 0);
+    PIDController headingController = new PIDController(.0174, 0, 0);
+    PIDController strafeController  = new PIDController(.0174, 0, 0);
 
     private static final int TAG_ID = 6; // -1 for any tag
     private VisionPortal visionPortal;
@@ -58,6 +58,10 @@ public class DriveToTag extends LinearOpMode {
         double drive = 0;
         double strafe = 0;
         double turn = 0;
+
+        speedController.setTolerance(1);
+        headingController.setTolerance(5);
+        strafeController.setTolerance(1);
 
         initAprilTag();
 
@@ -117,7 +121,7 @@ public class DriveToTag extends LinearOpMode {
             telemetry.addData("Turn",   "%5.2f", turn);
             telemetry.update();
 
-            drivetrainKotlin.move(drive, strafe, turn);
+            drivetrainKotlin.move(-drive, -strafe, -turn);
             sleep(10);
         }
     }
