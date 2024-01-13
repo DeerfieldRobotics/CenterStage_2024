@@ -33,8 +33,10 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            if(gamepad1.left_bumper && aprilTagAlignment.getTargetFound()) {
-                aprilTagAlignment.update();
+            aprilTagAlignment.update();
+
+            if(gamepad1.left_bumper) {
+                aprilTagAlignment.alignRobot();
             }
             else
                 driveNormal();

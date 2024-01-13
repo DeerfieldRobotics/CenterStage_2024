@@ -84,7 +84,8 @@ class AprilTagAlignment (private val camera: WebcamName,
                 break
             }
         }
-
+    }
+    fun alignRobot() {
         if(targetFound) {
             xError = targetX - detection!!.ftcPose.x
             yError = targetY - detection!!.ftcPose.y
