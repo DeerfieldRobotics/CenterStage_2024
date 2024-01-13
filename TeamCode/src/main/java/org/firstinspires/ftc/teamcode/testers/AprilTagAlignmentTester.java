@@ -14,6 +14,8 @@ import java.util.Collections;
 public class AprilTagAlignmentTester extends LinearOpMode {
     private Drivetrain drivetrain;
     private AprilTagAlignment aprilTagAlignment;
+    private boolean dpadLeftToggle = false;
+    private boolean dpadRightToggle = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -33,6 +35,21 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             else
                 driveNormal();
 
+            if(gamepad1.dpad_left && !dpadLeftToggle && aprilTagAlignment.getTargetTagID() > 1) {
+                aprilTagAlignment.setTargetTagID(aprilTagAlignment.getTargetTagID()-1);
+                dpadLeftToggle = true;
+            }
+            else if(!gamepad1.dpad_left && dpadLeftToggle)
+                dpadLeftToggle = false;
+
+            if(gamepad1.dpad_right && !dpadRightToggle && aprilTagAlignment.getTargetTagID() < 6) {
+                aprilTagAlignment.setTargetTagID(aprilTagAlignment.getTargetTagID()+1);
+                dpadRightToggle = true;
+            }
+            else if(!gamepad1.dpad_right && dpadRightToggle)
+                dpadRightToggle = false;
+
+            telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
