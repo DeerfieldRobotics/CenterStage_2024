@@ -14,21 +14,21 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
     private val distanceSensor0:DistanceSensor = hardwareMap.get("ds0") as DistanceSensor //control hub: 0
     private val distanceSensor1:DistanceSensor = hardwareMap.get("ds1") as DistanceSensor //control hub: 1
 
-    private val distanceSensorOffset = .1345 //distance between the two distance sensors in meters
+    private val distanceSensorOffset = 5.295 //distance between the two distance sensors in inches
 
     private val headingPID: PIDController = PIDController(0.0, 0.0, 0.0) //TODO
     private val distancePID: PIDController = PIDController(1.0, 0.0, 0.0) //TODO
 
     constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain, targetDistance: Double) : this(hardwareMap, drivetrain, targetDistance, 0.0)
-    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain) : this(hardwareMap, drivetrain, 0.5, 0.0)
+    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain) : this(hardwareMap, drivetrain, 12.0, 0.0)
 
     init {
         headingPID.setTolerance(5.0)
         distancePID.setTolerance(0.01)
     }
-    fun getDistance() = (distanceSensor0.getDistance(DistanceUnit.METER) + distanceSensor1.getDistance(DistanceUnit.METER)) / 2.0
+    fun getDistance() = (distanceSensor0.getDistance(DistanceUnit.INCH) + distanceSensor1.getDistance(DistanceUnit.INCH)) / 2.0
 
-    fun getHeading() = Math.toDegrees(atan((distanceSensor0.getDistance(DistanceUnit.METER) - distanceSensor1.getDistance(DistanceUnit.METER)) / distanceSensorOffset))
+    fun getHeading() = Math.toDegrees(atan((distanceSensor0.getDistance(DistanceUnit.INCH) - distanceSensor1.getDistance(DistanceUnit.INCH)) / distanceSensorOffset))
 
     private fun getHeadingError() = targetHeading - getHeading()
 
