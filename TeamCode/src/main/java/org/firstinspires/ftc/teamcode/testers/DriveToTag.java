@@ -24,7 +24,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@TeleOp(name="Drive to april tag")
+@TeleOp(name="Mack's shitty Drive to april tag")
 public class DriveToTag extends LinearOpMode {
     final double DISTANCE = 12.0; // Inches away from tag
 

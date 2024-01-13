@@ -43,13 +43,6 @@ public class MainTeleop extends LinearOpMode {
     private double strafeMult = 1;
 
 //    SampleMecanumDrive drive;
-
-    //servo position values
-//    private final double[] intakeServoPositions = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0};
-    private int servoCounter = 2;
-    double currentOuttakePos = 1.0;
-    double currentArmPos = 1.0;
-
     private boolean crossToggle = false;
     private boolean triangleToggle = false;
     private boolean squareToggle = false;

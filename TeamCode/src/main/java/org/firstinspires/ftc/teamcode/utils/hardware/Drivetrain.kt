@@ -37,7 +37,7 @@ class Drivetrain (hardwareMap:HardwareMap) {
         rearRight.direction = DcMotorSimple.Direction.REVERSE
         frontLeft.direction = DcMotorSimple.Direction.FORWARD
 
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
     }
 
@@ -284,6 +284,7 @@ class Drivetrain (hardwareMap:HardwareMap) {
      *  Returns an [Array] containing all of the velocities of all of the motors in the drivetrain in the [AngleUnit] [angleUnit]. It is returned in the order, front left, front right, rear left, rear right.
      */
     fun getMotorVelocity(angleUnit: AngleUnit): Array<Double> = arrayOf(frontLeft.getVelocity(angleUnit), frontRight.getVelocity(angleUnit), rearLeft.getVelocity(angleUnit), rearRight.getVelocity(angleUnit))
+    fun getMotorPower(): Array<Double> = arrayOf(frontLeft.power, frontRight.power, rearLeft.power, rearRight.power)
 
 
     fun getHeading(): Double = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)
