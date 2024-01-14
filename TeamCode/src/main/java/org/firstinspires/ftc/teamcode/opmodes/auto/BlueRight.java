@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.testers.PIDF;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
@@ -22,7 +21,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public class BlueRight extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
-    private PIDF pidf;
     private SampleMecanumDrive drive;
     private Intake intake;
     private Outtake outtake;

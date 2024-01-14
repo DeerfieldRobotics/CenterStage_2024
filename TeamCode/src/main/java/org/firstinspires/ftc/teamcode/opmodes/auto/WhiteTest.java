@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.testers.PIDF;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
@@ -22,7 +21,6 @@ public class WhiteTest extends OpMode {
     private double centerx = 0;
     private double mult = 0.0;
 
-    private PIDF pidf;
 //    private SampleMecanumDrive drive;
     private Drivetrain drive;
     private Intake intake;
