@@ -87,7 +87,7 @@ class AprilTagAlignment (
         }
     }
     fun alignRobot() {
-        if(targetFound) {
+        if (targetFound) {
             xError = targetX - detection!!.ftcPose.x
             yError = targetY - detection!!.ftcPose.y
             headingError = targetHeading - detection!!.ftcPose.yaw
