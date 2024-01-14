@@ -60,12 +60,10 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
 
     fun setOuttakeKinematics(armAngle: Double, wristAngle: Double, absPos: Boolean) { //set position of arm and wrist servos, absPos is if angle is absolute or relative to arm
         armServo.position = (armAngle - armStartAngle) / (armEndAngle - armStartAngle)
-        currentArmAngle = Range.clip(armAngle, armStartAngle, armEndAngle)
         wristServo.position = if(absPos)
                 (wristAngle + armAngle - wristStartAngle) / (wristEndAngle - wristStartAngle)
         else
                 (wristAngle - wristStartAngle) / (wristEndAngle - wristStartAngle)
-        currentWristAngle = Range.clip(wristAngle, wristStartAngle, wristEndAngle)
     }
 
     fun getOuttakeAngle() = arrayOf(currentArmAngle, currentWristAngle)
