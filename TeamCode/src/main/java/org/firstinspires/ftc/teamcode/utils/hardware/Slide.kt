@@ -21,9 +21,9 @@ class Slide (hardwareMap: HardwareMap){
             field = value
             if (value != 0.0) {
                 bottomOut = false
-                bottomOutProcedure = false
             }
         }
+
     private var overCurrent = false
 
     init {
@@ -62,6 +62,7 @@ class Slide (hardwareMap: HardwareMap){
         if(!bottomOut) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             power = 1.0
+            bottomOut = true
         }
     }
 
