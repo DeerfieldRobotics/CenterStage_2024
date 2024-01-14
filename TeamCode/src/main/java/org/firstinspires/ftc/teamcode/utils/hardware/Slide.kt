@@ -16,6 +16,14 @@ class Slide (hardwareMap: HardwareMap){
         private set
     var bottomOutProcedure = false
 
+    var power = 0.0
+        set(value) {
+            field = value
+            if (value != 0.0) {
+                bottomOut = false
+                bottomOutProcedure = false
+            }
+        }
     private var overCurrent = false
 
     init {
@@ -33,13 +41,6 @@ class Slide (hardwareMap: HardwareMap){
         slide2.setCurrentAlert(6.0, CurrentUnit.AMPS)
     }
 
-    fun setPower (s: Double) {
-        if(s !=0.0)
-            bottomOut = false
-        slide1.power = s
-        slide2.power = s
-    }
-
     fun setMode (mode: DcMotor.RunMode) {
         slide1.mode = mode
         slide2.mode = mode
@@ -54,13 +55,13 @@ class Slide (hardwareMap: HardwareMap){
         if (overCurrent) {
             bottomOut = true
             bottomOutProcedure = false
-            setPower(0.0)
+            power = 0.0
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
         if(!bottomOut) {
-            setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-            setPower(1.0)
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+            power = 1.0
         }
     }
 
@@ -68,7 +69,7 @@ class Slide (hardwareMap: HardwareMap){
         if ((overCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
             bottomOut = true
             bottomOutProcedure = false
-            setPower(0.0)
+            power = 0.0
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
@@ -81,6 +82,8 @@ class Slide (hardwareMap: HardwareMap){
         else if (bottomOutProcedure)
             bottomOutProcedure = false
         checkBottomOut()
+        slide1.power = power
+        slide2.power = power
     }
 
     fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
