@@ -11,6 +11,8 @@ class Intake(hardwareMap: HardwareMap){
     private var boosterServo: CRServoImplEx = hardwareMap.get("bs") as CRServoImplEx //expansion hub: TODO
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
+    var boosterServoPower = 0.0
+
     private var timeDelayMillis = 0L
 
     enum class IntakePositions {
@@ -76,6 +78,7 @@ class Intake(hardwareMap: HardwareMap){
         intakeMotor.mode = motorMode
         intakeServo(servoPosition)
         intakeMotor.power = motorPower
+        boosterServo.power = boosterServoPower
     }
 
     private fun transferProcedure() {
@@ -97,13 +100,13 @@ class Intake(hardwareMap: HardwareMap){
             TransferStage.INTAKE -> {
                 motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 motorPower = 1.0 //intake pixels into outtake
-                boosterServo.power = 1.0
+                boosterServoPower = 1.0
                 if(timeDelayMillis == 0L) {
                     timeDelayMillis = System.currentTimeMillis()
                 }
                 if(System.currentTimeMillis() - timeDelayMillis > 1000) { //wait for pixels to fully intake
                     motorPower = 0.0
-                    boosterServo.power = 0.0
+                    boosterServoPower = 0.0
                     transferStage = TransferStage.IDLE
                     timeDelayMillis = 0L
                 }

@@ -103,6 +103,10 @@ public class MainTeleop extends LinearOpMode {
 
         intake.intake(0.8*(rightTrigger-leftTrigger));
 
+        if(leftTrigger>0.0) {
+            intake.setBoosterServoPower(-leftTrigger);
+        }
+
         //Outtake Code
         outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
 
@@ -153,6 +157,13 @@ public class MainTeleop extends LinearOpMode {
             squareToggle = false;
         }
 
+        if(gamepad2.left_bumper) {
+            intake.setBoosterServoPower(1.0);
+        }
+        else {
+            intake.setBoosterServoPower(0.0);
+        }
+
         if(gamepad2.right_bumper && !rightBumperToggle) {
             if(outtake.getOuttakePosition()!= Outtake.OuttakePositions.OUTSIDE)
                 outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER);
@@ -165,15 +176,7 @@ public class MainTeleop extends LinearOpMode {
             rightBumperToggle = false;
         }
 
-        if(gamepad2.left_bumper && !leftBumperToggle) {
-            if(intake.getServoPosition()!= Intake.IntakePositions.INTAKE)
-                intake.setServoPosition(Intake.IntakePositions.INTAKE);
-            else
-                intake.setServoPosition(Intake.IntakePositions.DRIVE);
-        }
-        if (!gamepad2.left_bumper) {
-            leftBumperToggle = false;
-        }
+
     }
 
     public void launcher() {
