@@ -264,6 +264,7 @@ public class MainTeleop extends LinearOpMode {
         }
         intake.update();
         outtake.update();
+        slide.update();
     }
 
     public void launcher() {

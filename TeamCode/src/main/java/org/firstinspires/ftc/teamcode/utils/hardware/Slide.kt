@@ -62,7 +62,6 @@ class Slide (hardwareMap: HardwareMap){
         if(!bottomOut) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
             power = 1.0
-            bottomOut = true
         }
     }
 
