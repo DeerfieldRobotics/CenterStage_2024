@@ -102,4 +102,6 @@ class AprilTagAlignment (private val camera: WebcamName,
             drivetrain.move(forward, strafe, turn)
         }
     }
+
+    fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()
 }
