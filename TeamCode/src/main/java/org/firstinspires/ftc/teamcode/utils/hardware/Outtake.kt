@@ -128,7 +128,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                         outtakeInside = true
                         currentTime = System.currentTimeMillis()
                     }
-                    else if(slide.getPosition().average() >= slide.minSlideHeight) {
+                    else if(slide.getPosition().average() >= slide.minSlideHeight && !outtakeInside) {
                         currentTime = 0L
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
