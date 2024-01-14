@@ -81,7 +81,6 @@ public class MainTeleop extends LinearOpMode {
         }
 
     }
-    // In MainTeleop.java
     private void slide() {
         //stick sensitivity values
         double l2Sensitivity = 1;
