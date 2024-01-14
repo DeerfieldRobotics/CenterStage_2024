@@ -51,7 +51,7 @@ class Slide (hardwareMap: HardwareMap){
         slide2.targetPosition = position
     }
 
-    fun bottomOut () {
+    private fun bottomOut () {
         if (overCurrent) {
             bottomOut = true
             bottomOutProcedure = false
