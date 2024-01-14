@@ -15,11 +15,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl
 import kotlin.math.cos
 import kotlin.math.sin
 
-class AprilTagAlignment (private val camera: WebcamName,
-                         private val drivetrain: Drivetrain,
-                         var targetX: Double,
-                         var targetY: Double,
-                         var targetHeading: Double,
+class AprilTagAlignment (
+    camera: WebcamName,
+    private val drivetrain: Drivetrain,
+    var targetX: Double,
+    var targetY: Double,
+    var targetHeading: Double,
 ){
 
     var xController = PIDController(0.0, 0.0, 0.0)
