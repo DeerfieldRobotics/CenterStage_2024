@@ -115,7 +115,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && currentTime != 0L) {
                         currentTime = 0L
-                        slide.bottomOut()
+                        slide.bottomOutProcedure = true
                         if(slide.bottomOut) {
                             outtakePosition = OuttakePositions.INSIDE
                             outtakeProcedureComplete = true
@@ -133,7 +133,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
                         currentTime = 0L
-                        slide.bottomOut()
+                        slide.bottomOutProcedure = true
                         if(slide.bottomOut)
                             outtakePosition = OuttakePositions.TRANSFER
                     }
