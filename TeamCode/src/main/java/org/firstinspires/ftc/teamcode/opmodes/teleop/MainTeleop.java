@@ -158,6 +158,10 @@ public class MainTeleop extends LinearOpMode {
             intake();
             launcher();
 
+            intake.update();
+            outtake.update();
+            slide.update();
+
             telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("slide ticks", slide.getPosition()[0]);
@@ -172,7 +176,6 @@ public class MainTeleop extends LinearOpMode {
     // In MainTeleop.java
     private void slide() {
         slide.setPower(gamepad2.left_stick_y*l2Sensitivity/l2Max);
-        slide.update();
     }
     private void intake() {
         //TODO: add vibration feedback when intake is fully opened and closed
@@ -262,9 +265,6 @@ public class MainTeleop extends LinearOpMode {
         if (!gamepad2.left_bumper) {
             leftBumperToggle = false;
         }
-        intake.update();
-        outtake.update();
-        slide.update();
     }
 
     public void launcher() {
