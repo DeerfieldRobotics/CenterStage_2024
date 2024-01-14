@@ -158,7 +158,7 @@ public class MainTeleop extends LinearOpMode {
         }
 
         if(gamepad2.left_bumper) {
-            intake.setBoosterServoPower(1.0);
+            intake.setBoosterServoPower(-1.0);
         }
         else {
             intake.setBoosterServoPower(0.0);

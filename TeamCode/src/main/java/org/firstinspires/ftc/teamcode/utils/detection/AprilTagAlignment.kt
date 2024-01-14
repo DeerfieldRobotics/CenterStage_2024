@@ -96,9 +96,9 @@ class AprilTagAlignment (
             val yPower = yController.calculate(yError)
             val headingPower = headingController.calculate(headingError)
 
-            val forward = -forwardMultiplier*(yPower * cos(Math.toRadians(headingError)) + xPower * sin(Math.toRadians(headingError)))
-            val strafe = -strafeMultiplier*(yPower * sin(Math.toRadians(headingError)) + xPower * cos(Math.toRadians(headingError)))
-            val turn = -turnMultiplier*headingPower
+            val forward = forwardMultiplier*(yPower * cos(Math.toRadians(headingError)) + xPower * sin(Math.toRadians(headingError)))
+            val strafe = strafeMultiplier*(yPower * sin(Math.toRadians(headingError)) + xPower * cos(Math.toRadians(headingError)))
+            val turn = turnMultiplier*headingPower
 
             drivetrain.move(forward, strafe, turn)
         }
