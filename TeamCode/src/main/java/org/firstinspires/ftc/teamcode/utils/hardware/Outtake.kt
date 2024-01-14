@@ -19,6 +19,8 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val gateIntake = 0.7 //intake position
     private val gateClose = 0.92 //closed position
 
+    private var currentTime = 0L //current time for outtake procedure
+
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
 
     var outtakePosition = OuttakePositions.INSIDE //Only use to get current position
@@ -98,12 +100,15 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     gateClosed = true
                     if(outtakePosition == OuttakePositions.TRANSFER) //Guard clause-ish, if already transfer, just go to inside position
                         outtakePosition = OuttakePositions.INSIDE
-                    var currentTime = 0L
-                    if(slide.getPosition().average() <= slide.minSlideHeight) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight && currentTime == 0L) { //When slide is high enough, bring arm in
                         setOuttakeKinematics(insideKinematics.armAngle, insideKinematics.wristAngle, insideKinematics.absPos) //Need to use manual command in order to not break out of condition
                         currentTime = System.currentTimeMillis()
                     }
+                    else if(slide.getPosition().average() >= slide.minSlideHeight) { //If lower than slide height, reset current time
+                        currentTime = 0L
+                    }
                     if(System.currentTimeMillis() - currentTime > 500 && currentTime != 0L) {
+                        currentTime = 0L
                         slide.bottomOut()
                         if(slide.bottomOut)
                             outtakePosition = OuttakePositions.INSIDE
@@ -111,12 +116,15 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                 }
                 OuttakePositions.TRANSFER -> {
                     gateClosed = false
-                    var currentTime = 0L
-                    if(slide.getPosition().average() <= slide.minSlideHeight) {
+                    if(slide.getPosition().average() <= slide.minSlideHeight && currentTime == 0L) { //When slide is high enough, bring arm in
                         outtakePosition = OuttakePositions.INSIDE
                         currentTime = System.currentTimeMillis()
                     }
+                    else if(slide.getPosition().average() >= slide.minSlideHeight) {
+                        currentTime = 0L
+                    }
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
+                        currentTime = 0L
                         slide.bottomOut()
                         if(slide.bottomOut)
                             outtakePosition = OuttakePositions.TRANSFER
