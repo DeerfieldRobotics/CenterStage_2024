@@ -72,10 +72,10 @@ public class AutoMeet3 extends OpMode {
 
     @Override
     public void loop() {
-        slide.update();
         drive.update();
         outtake.update();
         intake.update();
+        slide.update();
         telemetry.update();
     }
 
