@@ -21,6 +21,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
 
     private var currentTime = 0L //current time for outtake procedure
     private var outtakeInside = true //whether the outtake is inside the robot or not
+    private var outtakeProcedureComplete = true
 
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
 
@@ -89,7 +90,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     }
 
     private fun outtakeProcedure() {
-        if(outtakeProcedureTarget != outtakePosition) {
+        if(outtakeProcedureTarget != outtakePosition || !outtakeProcedureComplete) {
             when (outtakeProcedureTarget) {
                 OuttakePositions.OUTSIDE -> {
                     gateClosed = true
@@ -105,11 +106,11 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     if(outtakePosition == OuttakePositions.TRANSFER) //Guard clause-ish, if already transfer, just go to inside position
                         outtakePosition = OuttakePositions.INSIDE
                     if(slide.getPosition().average() <= slide.minSlideHeight && currentTime == 0L) { //When slide is high enough, bring arm in
-                        setOuttakeKinematics(insideKinematics.armAngle, insideKinematics.wristAngle, insideKinematics.absPos) //Need to use manual command in order to not break out of condition
-                        outtakeInside = true
+                        outtakePosition = OuttakePositions.INSIDE
+                        outtakeProcedureComplete = false
                         currentTime = System.currentTimeMillis()
                     }
-                    else if(slide.getPosition().average() > slide.minSlideHeight && !outtakeInside) { //If lower than slide height, reset current time
+                    else if(slide.getPosition().average() > slide.minSlideHeight && outtakePosition == OuttakePositions.OUTSIDE) { //If lower than slide height, reset current time
                         currentTime = 0L
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && currentTime != 0L) {
@@ -117,7 +118,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                         slide.bottomOut()
                         if(slide.bottomOut) {
                             outtakePosition = OuttakePositions.INSIDE
-                            outtakeInside = true
+                            outtakeProcedureComplete = true
                         }
                     }
                 }
@@ -125,10 +126,9 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     gateClosed = false
                     if(slide.getPosition().average() <= slide.minSlideHeight && currentTime == 0L) { //When slide is high enough, bring arm in
                         outtakePosition = OuttakePositions.INSIDE
-                        outtakeInside = true
                         currentTime = System.currentTimeMillis()
                     }
-                    else if(slide.getPosition().average() >= slide.minSlideHeight && !outtakeInside) {
+                    else if(slide.getPosition().average() >= slide.minSlideHeight && outtakePosition == OuttakePositions.OUTSIDE) {
                         currentTime = 0L
                     }
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
