@@ -12,14 +12,12 @@ import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous
 public class RedLeft extends OpMode{
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("RED");
-    private final WhiteDetectionPipeline wp = new WhiteDetectionPipeline(20);
     private SampleMecanumDrive drive;
     private Intake intake;
     private Outtake outtake;

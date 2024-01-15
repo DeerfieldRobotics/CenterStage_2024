@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
-import com.sun.tools.javac.Main;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
@@ -38,7 +36,6 @@ public class AutoMeet3 extends OpMode {
     private Datalog datalog;
     private AprilTagAlignment aprilTagAlignment;
     private final ColorDetectionPipeline colorDetectionPipeline = new ColorDetectionPipeline();
-    private final WhiteDetectionPipeline whiteDetectionPipeline = new WhiteDetectionPipeline();
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
     private SampleMecanumDrive drive;
     private Drivetrain drivetrain;
