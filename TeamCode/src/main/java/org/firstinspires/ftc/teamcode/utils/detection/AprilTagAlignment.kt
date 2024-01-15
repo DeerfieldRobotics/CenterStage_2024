@@ -20,9 +20,9 @@ import kotlin.math.sin
 class AprilTagAlignment(
     camera: CameraName,
     private val drivetrain: Drivetrain?,
-    @JvmField var targetX: Double,
-    @JvmField var targetY: Double,
-    @JvmField var targetHeading: Double,
+    var targetX: Double,
+    var targetY: Double,
+    var targetHeading: Double,
 ){
 
     @JvmField var xController = PIDController(0.0174, 0.0, 0.0)
