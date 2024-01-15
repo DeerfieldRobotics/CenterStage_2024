@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.hardware
 import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
@@ -46,6 +47,8 @@ class Intake(hardwareMap: HardwareMap){
     private var transferStage = TransferStage.IDLE
 
     init {
+        intakeMotor.direction = DcMotorSimple.Direction.REVERSE
+        boosterServo.direction = DcMotorSimple.Direction.REVERSE
         intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         update()
     }
