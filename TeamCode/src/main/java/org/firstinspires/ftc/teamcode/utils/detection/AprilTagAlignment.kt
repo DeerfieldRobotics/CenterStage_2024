@@ -2,25 +2,22 @@ package org.firstinspires.ftc.teamcode.utils.detection
 
 import android.util.Size
 import com.arcrobotics.ftclib.controller.PIDController
-import com.arcrobotics.ftclib.geometry.Pose2d
-import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary
-import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class AprilTagAlignment (
-    camera: WebcamName,
-    private val drivetrain: Drivetrain,
+class AprilTagAlignment(
+    camera: CameraName,
+    private val drivetrain: Drivetrain?,
     var targetX: Double,
     var targetY: Double,
     var targetHeading: Double,
@@ -66,9 +63,10 @@ class AprilTagAlignment (
     private var forwardMultiplier = 1.0
     private var strafeMultiplier = 1.48
     private var turnMultiplier = 0.75
-    constructor(camera: WebcamName, drivetrain: Drivetrain, targetX: Double, targetY: Double,
-                targetHeading: Double, xPID: PIDController, yPID: PIDController,
-                headingPID: PIDController) : this(camera, drivetrain, targetX, targetY, targetHeading) {
+    constructor(
+        camera: CameraName, drivetrain: Drivetrain?, targetX: Double, targetY: Double,
+        targetHeading: Double, xPID: PIDController, yPID: PIDController,
+        headingPID: PIDController) : this(camera, drivetrain, targetX, targetY, targetHeading) {
         xController = xPID
         yController = yPID
         headingController = headingPID
@@ -107,7 +105,7 @@ class AprilTagAlignment (
             val strafe = strafeMultiplier*(yPower * sin(Math.toRadians(headingError)) + xPower * cos(Math.toRadians(headingError)))
             val turn = turnMultiplier*headingPower
 
-            drivetrain.move(forward, strafe, turn)
+            drivetrain?.move(forward, strafe, turn)
         }
     }
     fun alignRobotToBackboard(a: Alliance) {
@@ -122,7 +120,9 @@ class AprilTagAlignment (
         var total = 0.0
         for (detection in currentDetections) {
             //Weighted average of valid detections weighted by inverse of range squared
-            currentX += (detection.ftcPose.x + ((detection.id - if(a == Alliance.BLUE) 2 else 4 ) * tagXOffset)) / detection.ftcPose.range.pow(2)
+            targetFound = true
+
+            currentX += (detection.ftcPose.x - ((detection.id - if(a == Alliance.BLUE) 2 else 5 ) * tagXOffset)) / detection.ftcPose.range.pow(2)
             currentY += detection.ftcPose.y / detection.ftcPose.range.pow(2)
             currentHeading += detection.ftcPose.yaw / detection.ftcPose.range.pow(2)
 
@@ -133,15 +133,19 @@ class AprilTagAlignment (
         currentY /= total
         currentHeading /= total
 
-        val xPower = xController.calculate(targetX - currentX)
-        val yPower = yController.calculate(targetY - currentY)
-        val headingPower = headingController.calculate(targetHeading - currentHeading)
+        xError = targetX - currentX
+        yError = targetY - currentY
+        headingError = targetHeading - currentHeading
+
+        val xPower = xController.calculate(xError)
+        val yPower = yController.calculate(yError)
+        val headingPower = headingController.calculate(headingError)
 
         val forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
         val strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
         val turn = turnMultiplier*headingPower
 
-        drivetrain.move(forward, strafe, turn)
+        drivetrain?.move(forward, strafe, turn)
     }
 
     fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()
