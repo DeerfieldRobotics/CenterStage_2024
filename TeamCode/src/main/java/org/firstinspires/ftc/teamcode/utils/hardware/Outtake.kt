@@ -33,8 +33,8 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     var gateClosed = true //whether the gate is open or closed
 
     //Position definitions for outtake
-    private val transferKinematics = OuttakeKinematics(-102.5, 88.0, true) //TODO
-    private val insideKinematics = OuttakeKinematics(-117.0, 180.0, false)
+    private val transferKinematics = OuttakeKinematics(-102.5, 190.5, true) //TODO
+    private val insideKinematics = OuttakeKinematics(-108.0, 180.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
 
     enum class OuttakePositions {
