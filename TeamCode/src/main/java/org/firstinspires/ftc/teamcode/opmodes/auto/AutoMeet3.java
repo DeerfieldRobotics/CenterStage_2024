@@ -68,6 +68,7 @@ public class AutoMeet3 extends OpMode {
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         initColorDetection();
+        selectStartingPosition();
     }
 
     @Override
@@ -81,160 +82,52 @@ public class AutoMeet3 extends OpMode {
         drive.setPoseEstimate(initPose);
         TrajectorySequence prePath = drive.trajectorySequenceBuilder(initPose)
                 .setTangent(initTangent)
-                .addTemporalMarker(()->{
-                    intake.setServoPosition(Intake.IntakePositions.DRIVE);
-                    intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    intake.update();
-                })
+                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
                 .splineToSplineHeading(purplePose, purpleTangent)
                 .back(centerBackup)
-                .addTemporalMarker(()->{
-                    outtakePurple();
-                })
+                .addTemporalMarker(this::outtakePurple)
                 .waitSeconds(0.2)
                 .setTangent(0)
-                .addTemporalMarker(()->{
-                    raiseSlide();
-                })
                 .splineToLinearHeading(backdropPose, Math.toRadians(0))
-                .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
-                .addTemporalMarker(()->{
-                    slide.setTargetPosition(-290);
-                    slide.update();
-                })
+                .addTemporalMarker(()->{ setSlideHeight(-240); })
                 .waitSeconds(0.2)
                 .back(3.5)
                 .waitSeconds(0.3)
-                .addTemporalMarker(()->{
-                    outtake.setGateClosed(false);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::drop)
                 .waitSeconds(0.4)
-                .addTemporalMarker(()-> {
-                    outtake.setGateClosed(true);
-                    outtake.update();
-                    slide.setTargetPosition(-1400);
-                    slide.update();
-                })
+                .addTemporalMarker(this::outtakeIn)
                 .forward(10)
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-                    outtake.update();
-                })
                 .waitSeconds(0.7)
-                // TODO: BRING SLIDE DOWN, RAISE INTAKE
                 .setTangent(preLowerWhiteTangent)
-                .addTemporalMarker(()->{
-                    slide.setBottomOutProcedure(true);
-                    intake.setServoPosition(Intake.IntakePositions.FIVE);
-                    intake.update();
-                })
+                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FIVE); })
                 .splineToSplineHeading(preLowerWhitePose, Math.toRadians(180))
-                .addTemporalMarker(()->{
-                    outtake.setGateClosed(false);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::intake)
                 .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
-                .addTemporalMarker(()->{
-                    intake.setMotorTargetPosition(800);
-                    intake.setMotorPower(0.8);
-                    intake.update();
-                })
+                .addTemporalMarker(this::transfer)
                 .waitSeconds(.6)
                 .back(4)
-                .addTemporalMarker(()-> {
-                    intake.setServoPosition(Intake.IntakePositions.TRANSFER);
-                    intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    intake.update();
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER);
-                    outtake.update();
-                })
-                .waitSeconds(0.4)
-                .addTemporalMarker(()->{
-                    intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    intake.setMotorPower(1);
-                    intake.update();
-                })
                 .waitSeconds(0.7)
-                .addTemporalMarker(()->{
-                    intake.setMotorPower(0);
-                    intake.setServoPosition(Intake.IntakePositions.DRIVE);
-                    intake.update();
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-                    outtake.update();
-                })
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{
-                    outtake.setGateClosed(true);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::outtakeIn)
                 .setTangent(0)
                 .splineToSplineHeading(postLowerWhitePose, 0)
-
                 .splineToSplineHeading(backdropPose, Math.toRadians(45))
-                .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-                    outtake.update();
-                    raiseSlide();
-                })
-                .waitSeconds(0.7)
-                .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
-                .addTemporalMarker(()->{
-                    slide.setTargetPosition(-700);
-                    slide.update();
-                })
+                .addTemporalMarker(()->{ setSlideHeight(-400); })
                 .waitSeconds(0.2)
                 .back(6)
                 .waitSeconds(0.6)
-                // DROP
-                .addTemporalMarker(()->{
-                    outtake.setGateClosed(false);
-                    outtake.update();
-                })
+                .addTemporalMarker(this::drop)
                 .waitSeconds(0.4)
-                .addTemporalMarker(()-> {
-                    outtake.setGateClosed(true);
-                    outtake.update();
-                    slide.setTargetPosition(-1400);
-                    slide.update();
-                })
+                .addTemporalMarker(this::outtakeIn)
                 .forward(7)
-                .addTemporalMarker(()->{
-                    outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-                    outtake.update();
-                })
-                .waitSeconds(0.8)
-                .addTemporalMarker(()->{
-                    slide.setBottomOutProcedure(true);
-                    intake.setServoPosition(Intake.IntakePositions.FIVE);
-                    intake.update();
-                })
                 .build();
 
         drive.followTrajectorySequenceAsync(prePath);
     }
 
-    private void outtakePurple() {
-        intake.setMotorTargetPosition(250);
-        intake.setMotorPower(0.5);
-        intake.update();
-    }
-
-    private void raiseSlide() {
-        slide.setTargetPosition(-1400);
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slide.setPower(1);
-        slide.update();
-    }
 
     @Override
     public void loop() {
@@ -326,8 +219,37 @@ public class AutoMeet3 extends OpMode {
                 break;
         }
     }
+    private void intake() {
+        intake.intake(.75);
+    }
+    private void outtakePurple() {
+        intake.setMotorTargetPosition(250);
+        intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setMotorPower(0.5);
+        intake.update();
+    }
+    private void outtake() {
+        outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
+        setSlideHeight(-1200);
+    }
+    private void outtakeIn() {
+        if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE)
+            setSlideHeight(-1200);
+        outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
+    }
+    private void drop() {
+        outtake.setGateClosed(false);
+    }
+    private void setSlideHeight(int height) {
+        slide.setTargetPosition(height);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(1.0);
+    }
+    private void transfer() {
+        intake.transfer();
+    }
 
-    //Method to select starting position using X, Y, A, B buttons on gamepad
+    //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
         telemetry.setAutoClear(true);
         telemetry.clearAll();

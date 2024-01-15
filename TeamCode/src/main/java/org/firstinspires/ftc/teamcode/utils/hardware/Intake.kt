@@ -85,6 +85,7 @@ class Intake(hardwareMap: HardwareMap){
         when(transferStage) {
             TransferStage.INIT -> {
                 motorMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                motorPower = 0.0
                 transferStage = TransferStage.TRANSFER //reset motor
             }
             TransferStage.TRANSFER -> {
