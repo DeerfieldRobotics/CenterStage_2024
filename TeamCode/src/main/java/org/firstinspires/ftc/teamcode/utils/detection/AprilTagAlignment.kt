@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.detection
 
 import android.util.Size
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -15,17 +16,18 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
+@Config
 class AprilTagAlignment(
     camera: CameraName,
     private val drivetrain: Drivetrain?,
-    var targetX: Double,
-    var targetY: Double,
-    var targetHeading: Double,
+    @JvmField var targetX: Double,
+    @JvmField var targetY: Double,
+    @JvmField var targetHeading: Double,
 ){
 
-    var xController = PIDController(0.0174, 0.0, 0.0)
-    var yController = PIDController(0.0174, 0.0, 0.0)
-    var headingController = PIDController(0.0174, 0.0, 0.0)
+    @JvmField var xController = PIDController(0.0174, 0.0, 0.0)
+    @JvmField var yController = PIDController(0.0174, 0.0, 0.0)
+    @JvmField var headingController = PIDController(0.0174, 0.0, 0.0)
 
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
@@ -38,7 +40,7 @@ class AprilTagAlignment(
 
     private val processor = AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3) // Used for managing the AprilTag detection process.
 
-    private var visionPortal: VisionPortal = VisionPortal.Builder()
+    private var visionPortal = VisionPortal.Builder()
         .setCamera(camera)
         .setCameraResolution(Size(1280, 720))
         .addProcessor(processor)
