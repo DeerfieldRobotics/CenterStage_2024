@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.detection
 
+import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.opencv.core.Mat
 import org.opencv.core.Point
@@ -8,24 +9,22 @@ import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 import java.util.TreeSet
 
-class WhiteDetectionPipeline : OpenCvPipeline {
+class WhiteDetectionPipeline (private val drivetrain: Drivetrain?) : OpenCvPipeline() {
     private val threshold = 240
-    private val whiteFrames: ArrayList<WhiteFrame>
+    private val whiteFrames: ArrayList<WhiteFrame> = ArrayList()
     private val startY = 120
     private val endY = 240
     private val startX = 0
     private val endX = 200
-    private val numSectors: Int
+    private val numSectors = 10
+
+    var target = 160
+    var controller = PIDController(0.001, 0.0, 0.0)
+
     var position = -2.0
 
-    constructor(drivetrain: Drivetrain?) {
-        numSectors = 10
-        whiteFrames = ArrayList()
-    }
-
-    constructor(numSectors: Int) {
-        whiteFrames = ArrayList()
-        this.numSectors = numSectors
+    init {
+        controller.setTolerance(20.0)
     }
 
     override fun processFrame(input: Mat): Mat {
@@ -87,7 +86,12 @@ class WhiteDetectionPipeline : OpenCvPipeline {
         }
         return input
     }
-
+    fun alignRobot() {
+        val error = target - position
+        val power = controller.calculate(error)
+        drivetrain?.move(0.0, power, 0.0)
+    }
+    fun robotAligned() = controller.atSetPoint()
     internal class WhiteFrame(
         private var maxSize: Int, //number of sectors to consider
         private var numSectors //pixel width in sectors
