@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.sun.tools.javac.Main;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop;
@@ -120,8 +121,7 @@ public class AutoMeet3 extends OpMode {
                     double currentTime = getRuntime();
                     while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                         //TODO might need to disable samplemecanum drive idk tho
-                        aprilTagAlignment.update();
-                        aprilTagAlignment.alignRobot();
+                        aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
 
                         telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
                         telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());

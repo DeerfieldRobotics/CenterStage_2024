@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.detection
 
 import android.util.Size
 import com.arcrobotics.ftclib.controller.PIDController
+import com.arcrobotics.ftclib.geometry.Pose2d
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -10,9 +11,11 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 class AprilTagAlignment (
@@ -108,19 +111,27 @@ class AprilTagAlignment (
         }
     }
     fun alignRobotToBackboard(a: Alliance) {
-        detection = null
-
-        val currentDetections: List<AprilTagDetection> = processor.detections
-        for(detection in currentDetections)
+        val rawDetections: List<AprilTagDetection> = processor.detections
+        val currentDetections: ArrayList<AprilTagDetection> = ArrayList()
+        for(detection in rawDetections)
             if(if(a == Alliance.BLUE) detection.id <= 3 else detection.id >= 4) //Only read the tags corresponding to the alliance
-                if(this.detection == null || detection.ftcPose.range < this.detection!!.ftcPose.range) //if null or closer then set the detection to it
-                    this.detection = detection
+                currentDetections.add(detection)
+        var currentX = 0.0
+        var currentY = 0.0
+        var currentHeading = 0.0
+        var total = 0.0
+        for (detection in currentDetections) {
+            //Weighted average of valid detections weighted by inverse of range squared
+            currentX += (detection.ftcPose.x + ((detection.id - if(a == Alliance.BLUE) 2 else 4 ) * tagXOffset)) / detection.ftcPose.range.pow(2)
+            currentY += detection.ftcPose.y / detection.ftcPose.range.pow(2)
+            currentHeading += detection.ftcPose.yaw / detection.ftcPose.range.pow(2)
 
-        val currentDetection = detection ?: return
+            total += 1/detection.ftcPose.range.pow(2)
+        }
 
-        val currentX = currentDetection.ftcPose.x + ((currentDetection.id - if(a == Alliance.BLUE) 2 else 4 ) * tagXOffset)
-        val currentY = currentDetection.ftcPose.y
-        val currentHeading = currentDetection.ftcPose.yaw
+        currentX /= total
+        currentY /= total
+        currentHeading /= total
 
         val xPower = xController.calculate(targetX - currentX)
         val yPower = yController.calculate(targetY - currentY)
