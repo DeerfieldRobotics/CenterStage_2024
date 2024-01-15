@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
@@ -38,6 +40,7 @@ public class AutoMeet3 extends OpMode {
     private final WhiteDetectionPipeline whiteDetectionPipeline = new WhiteDetectionPipeline();
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
     private SampleMecanumDrive drive;
+    private Drivetrain drivetrain;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
@@ -67,6 +70,7 @@ public class AutoMeet3 extends OpMode {
     @Override
     public void init() {
         drive = new SampleMecanumDrive(hardwareMap);
+        drivetrain = new Drivetrain(hardwareMap);
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
@@ -86,6 +90,8 @@ public class AutoMeet3 extends OpMode {
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        initAprilTagDetection();
 
         initColorDetection();
         selectStartingPosition();
@@ -113,6 +119,7 @@ public class AutoMeet3 extends OpMode {
                 .addTemporalMarker(()->{
                     double currentTime = getRuntime();
                     while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
+                        //TODO might need to disable samplemecanum drive idk tho
                         aprilTagAlignment.update();
                         aprilTagAlignment.alignRobot();
 
@@ -206,6 +213,14 @@ public class AutoMeet3 extends OpMode {
         telemetry.addLine(colorDetectionPipeline.toString());
         telemetry.addData("Purple Pixel Path: ", purplePixelPath);
         telemetry.update();
+    }
+    private void initAprilTagDetection() {
+        backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0,
+                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
+                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
+                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
     }
     public void buildAuto() { //TODO
         switch (startPosition) {
