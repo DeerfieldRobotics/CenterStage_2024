@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
@@ -341,18 +342,22 @@ public class AutoMeet3 extends OpMode {
             telemetry.addData("    Red Right  ", "(→)");
             if (gamepad1.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
+                MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
+                MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
+                MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
                 break;
             }
             if (gamepad1.dpad_right) {
                 startPosition = START_POSITION.RED_CLOSE;
+                MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
                 break;
             }
             telemetry.update();

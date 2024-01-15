@@ -23,9 +23,9 @@ class AprilTagAlignment (
     var targetHeading: Double,
 ){
 
-    var xController = PIDController(0.0, 0.0, 0.0)
-    var yController = PIDController(0.0, 0.0, 0.0)
-    var headingController = PIDController(0.0, 0.0, 0.0)
+    var xController = PIDController(0.0174, 0.0, 0.0)
+    var yController = PIDController(0.0174, 0.0, 0.0)
+    var headingController = PIDController(0.0174, 0.0, 0.0)
 
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
@@ -45,7 +45,11 @@ class AprilTagAlignment (
         .build()
 
     var targetTagID = -1
+    private val tagXOffset = 6.0
     private var detection: AprilTagDetection? = null
+    enum class Alliance {
+        BLUE, RED
+    }
     var targetFound = false
         private set
 
@@ -77,7 +81,7 @@ class AprilTagAlignment (
         targetFound = false
         detection = null
 
-        val currentDetections: List<AprilTagDetection> = processor.detections;
+        val currentDetections: List<AprilTagDetection> = processor.detections
         for (detection in currentDetections) {
             if (targetTagID<0||detection.id == targetTagID) {
                 targetFound = true
@@ -102,6 +106,31 @@ class AprilTagAlignment (
 
             drivetrain.move(forward, strafe, turn)
         }
+    }
+    fun alignRobotToBackboard(a: Alliance) {
+        detection = null
+
+        val currentDetections: List<AprilTagDetection> = processor.detections
+        for(detection in currentDetections)
+            if(if(a == Alliance.BLUE) detection.id <= 3 else detection.id >= 4) //Only read the tags corresponding to the alliance
+                if(this.detection == null || detection.ftcPose.range < this.detection!!.ftcPose.range) //if null or closer then set the detection to it
+                    this.detection = detection
+
+        val currentDetection = detection ?: return
+
+        val currentX = currentDetection.ftcPose.x + ((currentDetection.id - if(a == Alliance.BLUE) 2 else 4 ) * tagXOffset)
+        val currentY = currentDetection.ftcPose.y
+        val currentHeading = currentDetection.ftcPose.yaw
+
+        val xPower = xController.calculate(targetX - currentX)
+        val yPower = yController.calculate(targetY - currentY)
+        val headingPower = headingController.calculate(targetHeading - currentHeading)
+
+        val forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
+        val strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
+        val turn = turnMultiplier*headingPower
+
+        drivetrain.move(forward, strafe, turn)
     }
 
     fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()

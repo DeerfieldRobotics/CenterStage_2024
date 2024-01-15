@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Launcher;
@@ -17,33 +22,48 @@ public class MainTeleop extends LinearOpMode {
     private Outtake outtake;
     private Slide slide;
     private Launcher launcher;
+    private AprilTagAlignment aprilTagAlignment;
 
     private boolean crossToggle = false;
     private boolean triangleToggle = false;
     private boolean squareToggle = false;
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
-    private boolean leftBumperToggle = false;
-    private boolean dpadLeftToggle = false;
     private double lastTickTime = 0;
     private double avgTickTime = 0;
     private int tickCount = 0;
+    private double boardX = 0;
+    public static AprilTagAlignment.Alliance alliance = null;
+    private boolean robotAligned = false;
 
     private void driveNormal() {
-        //driving values
-        double speedMult = .7 + 0.3 * gamepad1.right_trigger - 0.3 * gamepad1.left_trigger;
+        if(gamepad1.left_bumper) {
+            boardX += 0.1*gamepad1.left_stick_x;
+            if(boardX > 10.5) boardX = 10.5;
+            if(boardX < -10.5) boardX = -10.5;
+            aprilTagAlignment.setTargetX(boardX);
+            aprilTagAlignment.alignRobotToBackboard(alliance);
+            if(robotAligned != aprilTagAlignment.robotAligned()) {
+                robotAligned = aprilTagAlignment.robotAligned();
+                gamepad1.rumbleBlips(1);
+            }
+        }
+        else {
+            //driving values
+            double speedMult = .7 + 0.3 * gamepad1.right_trigger - 0.3 * gamepad1.left_trigger;
 
-        gamepad1.rumble(gamepad1.left_trigger>0.5?(gamepad1.left_trigger-0.5)/.4:0.0,gamepad1.right_trigger>0.4?(gamepad1.right_trigger-0.4)/0.8:0.0,50);
+            gamepad1.rumble(gamepad1.left_trigger > 0.5 ? (gamepad1.left_trigger - 0.5) / .4 : 0.0, gamepad1.right_trigger > 0.4 ? (gamepad1.right_trigger - 0.4) / 0.8 : 0.0, 50);
 
-        double forwardMult = 1;
-        double turnMult = .75;
-        double strafeMult = 1;
+            double forwardMult = 1;
+            double turnMult = .75;
+            double strafeMult = 1;
 
-        double forward = gamepad1.left_stick_y * forwardMult * speedMult;
-        double turn = -gamepad1.right_stick_x * turnMult * speedMult;
-        double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
+            double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+            double turn = -gamepad1.right_stick_x * turnMult * speedMult;
+            double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-        drivetrain.move(forward, strafe, turn);
+            drivetrain.move(forward, strafe, turn);
+        }
     }
 
     @Override
@@ -54,28 +74,30 @@ public class MainTeleop extends LinearOpMode {
         ElapsedTime runtime = new ElapsedTime();
 
         while (opModeIsActive()) {
-            tickCount++;
-            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
-            lastTickTime = runtime.milliseconds();
-            avgTickTime = (avgTickTime*(tickCount-1)+ runtime.milliseconds()-lastTickTime)/tickCount;
-            telemetry.addData("Avg Tick Time", avgTickTime);
 
             driveNormal();
 
             slide();
             intake();
+            outtake();
             launcher();
 
             intake.update();
             outtake.update();
             slide.update();
+            aprilTagAlignment.update();
 
+            telemetry.addLine("--------15118 Teleop-------");
             telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
-            telemetry.addData("slide ticks", slide.getPosition()[0]);
+            telemetry.addData("Slide Ticks", slide.getPosition()[0]);
             telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
-            //telemetry.addData("Intake Motor Pos: ", intake.getIntakeMotor().getCurrentPosition());
-            telemetry.addData("BOTTOMOUT: ", slide.getBottomOut());
+
+            tickCount++;
+            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
+            lastTickTime = runtime.milliseconds();
+            avgTickTime = (avgTickTime*(tickCount-1)+ runtime.milliseconds()-lastTickTime)/tickCount;
+            telemetry.addData("Avg Tick Time", avgTickTime);
 
             telemetry.update();
         }
@@ -83,32 +105,22 @@ public class MainTeleop extends LinearOpMode {
     }
     private void slide() {
         //stick sensitivity values
-        double l2Sensitivity = 1;
         double l2Max = 0.8;
-        slide.setPower(gamepad2.left_stick_y* l2Sensitivity / l2Max);
+        slide.setPower(gamepad2.left_stick_y / l2Max);
     }
     private void intake() {
-        //TODO: add vibration feedback when intake is fully opened and closed
-        //Set intake values and clamp them between 0 and 1
-        //Sensitivity values for triggers of gamepad 2
         double rTriggerStart = 0.05;
         double rTriggerEnd = 0.6;
-
-        double rightTrigger = Math.max((gamepad2.right_trigger- rTriggerStart)/(rTriggerEnd - rTriggerStart),0);
+        double rightTrigger = Math.max((gamepad2.right_trigger - rTriggerStart) / (rTriggerEnd - rTriggerStart), 0);
 
         double lTriggerStart = 0.05;
         double lTriggerEnd = 0.6;
+        double leftTrigger = Math.max((gamepad2.left_trigger - lTriggerStart) / (lTriggerEnd - lTriggerStart), 0);
 
-        double leftTrigger = Math.max((gamepad2.left_trigger- lTriggerStart)/(lTriggerEnd - lTriggerStart),0);
+        intake.intake(0.8 * (rightTrigger - leftTrigger));
 
-        intake.intake(0.8*(rightTrigger-leftTrigger));
-
-        if(leftTrigger>0.0) {
+        if (leftTrigger > 0.0)
             intake.setBoosterServoPower(-leftTrigger);
-        }
-
-        //Outtake Code
-        outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
 
         if(gamepad2.dpad_up)
             intake.changeIntakeServo(.5);
@@ -118,51 +130,11 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad1.right_trigger>0.3 && intake.getServoPosition()== Intake.IntakePositions.INTAKE)
             intake.setServoPosition(Intake.IntakePositions.DRIVE);
 
-        if (gamepad2.circle && !circleToggle) { // on circle press, outtake toggles
-            gamepad2.rumbleBlips(1);
-            circleToggle = true;
-            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
-            intake.setServoPosition(Intake.IntakePositions.HIGH);
-        }
-        if (!gamepad2.circle) {
-            circleToggle = false;
-        }
-
-        //arm code
-        if (gamepad2.triangle&&!triangleToggle) { // arm override
-            triangleToggle = true;
-            if (outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) {
-                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-            } else {
-                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
-            }
-        }
-        if (!gamepad2.triangle) {
-            triangleToggle = false;
-        }
-
-        if(gamepad2.cross && !crossToggle) { //resets arm
-            crossToggle = true;
-            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
-            outtake.setGateClosed(true);
-        }
-        if(!gamepad2.cross) {
-            crossToggle = false;
-        }
-        if(gamepad2.square && !squareToggle) { //gate override
-            squareToggle = true;
-            outtake.setGateClosed(!outtake.getGateClosed());
-        }
-        if(!gamepad2.square) {
-            squareToggle = false;
-        }
-
-        if(gamepad2.left_bumper) {
+        if(gamepad2.left_bumper)
             intake.setBoosterServoPower(-1.0);
-        }
-        else {
+        else
             intake.setBoosterServoPower(0.0);
-        }
+
 
         if(gamepad2.right_bumper && !rightBumperToggle) {
             if(outtake.getOuttakePosition()!= Outtake.OuttakePositions.OUTSIDE)
@@ -172,11 +144,42 @@ public class MainTeleop extends LinearOpMode {
             rightBumperToggle = true;
             intake.transfer();
         }
-        if (!gamepad2.right_bumper) {
-            rightBumperToggle = false;
+        if (!gamepad2.right_bumper) { rightBumperToggle = false; }
+    }
+    private void outtake() {
+        //Outtake Code
+        outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
+
+        if (gamepad2.circle && !circleToggle) { // Outtake Procedure to Outside
+            gamepad2.rumbleBlips(1);
+            circleToggle = true;
+            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
+            intake.setServoPosition(Intake.IntakePositions.HIGH);
         }
+        else if (!gamepad2.circle) { circleToggle = false; }
 
+        if (gamepad2.triangle&&!triangleToggle) { // Outtake Toggle
+            triangleToggle = true;
+            if (outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) {
+                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
+            } else {
+                outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
+            }
+        }
+        else if (!gamepad2.triangle) { triangleToggle = false; }
 
+        if(gamepad2.cross && !crossToggle) { // Outtake Procedure to Inside
+            crossToggle = true;
+            outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
+            outtake.setGateClosed(true);
+        }
+        else if(!gamepad2.cross) { crossToggle = false; }
+
+        if(gamepad2.square && !squareToggle) { // Gate Toggle
+            squareToggle = true;
+            outtake.setGateClosed(!outtake.getGateClosed());
+        }
+        else if(!gamepad2.square) { squareToggle = false; }
     }
 
     public void launcher() {
@@ -192,8 +195,29 @@ public class MainTeleop extends LinearOpMode {
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap);
         launcher = new Launcher(hardwareMap);
+        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), drivetrain, 0.0, 12.0, 0.0,
+                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
+                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
+                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
 
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        while(!isStopRequested() && alliance == null) {
+            if(gamepad1.dpad_up) {
+                alliance = AprilTagAlignment.Alliance.RED;
+                break;
+            }
+            else if(gamepad1.dpad_down) {
+                alliance = AprilTagAlignment.Alliance.BLUE;
+                break;
+            }
+            telemetry.addData("Alliance", "Select Alliance");
+            telemetry.addData("↑", "Red");
+            telemetry.addData("↓", "Blue");
+            telemetry.update();
+        }
+        gamepad1.setLedColor(alliance == AprilTagAlignment.Alliance.RED ? 255 : 0, 0, alliance == AprilTagAlignment.Alliance.BLUE ? 255 : 0, Gamepad.LED_DURATION_CONTINUOUS);
+        gamepad2.setLedColor(alliance == AprilTagAlignment.Alliance.RED ? 255 : 0, 0, alliance == AprilTagAlignment.Alliance.BLUE ? 255 : 0, Gamepad.LED_DURATION_CONTINUOUS);
 
         waitForStart();
     }
