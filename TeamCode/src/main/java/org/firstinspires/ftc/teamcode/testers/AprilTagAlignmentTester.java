@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,8 +13,8 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import java.util.Arrays;
 import java.util.Collections;
 
+@TeleOp(name = "AprilTagTester")
 @Config
-@TeleOp(name = "AprilTagTester", group = "b")
 public class AprilTagAlignmentTester extends LinearOpMode {
     private Drivetrain drivetrain;
     private WebcamName webcam;
