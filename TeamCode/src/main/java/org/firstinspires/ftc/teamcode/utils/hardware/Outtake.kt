@@ -20,8 +20,8 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val gateClose = 0.92 //closed position
 
     private var currentTime = 0L //current time for outtake procedure
-    private var outtakeInside = true //whether the outtake is inside the robot or not
     private var outtakeProcedureComplete = true
+    private var currentTimeSet = true
 
     private val incrementMultiplier = -2.0 //multiplier for how much the arm angle changes when the outtake angle is adjusted
 
@@ -36,7 +36,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val transferKinematics = OuttakeKinematics(-102.5, 190.5, true) //TODO
     private val insideKinematics = OuttakeKinematics(-108.0, 180.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
-    private var middleKinematics = OuttakeKinematics(-102.5, 100.0, false)
+    private var middleKinematics = OuttakeKinematics(-102.5, 112.0, false)
 
     enum class OuttakePositions {
         TRANSFER, INSIDE, OUTSIDE, MIDDLE //TRANSFER for transferring, INSIDE for inside robot, OUTSIDE for out of robot
@@ -97,7 +97,6 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     outtakePosition = OuttakePositions.INSIDE
                     if(slide.getPosition().average() <= slide.minSlideHeight) { //When slide is high enough, bring arm out
                         outtakePosition = OuttakePositions.OUTSIDE
-                        outtakeInside = false
                         currentTime = 0L
                     }
                 }
@@ -133,13 +132,23 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     }
 
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
-                        currentTime = 0L
                         if(slide.bottomOut) {
-                            if(currentTime == 0L) { currentTime = System.currentTimeMillis() }
-                            outtakePosition = if(currentTime != 0L && System.currentTimeMillis() - currentTime > 300) { OuttakePositions.TRANSFER } else OuttakePositions.MIDDLE
+
+                            if(currentTime == 0L && !currentTimeSet) {
+                                currentTime = System.currentTimeMillis()
+                                currentTimeSet = true
+                            }
+                            else if(!currentTimeSet){
+                                currentTime = 0L
+                            }
+                            outtakePosition = if(currentTime != 0L && System.currentTimeMillis() - currentTime < 300) {
+                                OuttakePositions.MIDDLE
+                            } else
+                                OuttakePositions.TRANSFER
                         }
                         slide.bottomOutProcedure = true
                     }
+
                 }
                 OuttakePositions.MIDDLE -> {
                     gateClosed = false
