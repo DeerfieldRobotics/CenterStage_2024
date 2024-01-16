@@ -28,6 +28,14 @@ class AprilTagAlignment(
     var yController = PIDController(0.0174, 0.0, 0.0)
     var headingController = PIDController(0.0174, 0.0, 0.0)
 
+    var xPower = 0.0
+    var yPower = 0.0
+    var headingPower = 0.0
+
+    var forward = 0.0
+    var strafe = 0.0
+    var turn = 0.0
+
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
         .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
@@ -138,15 +146,15 @@ class AprilTagAlignment(
         yError = targetY - currentY
         headingError = targetHeading - currentHeading
 
-        val xPower = xController.calculate(xError)
-        val yPower = yController.calculate(yError)
-        val headingPower = headingController.calculate(headingError)
+        xPower = xController.calculate(xError)
+        yPower = yController.calculate(yError)
+        headingPower = headingController.calculate(headingError)
 
-        val forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
-        val strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
-        val turn = turnMultiplier*headingPower
+        forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
+        strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
+        turn = turnMultiplier*headingPower
 
-        drivetrain?.move(forward, strafe, turn)
+        drivetrain?.move(forward, strafe, turn);
     }
 
     fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()

@@ -22,13 +22,26 @@ public class AprilTagAlignmentTester extends LinearOpMode {
     private Datalog datalog;
     private boolean dpadLeftToggle = false;
     private boolean dpadRightToggle = false;
-    public static PIDController xPID = new PIDController(0.0174, 0.0, 0.0);
-    public static PIDController yPID = new PIDController(0.0174, 0.0, 0.0);
-    public static PIDController headingPID = new PIDController(0.0174, 0.0, 0.0);
+    public static double xP = 0.06;
+    public static double xI = 0.03;
+    public static double xD = 0.0006;
+    public static double yP = 0.04;
+    public static double yI = 0.04;
+    public static double yD = 0.0009;
+    public static double headingP = 0.02;
+    public static double headingI = 0.035;
+    public static double headingD = 0.001;
+    private PIDController xPID;
+    private PIDController yPID;
+    private PIDController headingPID;
 
     @Override
     public void runOpMode() throws InterruptedException {
         datalog = new Datalog("AprilTagAlignmentTester");
+
+        xPID = new PIDController(xP, xI, xD);
+        yPID = new PIDController(yP, yI, yD);
+        headingPID = new PIDController(headingP, headingI, headingD);
 
         drivetrain = new Drivetrain(hardwareMap);
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -38,34 +51,30 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            aprilTagAlignment.update();
+            xPID.setPID(xP, xI, xD);
+            yPID.setPID(yP, yI, yD);
+            headingPID.setPID(headingP, headingI, headingD);
 
             if(gamepad1.left_bumper) {
-                aprilTagAlignment.alignRobot();
+                aprilTagAlignment.alignRobotToBackboard(AprilTagAlignment.Alliance.BLUE);
+                aprilTagAlignment.setTargetX(aprilTagAlignment.getTargetX()+0.01*gamepad1.left_stick_x);
             }
             else
                 driveNormal();
 
-            if(gamepad1.dpad_left && !dpadLeftToggle && aprilTagAlignment.getTargetTagID() > 1) {
-                aprilTagAlignment.setTargetTagID(aprilTagAlignment.getTargetTagID()-1);
-                dpadLeftToggle = true;
-            }
-            else if(!gamepad1.dpad_left && dpadLeftToggle)
-                dpadLeftToggle = false;
-
-            if(gamepad1.dpad_right && !dpadRightToggle && aprilTagAlignment.getTargetTagID() < 6) {
-                aprilTagAlignment.setTargetTagID(aprilTagAlignment.getTargetTagID()+1);
-                dpadRightToggle = true;
-            }
-            else if(!gamepad1.dpad_right && dpadRightToggle)
-                dpadRightToggle = false;
-
             telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
+            telemetry.addData("targetX", aprilTagAlignment.getTargetX());
             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
             telemetry.addData("drivetrain power", Collections.max(Arrays.asList(drivetrain.getMotorPower())));
+            telemetry.addData("xPower", aprilTagAlignment.getXPower());
+            telemetry.addData("yPower", aprilTagAlignment.getYPower());
+            telemetry.addData("headingPower", aprilTagAlignment.getHeadingPower());
+            telemetry.addData("forward", aprilTagAlignment.getForward());
+            telemetry.addData("strafe", aprilTagAlignment.getStrafe());
+            telemetry.addData("turn", aprilTagAlignment.getTurn());
             telemetry.update();
 
             datalog.xError.set(aprilTagAlignment.getXError());
