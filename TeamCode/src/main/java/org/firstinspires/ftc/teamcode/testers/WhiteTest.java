@@ -25,7 +25,7 @@ public class WhiteTest extends OpMode {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
 
         frontCamera.setPipeline(whiteDetection);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
