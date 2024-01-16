@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 
-@TeleOp(name = "Outtake Tester", group = "a")
+@TeleOp(name = "Outtake Tester", group = "c")
 public class OuttakeTester extends LinearOpMode {
     private Slide slide;
     private Outtake outtake;

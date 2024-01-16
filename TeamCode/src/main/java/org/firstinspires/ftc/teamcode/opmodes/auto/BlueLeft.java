@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -15,7 +16,9 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-@Autonomous(name ="Blue Left")
+
+@Disabled
+@Autonomous(name ="Blue Left", group = "e")
 public class BlueLeft extends OpMode{
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
     private SampleMecanumDrive drive;

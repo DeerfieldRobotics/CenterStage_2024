@@ -36,15 +36,17 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val transferKinematics = OuttakeKinematics(-102.5, 190.5, true) //TODO
     private val insideKinematics = OuttakeKinematics(-108.0, 180.0, false)
     private var outsideKinematics = OuttakeKinematics(-30.8969, 8.48, true)
+    private var middleKinematics = OuttakeKinematics(-102.5, 100.0, false)
 
     enum class OuttakePositions {
-        TRANSFER, INSIDE, OUTSIDE //TRANSFER for transferring, INSIDE for inside robot, OUTSIDE for out of robot
+        TRANSFER, INSIDE, OUTSIDE, MIDDLE //TRANSFER for transferring, INSIDE for inside robot, OUTSIDE for out of robot
     }
     
     private val outtakePositionMap = mapOf(
         OuttakePositions.TRANSFER to transferKinematics,
         OuttakePositions.INSIDE to insideKinematics,
-        OuttakePositions.OUTSIDE to outsideKinematics
+        OuttakePositions.OUTSIDE to outsideKinematics,
+        OuttakePositions.MIDDLE to middleKinematics
     )
 
     private class OuttakeKinematics (var armAngle: Double, var wristAngle: Double, var absPos: Boolean) //subclass for outtake kinematics behavior 
@@ -129,13 +131,18 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     else if(slide.getPosition().average() >= slide.minSlideHeight && outtakePosition == OuttakePositions.OUTSIDE) {
                         currentTime = 0L
                     }
+
                     if(System.currentTimeMillis() - currentTime > 500 && outtakePosition == OuttakePositions.INSIDE) { //if its already inside, current time will be 0, thus it will be greater than 500
                         currentTime = 0L
                         if(slide.bottomOut) {
-                            outtakePosition = OuttakePositions.TRANSFER
+                            if(currentTime == 0L) { currentTime = System.currentTimeMillis() }
+                            outtakePosition = if(currentTime != 0L && System.currentTimeMillis() - currentTime > 300) { OuttakePositions.TRANSFER } else OuttakePositions.MIDDLE
                         }
                         slide.bottomOutProcedure = true
                     }
+                }
+                OuttakePositions.MIDDLE -> {
+                    gateClosed = false
                 }
             }
         }

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
  * <p>
  * See lines 42-57.
  */
-@TeleOp(group = "advanced")
+@TeleOp(group = "d")
 @Disabled
 public class RRCenteredSteering extends LinearOpMode {
     @Override

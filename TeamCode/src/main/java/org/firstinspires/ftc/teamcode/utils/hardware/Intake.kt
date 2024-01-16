@@ -21,10 +21,10 @@ class Intake(hardwareMap: HardwareMap){
     }
 
     private val intakePositionMap = mapOf( //TODO: find positions
-        IntakePositions.INIT to 1.0,
+        IntakePositions.INIT to 0.75,
         IntakePositions.INTAKE to 0.0,
         IntakePositions.TRANSFER to 0.65,
-        IntakePositions.FIVE to 0.76,
+        IntakePositions.FIVE to 0.5,
         IntakePositions.FOUR to 0.8,
         IntakePositions.DRIVE to 0.45,
         IntakePositions.HIGH to 0.6

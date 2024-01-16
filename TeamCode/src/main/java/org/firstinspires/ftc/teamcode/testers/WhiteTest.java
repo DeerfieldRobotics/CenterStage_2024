@@ -10,7 +10,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "WhiteTest")
+@Autonomous(name = "WhiteTest", group = "b")
 public class WhiteTest extends OpMode {
     private OpenCvCamera frontCamera;
     private WhiteDetectionPipeline whiteDetection;
@@ -25,7 +25,7 @@ public class WhiteTest extends OpMode {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
 
         frontCamera.setPipeline(whiteDetection);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {

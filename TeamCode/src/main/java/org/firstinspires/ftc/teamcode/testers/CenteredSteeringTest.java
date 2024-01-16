@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Centered Steering Test")
+@TeleOp(name = "Centered Steering Test", group = "d")
 @Disabled
 public class CenteredSteeringTest extends LinearOpMode {
     @Override

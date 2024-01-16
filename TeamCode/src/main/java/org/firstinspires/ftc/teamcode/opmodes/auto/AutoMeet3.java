@@ -22,7 +22,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop")
+@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
 public class AutoMeet3 extends OpMode {
     //Define and declare Robot Starting Locations
     private enum START_POSITION{
@@ -324,22 +324,22 @@ public class AutoMeet3 extends OpMode {
             telemetry.addData("    Blue Right ", "(↓)");
             telemetry.addData("    Red Left    ", "(←)");
             telemetry.addData("    Red Right  ", "(→)");
-            if (gamepad1.dpad_up) {
+            if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
                 MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
                 break;
             }
-            if (gamepad1.dpad_down) {
+            if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
                 MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
                 break;
             }
-            if (gamepad1.dpad_left) {
+            if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
                 MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
                 break;
             }
-            if (gamepad1.dpad_right) {
+            if (gamepad1.dpad_right || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_CLOSE;
                 MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
                 break;

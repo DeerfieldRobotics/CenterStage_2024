@@ -16,8 +16,8 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
 
     private val distanceSensorOffset = 5.295 //distance between the two distance sensors in inches
 
-    private val headingPID: PIDController = PIDController(0.0, 0.0, 0.0) //TODO
-    private val distancePID: PIDController = PIDController(1.0, 0.0, 0.0) //TODO
+    private val headingPID: PIDController = PIDController(0.05, 0.0, 0.0) //TODO
+    private val distancePID: PIDController = PIDController(0.02, 0.0, 0.0) //TODO
 
     constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain, targetDistance: Double) : this(hardwareMap, drivetrain, targetDistance, 0.0)
     constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain) : this(hardwareMap, drivetrain, 12.0, 0.0)
@@ -51,6 +51,6 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
         if (max > 1.0) { //if the maximum value is greater than 1, scale down all values by the maximum value such that the proportion of the values is the same
             drivetrain.move(forward / max, strafe / max, turn / max)
         } else
-            drivetrain.move(-forward, -strafe, -turn)
+            drivetrain.move(forward, strafe, turn)
     }
 }

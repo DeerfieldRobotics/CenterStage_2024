@@ -203,11 +203,11 @@ public class MainTeleop extends LinearOpMode {
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         while(!isStopRequested() && alliance == null) {
-            if(gamepad1.dpad_up) {
+            if(gamepad1.dpad_up || gamepad2.dpad_up) {
                 alliance = AprilTagAlignment.Alliance.RED;
                 break;
             }
-            else if(gamepad1.dpad_down) {
+            else if(gamepad1.dpad_down || gamepad2.dpad_down) {
                 alliance = AprilTagAlignment.Alliance.BLUE;
                 break;
             }
@@ -216,8 +216,14 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("↓", "Blue");
             telemetry.update();
         }
-        gamepad1.setLedColor(alliance == AprilTagAlignment.Alliance.RED ? 255 : 0, 0, alliance == AprilTagAlignment.Alliance.BLUE ? 255 : 0, Gamepad.LED_DURATION_CONTINUOUS);
-        gamepad2.setLedColor(alliance == AprilTagAlignment.Alliance.RED ? 255 : 0, 0, alliance == AprilTagAlignment.Alliance.BLUE ? 255 : 0, Gamepad.LED_DURATION_CONTINUOUS);
+
+//        if (AprilTagAlignment.Alliance.RED == alliance) {
+//            gamepad1.setLedColor(255, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+//            gamepad2.setLedColor(255, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+//        } else {
+//            gamepad1.setLedColor(0, 0, 255, Gamepad.LED_DURATION_CONTINUOUS);
+//            gamepad2.setLedColor(0, 0, 255, Gamepad.LED_DURATION_CONTINUOUS);
+//        }
 
         waitForStart();
     }

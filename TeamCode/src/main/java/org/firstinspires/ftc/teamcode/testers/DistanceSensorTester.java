@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.detection.DistanceSensorAlignment;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 
-@TeleOp(name="Distance Sensor Tester")
+@TeleOp(name="Distance Sensor Tester", group = "c")
 public class DistanceSensorTester extends LinearOpMode {
     private Drivetrain drivetrain;
     private DistanceSensorAlignment distanceSensors;
