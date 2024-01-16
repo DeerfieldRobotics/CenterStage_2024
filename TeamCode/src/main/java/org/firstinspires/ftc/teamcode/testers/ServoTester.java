@@ -11,13 +11,12 @@ public class ServoTester extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        s = hardwareMap.get(Servo.class, "as");
-        ws = hardwareMap.get(Servo.class, "ws");
+        s = hardwareMap.get(Servo.class, "is");
+
 
         waitForStart();
 
         while (opModeIsActive()) {
-            ws.setPosition(0.59);
             double stickPosition = -gamepad2.right_stick_y; // Negate to make up increase position
             servoPosition += maxSpeed * stickPosition; // Increment position based on stick movement
 
