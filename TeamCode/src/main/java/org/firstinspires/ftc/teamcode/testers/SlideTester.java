@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 
 
 
-@TeleOp(name="SlideTester", group="b")
+@TeleOp(name="SlideTester", group="c")
 public class SlideTester extends LinearOpMode {
 
     private Slide slide;

@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Heading Tester", group = "b")
+@TeleOp(name = "Heading Tester", group = "c")
 @Disabled
 public class HeadingTest extends LinearOpMode {
     private IMU imu;

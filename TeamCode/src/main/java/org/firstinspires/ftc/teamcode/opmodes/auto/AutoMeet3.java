@@ -22,7 +22,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop")
+@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
 public class AutoMeet3 extends OpMode {
     //Define and declare Robot Starting Locations
     private enum START_POSITION{

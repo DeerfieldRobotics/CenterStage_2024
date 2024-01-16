@@ -4,6 +4,7 @@ import android.util.Size;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Disabled
 @TeleOp(name="Mack's shitty Drive to april tag")
 public class DriveToTag extends LinearOpMode {
     final double DISTANCE = 12.0; // Inches away from tag

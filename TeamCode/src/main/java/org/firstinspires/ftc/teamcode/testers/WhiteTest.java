@@ -10,7 +10,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "WhiteTest")
+@Autonomous(name = "WhiteTest", group = "b")
 public class WhiteTest extends OpMode {
     private OpenCvCamera frontCamera;
     private WhiteDetectionPipeline whiteDetection;

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import java.util.Arrays;
 import java.util.Collections;
 
-@TeleOp(name = "AprilTagTester for phone")
+@TeleOp(name = "AprilTagTester for phone", group = "b")
 public class AprilTagAlignmentTesterPhone extends LinearOpMode {
     private AprilTagAlignment aprilTagAlignment;
     private boolean dpadLeftToggle = false;

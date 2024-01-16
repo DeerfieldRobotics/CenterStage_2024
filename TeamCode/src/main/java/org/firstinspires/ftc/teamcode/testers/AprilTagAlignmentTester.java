@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import java.util.Arrays;
 import java.util.Collections;
 
-@TeleOp(name = "AprilTagTester")
+@TeleOp(name = "AprilTagTester", group = "b")
 public class AprilTagAlignmentTester extends LinearOpMode {
     private Drivetrain drivetrain;
     private WebcamName webcam;
