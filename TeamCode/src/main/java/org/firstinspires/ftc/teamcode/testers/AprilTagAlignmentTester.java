@@ -80,6 +80,7 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             datalog.xError.set(aprilTagAlignment.getXError());
             datalog.yError.set(aprilTagAlignment.getYError());
             datalog.headingError.set(aprilTagAlignment.getHeadingError());
+            datalog.writeLine();
         }
     }
     private void driveNormal() {

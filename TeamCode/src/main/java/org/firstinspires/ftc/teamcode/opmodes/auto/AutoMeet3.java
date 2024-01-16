@@ -46,6 +46,19 @@ public class AutoMeet3 extends OpMode {
     private WebcamName backCamera;
     private VoltageSensor battery;
 
+    public static double xP = 0.06;
+    public static double xI = 0.03;
+    public static double xD = 0.0006;
+    public static double yP = 0.04;
+    public static double yI = 0.04;
+    public static double yD = 0.0009;
+    public static double headingP = 0.02;
+    public static double headingI = 0.035;
+    public static double headingD = 0.001;
+    private PIDController xPID;
+    private PIDController yPID;
+    private PIDController headingPID;
+
     private TrajectorySequence pathInitToBackboard;
     private TrajectorySequence pathBackboardToWhite;
     private TrajectorySequence pathWhiteToBackboard;
@@ -72,6 +85,10 @@ public class AutoMeet3 extends OpMode {
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
+
+        xPID = new PIDController(xP, xI, xD);
+        yPID = new PIDController(yP, yI, yD);
+        headingPID = new PIDController(headingP, headingI, headingD);
 
         battery = hardwareMap.voltageSensor.get("Control Hub");
 
@@ -214,10 +231,7 @@ public class AutoMeet3 extends OpMode {
     private void initAprilTagDetection() {
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0,
-                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
-                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
-                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
+        aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
     }
     public void buildAuto() { //TODO
         switch (startPosition) {

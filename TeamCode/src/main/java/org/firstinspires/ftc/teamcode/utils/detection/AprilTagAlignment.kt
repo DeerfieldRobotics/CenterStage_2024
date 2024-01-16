@@ -36,6 +36,8 @@ class AprilTagAlignment(
     var strafe = 0.0
     var turn = 0.0
 
+    private val cameraOffset = 6.5;
+
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
         .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
@@ -141,6 +143,9 @@ class AprilTagAlignment(
         currentX /= total
         currentY /= total
         currentHeading /= total
+
+        currentX+=sin(Math.toRadians(currentHeading))*cameraOffset
+        currentY+=cos(Math.toRadians(currentHeading))*cameraOffset
 
         xError = targetX - currentX
         yError = targetY - currentY

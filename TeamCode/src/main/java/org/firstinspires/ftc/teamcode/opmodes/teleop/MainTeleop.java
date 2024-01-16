@@ -119,19 +119,18 @@ public class MainTeleop extends LinearOpMode {
 
         intake.intake(0.8 * (rightTrigger - leftTrigger));
 
-        if (leftTrigger > 0.0)
-            intake.setBoosterServoPower(-leftTrigger);
-
         if(gamepad2.dpad_up)
-            intake.changeIntakeServo(.5);
-        if(gamepad2.dpad_down)
             intake.changeIntakeServo(-.5);
+        if(gamepad2.dpad_down)
+            intake.changeIntakeServo(.5);
 
         if(gamepad1.right_trigger>0.3 && intake.getServoPosition()== Intake.IntakePositions.INTAKE)
             intake.setServoPosition(Intake.IntakePositions.DRIVE);
 
         if(gamepad2.left_bumper)
-            intake.setBoosterServoPower(-1.0);
+            intake.setBoosterServoPower(1.0);
+        else if(leftTrigger > 0.1)
+            intake.setBoosterServoPower(-leftTrigger);
         else
             intake.setBoosterServoPower(0.0);
 
