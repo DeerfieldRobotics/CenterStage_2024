@@ -16,7 +16,6 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-@Config
 class AprilTagAlignment(
     camera: CameraName,
     private val drivetrain: Drivetrain?,
@@ -25,9 +24,9 @@ class AprilTagAlignment(
     var targetHeading: Double,
 ){
 
-    @JvmField var xController = PIDController(0.0174, 0.0, 0.0)
-    @JvmField var yController = PIDController(0.0174, 0.0, 0.0)
-    @JvmField var headingController = PIDController(0.0174, 0.0, 0.0)
+    var xController = PIDController(0.0174, 0.0, 0.0)
+    var yController = PIDController(0.0174, 0.0, 0.0)
+    var headingController = PIDController(0.0174, 0.0, 0.0)
 
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
