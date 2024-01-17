@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -309,6 +310,23 @@ public class CogchampDrive extends MecanumDrive {
     @Override
     public Double getExternalHeadingVelocity() {
         return 0.0;
+    }
+
+    public double[] getMotorCurrents() {
+        double[] currents = new double[4];
+        for(int i = 0; i < 4; i++) {
+            currents[i] = motors.get(i).getCurrent(CurrentUnit.AMPS);
+        }
+        return currents;
+    }
+
+    public double getAverageCurrent() {
+        double[] currents = getMotorCurrents();
+        double sum = 0;
+        for(double current : currents) {
+            sum += current;
+        }
+        return sum / currents.length;
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

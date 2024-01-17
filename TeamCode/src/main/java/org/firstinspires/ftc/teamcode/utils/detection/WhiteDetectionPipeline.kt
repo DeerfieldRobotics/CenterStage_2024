@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.utils.detection
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Scalar
@@ -87,11 +86,6 @@ class WhiteDetectionPipeline () : OpenCvPipeline() {
             )
         }
         return input
-    }
-    fun alignRobot(drivetrain: Drivetrain) {
-        val error = target - position
-        val power = controller.calculate(error)
-        drivetrain.move(0.0, power, 0.0)
     }
     fun alignRobot(drivetrain: CogchampDrive) {
         val error = target - position

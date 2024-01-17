@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode.utils.detection
 
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DistanceSensor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: Drivetrain, var targetDistance: Double, var targetHeading: Double) {
+class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain: CogchampDrive, var targetDistance: Double, var targetHeading: Double) {
     private val distanceSensor0:DistanceSensor = hardwareMap.get("ds0") as DistanceSensor //control hub: 0
     private val distanceSensor1:DistanceSensor = hardwareMap.get("ds1") as DistanceSensor //control hub: 1
 
@@ -19,8 +20,8 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
     private val headingPID: PIDController = PIDController(0.05, 0.0, 0.0) //TODO
     private val distancePID: PIDController = PIDController(0.02, 0.0, 0.0) //TODO
 
-    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain, targetDistance: Double) : this(hardwareMap, drivetrain, targetDistance, 0.0)
-    constructor(hardwareMap: HardwareMap, drivetrain: Drivetrain) : this(hardwareMap, drivetrain, 12.0, 0.0)
+    constructor(hardwareMap: HardwareMap, drivetrain: CogchampDrive, targetDistance: Double) : this(hardwareMap, drivetrain, targetDistance, 0.0)
+    constructor(hardwareMap: HardwareMap, drivetrain: CogchampDrive) : this(hardwareMap, drivetrain, 12.0, 0.0)
 
     init {
         headingPID.setTolerance(5.0)
@@ -49,8 +50,8 @@ class DistanceSensorAlignment (hardwareMap: HardwareMap, private val drivetrain:
         val max = abs(forward).coerceAtLeast(abs(strafe).coerceAtLeast(abs(turn)))
 
         if (max > 1.0) { //if the maximum value is greater than 1, scale down all values by the maximum value such that the proportion of the values is the same
-            drivetrain.move(forward / max, strafe / max, turn / max)
+            drivetrain.setWeightedDrivePower(Pose2d(forward / max, strafe / max, turn / max))
         } else
-            drivetrain.move(forward, strafe, turn)
+            drivetrain.setWeightedDrivePower(Pose2d(forward, strafe, turn))
     }
 }

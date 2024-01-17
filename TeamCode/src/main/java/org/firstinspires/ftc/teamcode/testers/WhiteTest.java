@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -17,7 +17,7 @@ public class WhiteTest extends OpMode {
     private OpenCvCamera frontCamera;
     private WhiteDetectionPipeline whiteDetection;
     private double timeToAlign = 0;
-    Drivetrain drive = new Drivetrain(hardwareMap);
+    CogchampDrive drive = new CogchampDrive(hardwareMap);
     public static double kP = 0.001;
     public static double kI = 0;
     public static double kD = 0;
