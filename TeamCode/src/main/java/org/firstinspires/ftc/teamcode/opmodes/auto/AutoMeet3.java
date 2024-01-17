@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
+import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
@@ -29,13 +30,14 @@ public class AutoMeet3 extends OpMode {
         BLUE_CLOSE,
         BLUE_FAR,
         RED_FAR,
-        RED_CLOSE
+        RED_CLOSE,
+        UNKNOWN
     }
-    private static START_POSITION startPosition;
+    private static START_POSITION startPosition = START_POSITION.UNKNOWN;
 
     private Datalog datalog;
     private AprilTagAlignment aprilTagAlignment;
-    private final ColorDetectionPipeline colorDetectionPipeline = new ColorDetectionPipeline();
+    private ColorDetectionPipeline colorDetectionPipeline = new ColorDetectionPipeline();
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
     private SampleMecanumDrive drive;
     private Drivetrain drivetrain;
@@ -44,6 +46,7 @@ public class AutoMeet3 extends OpMode {
     private Slide slide;
     private OpenCvCamera frontCamera;
     private WebcamName backCamera;
+    private WebcamName frontCameraName;
     private VoltageSensor battery;
 
     public static double xP = 0.06;
@@ -58,6 +61,7 @@ public class AutoMeet3 extends OpMode {
     private PIDController xPID;
     private PIDController yPID;
     private PIDController headingPID;
+    private boolean positionFound = false;
 
     private TrajectorySequence pathInitToBackboard;
     private TrajectorySequence pathBackboardToWhite;
@@ -102,57 +106,90 @@ public class AutoMeet3 extends OpMode {
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
         outtake.update();
 
-        intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        initColorDetection();
 
         initAprilTagDetection();
 
-        initColorDetection();
-        selectStartingPosition();
     }
 
     @Override
     public void init_loop() {
         detectPurplePath();
-        buildAuto();
+        selectStartingPosition();
+        telemetry.update();
     }
 
     @Override
     public void start() {
+        buildAuto();
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
-        pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
-                .setTangent(initTangent)
-                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
-                .splineToSplineHeading(purplePose, purpleTangent)
-                .back(centerBackup)
-                .addTemporalMarker(this::outtakePurple)
-                .waitSeconds(0.2)
-                .setTangent(0)
-                .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
-                .addTemporalMarker(()->{
-                    double currentTime = getRuntime();
-                    while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
-                        //TODO might need to disable samplemecanum drive idk tho
-                        aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
+        if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
+            pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
+                    .setTangent(initTangent)
+                    .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
+                    .splineToSplineHeading(purplePose, purpleTangent)
+                    .back(centerBackup)
+                    .addTemporalMarker(this::outtakePurple)
+                    .waitSeconds(0.2)
+                    .setTangent(0)
+                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
+                    .addTemporalMarker(()->{
+                        double currentTime = getRuntime();
+                        while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
+                            //TODO might need to disable samplemecanum drive idk tho
+                            aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
 
-                        telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
-                        telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
-                        telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
-                        telemetry.addData("drivetrain power", drive.getPoseEstimate());
-                        telemetry.update();
+                            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
+                            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
+                            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
+                            telemetry.addData("drivetrain power", drive.getPoseEstimate());
+                            telemetry.update();
 
-                        datalog.xError.set(aprilTagAlignment.getXError());
-                        datalog.yError.set(aprilTagAlignment.getYError());
-                        datalog.headingError.set(aprilTagAlignment.getHeadingError());
-                        datalog.writeLine();
+                            datalog.xError.set(aprilTagAlignment.getXError());
+                            datalog.yError.set(aprilTagAlignment.getYError());
+                            datalog.headingError.set(aprilTagAlignment.getHeadingError());
+                            datalog.writeLine();
 
-                        if(aprilTagAlignment.getTargetFound()) break;
-                    }
-                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
-                })
-                .build();
+                            if(aprilTagAlignment.getTargetFound()) break;
+                        }
+                        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
+                    })
+                    .build();
+        } else {
+            pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
+                    .setTangent(initTangent)
+                    .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
+                    .splineToSplineHeading(purplePose, purpleTangent)
+                    .back(centerBackup)
+                    .addTemporalMarker(this::outtakePurple)
+                    .waitSeconds(0.2)
+                    .setTangent(0)
+                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
+                    .addTemporalMarker(()->{
+                        double currentTime = getRuntime();
+                        while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
+                            //TODO might need to disable samplemecanum drive idk tho
+                            aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
+
+                            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
+                            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
+                            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
+                            telemetry.addData("drivetrain power", drive.getPoseEstimate());
+                            telemetry.update();
+
+                            datalog.xError.set(aprilTagAlignment.getXError());
+                            datalog.yError.set(aprilTagAlignment.getYError());
+                            datalog.headingError.set(aprilTagAlignment.getHeadingError());
+                            datalog.writeLine();
+
+                            if(aprilTagAlignment.getTargetFound()) break;
+                        }
+                        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
+                    })
+                    .build();
+        }
+
         pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose)
                 .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
@@ -173,6 +210,7 @@ public class AutoMeet3 extends OpMode {
                     drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
                 })
                 .build();
+
         pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose)
                 .addTemporalMarker(this::intake)
                 .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
@@ -211,7 +249,8 @@ public class AutoMeet3 extends OpMode {
 
     private void initColorDetection() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        frontCameraName = hardwareMap.get(WebcamName.class, "Webcam 2");
+        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(frontCameraName, cameraMonitorViewId);
         frontCamera.setPipeline(colorDetectionPipeline);
         frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -226,11 +265,10 @@ public class AutoMeet3 extends OpMode {
         purplePixelPath = colorDetectionPipeline.getPosition();
         telemetry.addLine(colorDetectionPipeline.toString());
         telemetry.addData("Purple Pixel Path: ", purplePixelPath);
-        telemetry.update();
     }
     private void initAprilTagDetection() {
-        backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
 
+        backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
     }
     public void buildAuto() { //TODO
@@ -248,15 +286,20 @@ public class AutoMeet3 extends OpMode {
                     case LEFT:
                         purplePose = new Pose2d(32.5,30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
+                        backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        centerBackup = 1;
                         break;
                     case CENTER:
                         purplePose = new Pose2d(23,24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
-                        centerBackup = 0;
+                        backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        centerBackup = 1;
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(12.5,30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
+                        backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        centerBackup = 1;
                         break;
                 }
                 break;
@@ -273,16 +316,19 @@ public class AutoMeet3 extends OpMode {
                     case LEFT:
                         purplePose = new Pose2d(32.5,30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // *this is below* TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case CENTER:
                         purplePose = new Pose2d(23,24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(12.5,30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5-8; // FIX THIS POOP
                         break;
                 }
@@ -328,9 +374,8 @@ public class AutoMeet3 extends OpMode {
     //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
         telemetry.setAutoClear(true);
-        telemetry.clearAll();
         //******select start pose*****
-        while (getRuntime() < 30) {
+        if (!positionFound) {
             telemetry.addLine("15118 Auto Initialized");
             telemetry.addData("---------------------------------------", "");
             telemetry.addData("Select Starting Position using DPAD Keys on gamepad 1:", "");
@@ -340,27 +385,29 @@ public class AutoMeet3 extends OpMode {
             telemetry.addData("    Red Right  ", "(→)");
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
-                MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
-                break;
+//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                positionFound = true;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
-                MainTeleop.alliance = AprilTagAlignment.Alliance.BLUE;
-                break;
+//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                positionFound = true;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
-                MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
-                break;
+//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                positionFound = true;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_CLOSE;
-                MainTeleop.alliance = AprilTagAlignment.Alliance.RED;
-                break;
+//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                positionFound = true;
             }
-            telemetry.update();
         }
-        telemetry.clearAll();
+
+        if (positionFound) {
+            telemetry.addData("Pos chosen", startPosition.toString());
+        }
     }
     public static class Datalog
     {
