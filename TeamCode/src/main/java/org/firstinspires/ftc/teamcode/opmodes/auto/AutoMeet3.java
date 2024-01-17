@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -24,15 +24,16 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
-public class AutoMeet3 extends OpMode {
+public class AutoMeet3 extends LinearOpMode {
     //Define and declare Robot Starting Locations
-    private enum START_POSITION{
+    private enum START_POSITION {
         BLUE_CLOSE,
         BLUE_FAR,
         RED_FAR,
         RED_CLOSE,
         UNKNOWN
     }
+
     private static START_POSITION startPosition = START_POSITION.UNKNOWN;
 
     private Datalog datalog;
@@ -83,9 +84,27 @@ public class AutoMeet3 extends OpMode {
 
 
     @Override
-    public void init() {
+    public void runOpMode() throws InterruptedException {
+        initialize();
+
+        selectStartingPosition();
+
+        while(!isStarted()) {
+            initLoop();
+        }
+
+        waitForStart();
+
+        startAuto();
+
+        while (opModeIsActive()) {
+            autoLoop();
+        }
+    }
+
+    public void initialize() {
         drive = new SampleMecanumDrive(hardwareMap);
-        drivetrain = new Drivetrain(hardwareMap);
+        // drivetrain = new Drivetrain(hardwareMap);
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
@@ -110,15 +129,12 @@ public class AutoMeet3 extends OpMode {
 
     }
 
-    @Override
-    public void init_loop() {
+    public void initLoop() {
         detectPurplePath();
-        selectStartingPosition();
         telemetry.update();
     }
 
-    @Override
-    public void start() {
+    public void startAuto() {
         buildAuto();
         frontCamera.closeCameraDevice();
         initAprilTagDetection();
@@ -237,9 +253,7 @@ public class AutoMeet3 extends OpMode {
         drive.followTrajectorySequenceAsync(pathInitToBackboard);
     }
 
-
-    @Override
-    public void loop() {
+    public void autoLoop() {
         drive.update();
         outtake.update();
         intake.update();
@@ -266,11 +280,13 @@ public class AutoMeet3 extends OpMode {
         telemetry.addLine(colorDetectionPipeline.toString());
         telemetry.addData("Purple Pixel Path: ", purplePixelPath);
     }
+
     private void initAprilTagDetection() {
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
     }
-    public void buildAuto() { //TODO
+
+    public void buildAuto() {
         switch (startPosition) {
             case BLUE_CLOSE:
                 initPose = new Pose2d(16, 63, Math.toRadians(270));
@@ -320,13 +336,13 @@ public class AutoMeet3 extends OpMode {
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case CENTER:
-                        purplePose = new Pose2d(23,24.2, Math.toRadians(180));
+                        purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case RIGHT:
-                        purplePose = new Pose2d(12.5,30, Math.toRadians(180));
+                        purplePose = new Pose2d(12.5,-30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5-8; // FIX THIS POOP
@@ -341,32 +357,39 @@ public class AutoMeet3 extends OpMode {
                 break;
         }
     }
+
     private void intake() {
         intake.intake(.75);
     }
+
     private void outtakePurple() {
         intake.setMotorTargetPosition(250);
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setMotorPower(0.5);
         intake.update();
     }
+
     private void outtake() {
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
         setSlideHeight(-1200);
     }
+
     private void outtakeIn() {
         if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE)
             setSlideHeight(-1200);
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
     }
+
     private void drop() {
         outtake.setGateClosed(false);
     }
+
     private void setSlideHeight(int height) {
         slide.setTargetPosition(height);
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slide.setPower(1.0);
     }
+
     private void transfer() {
         intake.transfer();
     }
@@ -375,14 +398,15 @@ public class AutoMeet3 extends OpMode {
     public void selectStartingPosition() {
         telemetry.setAutoClear(true);
         //******select start pose*****
-        if (!positionFound) {
-            telemetry.addLine("15118 Auto Initialized");
+        while (!positionFound) {
+            telemetry.addLine("Auto Meet 3 Initialized");
             telemetry.addData("---------------------------------------", "");
-            telemetry.addData("Select Starting Position using DPAD Keys on gamepad 1:", "");
-            telemetry.addData("    Blue Left   ", "(↑)");
-            telemetry.addData("    Blue Right ", "(↓)");
-            telemetry.addData("    Red Left    ", "(←)");
-            telemetry.addData("    Red Right  ", "(→)");
+            telemetry.addLine("Select Starting Position using DPAD Keys");
+            telemetry.addData("    Blue Left   ", "(^)");
+            telemetry.addData("    Blue Right ", "(v)");
+            telemetry.addData("    Red Left    ", "(<)");
+            telemetry.addData("    Red Right  ", "(>)");
+
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
 //                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
@@ -403,10 +427,6 @@ public class AutoMeet3 extends OpMode {
 //                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
                 positionFound = true;
             }
-        }
-
-        if (positionFound) {
-            telemetry.addData("Pos chosen", startPosition.toString());
         }
     }
     public static class Datalog
