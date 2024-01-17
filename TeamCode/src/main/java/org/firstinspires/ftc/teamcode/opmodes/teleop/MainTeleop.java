@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
@@ -42,7 +43,7 @@ public class MainTeleop extends LinearOpMode {
             if(boardX > 10.5) boardX = 10.5;
             if(boardX < -10.5) boardX = -10.5;
             aprilTagAlignment.setTargetX(boardX);
-            aprilTagAlignment.alignRobotToBackboard(alliance);
+            aprilTagAlignment.alignRobotToBackboard(drivetrain);
             if(robotAligned != aprilTagAlignment.robotAligned()) {
                 robotAligned = aprilTagAlignment.robotAligned();
                 gamepad1.rumbleBlips(1);
@@ -194,7 +195,7 @@ public class MainTeleop extends LinearOpMode {
         drivetrain = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap);
         launcher = new Launcher(hardwareMap);
-        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), drivetrain, 0.0, 12.0, 0.0,
+        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(),
                 (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
                 (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
                 (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller

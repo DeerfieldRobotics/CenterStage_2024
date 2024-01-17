@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(group = "e")
 public class BlueRight extends OpMode {
     private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline("BLUE");
-    private SampleMecanumDrive drive;
+    private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
@@ -46,7 +46,7 @@ public class BlueRight extends OpMode {
 
     @Override
     public void init() {
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new CogchampDrive(hardwareMap);
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);

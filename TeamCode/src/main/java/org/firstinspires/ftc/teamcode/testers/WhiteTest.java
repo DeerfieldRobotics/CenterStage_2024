@@ -15,10 +15,10 @@ public class WhiteTest extends OpMode {
     private OpenCvCamera frontCamera;
     private WhiteDetectionPipeline whiteDetection;
     private double timeToAlign = 0;
+    Drivetrain drive = new Drivetrain(hardwareMap);
     @Override
     public void init() {
-        Drivetrain drive = new Drivetrain(hardwareMap);
-        whiteDetection = new WhiteDetectionPipeline(drive);
+        whiteDetection = new WhiteDetectionPipeline();
 
         whiteDetection.setTarget(160);
         whiteDetection.getController().setPID(0.001, 0, 0);
@@ -61,6 +61,6 @@ public class WhiteTest extends OpMode {
         }
 
         telemetry.update();
-        whiteDetection.alignRobot();
+        whiteDetection.alignRobot(drive);
     }
 }

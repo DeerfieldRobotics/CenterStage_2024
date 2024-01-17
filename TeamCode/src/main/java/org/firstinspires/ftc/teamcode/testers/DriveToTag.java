@@ -2,19 +2,17 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import android.util.Size;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -52,10 +50,10 @@ public class DriveToTag extends LinearOpMode {
 
     Drivetrain drivetrainKotlin;
 
-    SampleMecanumDrive drivetrain;
+    CogchampDrive drivetrain;
     @Override public void runOpMode()
     {
-        drivetrain = new SampleMecanumDrive(hardwareMap);
+        drivetrain = new CogchampDrive(hardwareMap);
         boolean targetFound = false;
         double drive = 0;
         double strafe = 0;

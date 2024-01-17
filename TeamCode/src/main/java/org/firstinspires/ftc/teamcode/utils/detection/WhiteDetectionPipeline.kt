@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils.detection
 
+import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.arcrobotics.ftclib.controller.PIDController
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.opencv.core.Mat
 import org.opencv.core.Point
@@ -9,7 +11,7 @@ import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 import java.util.TreeSet
 
-class WhiteDetectionPipeline (private val drivetrain: Drivetrain?) : OpenCvPipeline() {
+class WhiteDetectionPipeline () : OpenCvPipeline() {
     private val threshold = 240
     private val whiteFrames: ArrayList<WhiteFrame> = ArrayList()
     private val startY = 120
@@ -86,10 +88,15 @@ class WhiteDetectionPipeline (private val drivetrain: Drivetrain?) : OpenCvPipel
         }
         return input
     }
-    fun alignRobot() {
+    fun alignRobot(drivetrain: Drivetrain) {
         val error = target - position
         val power = controller.calculate(error)
-        drivetrain?.move(0.0, power, 0.0)
+        drivetrain.move(0.0, power, 0.0)
+    }
+    fun alignRobot(drivetrain: CogchampDrive) {
+        val error = target - position
+        val power = controller.calculate(error)
+        drivetrain.setWeightedDrivePower(Pose2d(0.0, power, 0.0))
     }
     fun robotAligned() = controller.atSetPoint()
     internal class WhiteFrame(

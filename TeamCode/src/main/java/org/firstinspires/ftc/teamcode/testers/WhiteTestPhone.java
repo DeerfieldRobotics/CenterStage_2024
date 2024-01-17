@@ -11,7 +11,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @Autonomous(name = "WhiteTestPhone", group = "b")
 public class WhiteTestPhone extends OpMode {
-    private final WhiteDetectionPipeline colorDetection = new WhiteDetectionPipeline(null);
+    private final WhiteDetectionPipeline colorDetection = new WhiteDetectionPipeline();
     private OpenCvInternalCamera frontCamera;
     @Override
     public void init() {

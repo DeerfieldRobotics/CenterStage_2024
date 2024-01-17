@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
@@ -40,8 +40,7 @@ public class AutoMeet3 extends LinearOpMode {
     private AprilTagAlignment aprilTagAlignment;
     private ColorDetectionPipeline colorDetectionPipeline = new ColorDetectionPipeline();
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
-    private SampleMecanumDrive drive;
-    private Drivetrain drivetrain;
+    private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
@@ -103,8 +102,7 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void initialize() {
-        drive = new SampleMecanumDrive(hardwareMap);
-        // drivetrain = new Drivetrain(hardwareMap);
+        drive = new CogchampDrive(hardwareMap);
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
@@ -154,7 +152,7 @@ public class AutoMeet3 extends LinearOpMode {
                         double currentTime = getRuntime();
                         while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
-                            aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
+                            aprilTagAlignment.alignRobotToBackboard(drive);
 
                             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
                             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
@@ -186,7 +184,7 @@ public class AutoMeet3 extends LinearOpMode {
                         double currentTime = getRuntime();
                         while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
-                            aprilTagAlignment.alignRobotToBackboard(MainTeleop.alliance);
+                            aprilTagAlignment.alignRobotToBackboard(drive);
 
                             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
                             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
@@ -283,7 +281,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void initAprilTagDetection() {
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
-        aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(backCamera, 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(), (xPID), (yPID), (headingPID));
     }
 
     public void buildAuto() {
