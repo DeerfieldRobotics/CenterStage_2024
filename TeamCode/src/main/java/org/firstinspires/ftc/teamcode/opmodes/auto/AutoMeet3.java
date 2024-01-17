@@ -88,7 +88,7 @@ public class AutoMeet3 extends LinearOpMode {
 
         colorDetectionPipeline = new ColorDetectionPipeline(AllianceHelper.alliance);
 
-        while(!isStarted()) {
+        while(!isStarted() && !isStopRequested()) {
             initLoop();
         }
 
@@ -96,7 +96,7 @@ public class AutoMeet3 extends LinearOpMode {
 
         startAuto();
 
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !isStopRequested()) {
             autoLoop();
         }
     }
@@ -396,7 +396,7 @@ public class AutoMeet3 extends LinearOpMode {
     //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
         //******select start pose*****
-        while (!positionFound || !isStopRequested()) {
+        while (!positionFound && !isStopRequested()) {
             telemetry.addLine("Auto Meet 3 Initialized");
             telemetry.addData("---------------------------------------", "");
             telemetry.addLine("Select Starting Position using DPAD Keys");
