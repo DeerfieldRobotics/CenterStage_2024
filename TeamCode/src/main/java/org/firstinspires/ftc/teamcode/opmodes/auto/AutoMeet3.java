@@ -36,7 +36,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     private Datalog datalog;
     private AprilTagAlignment aprilTagAlignment;
-    private ColorDetectionPipeline colorDetectionPipeline = new ColorDetectionPipeline();
+    private ColorDetectionPipeline colorDetectionPipeline;
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
@@ -86,6 +86,8 @@ public class AutoMeet3 extends LinearOpMode {
 
         selectStartingPosition();
 
+        colorDetectionPipeline = new ColorDetectionPipeline(AllianceHelper.Companion.getAlliance());
+
         while(!isStarted()) {
             initLoop();
         }
@@ -127,6 +129,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     public void initLoop() {
         detectPurplePath();
+        telemetry.addData("Selected Auto: ", startPosition.toString());
         telemetry.update();
     }
 
@@ -273,8 +276,7 @@ public class AutoMeet3 extends LinearOpMode {
     }
     private void detectPurplePath() {
         purplePixelPath = colorDetectionPipeline.getPosition();
-        telemetry.addLine(colorDetectionPipeline.toString());
-        telemetry.addData("Purple Pixel Path: ", purplePixelPath);
+        telemetry.addData("Purple Pixel Path: ", purplePixelPath.toString());
     }
 
     private void initAprilTagDetection() {
@@ -405,22 +407,22 @@ public class AutoMeet3 extends LinearOpMode {
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
-//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
-//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
-//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_CLOSE;
-//                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
                 positionFound = true;
             }
         }

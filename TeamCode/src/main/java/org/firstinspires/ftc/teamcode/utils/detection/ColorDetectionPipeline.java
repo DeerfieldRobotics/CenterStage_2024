@@ -33,11 +33,10 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
         position = StartingPosition.NONE;
     }
 
-    public ColorDetectionPipeline(String color1) {
+    public ColorDetectionPipeline(AprilTagAlignment.Alliance alliance) {
         //default
         position = StartingPosition.CENTER;
-        color = color1;
-        targetIndex = (color.equals("RED")? 0 : 2);
+        targetIndex = (alliance == AprilTagAlignment.Alliance.RED? 0 : 2);
     }
 
     public enum StartingPosition {
