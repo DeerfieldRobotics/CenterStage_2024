@@ -107,6 +107,7 @@ public class CogchampDrive extends MecanumDrive {
         rightFront = hardwareMap.get(DcMotorEx.class, "fr");
 
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
