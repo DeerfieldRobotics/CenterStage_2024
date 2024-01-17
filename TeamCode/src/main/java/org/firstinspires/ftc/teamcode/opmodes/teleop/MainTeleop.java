@@ -196,25 +196,15 @@ public class MainTeleop extends LinearOpMode {
     }
 
     public void initialize() {
-        slide = new Slide(hardwareMap);
-        outtake = new Outtake(hardwareMap, slide);
-        drivetrain = new CogchampDrive(hardwareMap);
-        intake = new Intake(hardwareMap);
-        launcher = new Launcher(hardwareMap);
-        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(),
-                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
-                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
-                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
-
-        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         while(!isStopRequested() && alliance == null) {
             if(gamepad1.dpad_up || gamepad2.dpad_up) {
                 alliance = AllianceHelper.Alliance.RED;
+                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 break;
             }
             else if(gamepad1.dpad_down || gamepad2.dpad_down) {
                 alliance = AllianceHelper.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             telemetry.addData("Alliance", "Select Alliance");
@@ -222,6 +212,19 @@ public class MainTeleop extends LinearOpMode {
             telemetry.addData("↓", "Blue");
             telemetry.update();
         }
+        telemetry.clear();
+        slide = new Slide(hardwareMap);
+        outtake = new Outtake(hardwareMap, slide);
+        drivetrain = new CogchampDrive(hardwareMap);
+        intake = new Intake(hardwareMap);
+        launcher = new Launcher(hardwareMap);
+        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), 0.0, 12.0, 0.0, AllianceHelper.alliance,
+                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
+                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
+                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
+
+        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
 //        if (AprilTagAlignment.Alliance.RED == alliance) {
 //            gamepad1.setLedColor(255, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);

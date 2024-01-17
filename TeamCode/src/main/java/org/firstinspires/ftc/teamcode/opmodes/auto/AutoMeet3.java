@@ -86,7 +86,7 @@ public class AutoMeet3 extends LinearOpMode {
 
         selectStartingPosition();
 
-        colorDetectionPipeline = new ColorDetectionPipeline(AllianceHelper.Companion.getAlliance());
+        colorDetectionPipeline = new ColorDetectionPipeline(AllianceHelper.alliance);
 
         while(!isStarted()) {
             initLoop();
@@ -134,6 +134,7 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
+        telemetry.clear();
         buildAuto();
         frontCamera.closeCameraDevice();
         initAprilTagDetection();
@@ -281,7 +282,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void initAprilTagDetection() {
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
-        aprilTagAlignment = new AprilTagAlignment(backCamera, 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(), (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, (xPID), (yPID), (headingPID));
     }
 
     public void buildAuto() {
@@ -394,9 +395,8 @@ public class AutoMeet3 extends LinearOpMode {
 
     //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
-        telemetry.setAutoClear(true);
         //******select start pose*****
-        while (!positionFound) {
+        while (!positionFound || !isStopRequested()) {
             telemetry.addLine("Auto Meet 3 Initialized");
             telemetry.addData("---------------------------------------", "");
             telemetry.addLine("Select Starting Position using DPAD Keys");
@@ -425,7 +425,9 @@ public class AutoMeet3 extends LinearOpMode {
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
+            telemetry.update();
         }
+        telemetry.clear();
     }
     public static class Datalog
     {

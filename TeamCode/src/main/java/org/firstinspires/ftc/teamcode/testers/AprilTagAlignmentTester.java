@@ -43,7 +43,7 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         drivetrain = new CogchampDrive(hardwareMap);
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(), (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.alliance, (xPID), (yPID), (headingPID));
 
         waitForStart();
 
