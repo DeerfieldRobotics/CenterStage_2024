@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import android.util.Size;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
@@ -48,8 +48,6 @@ public class DriveToTag extends LinearOpMode {
     private double turnMult = .75;
     private double strafeMult = 1.48;
 
-    Drivetrain drivetrainKotlin;
-
     CogchampDrive drivetrain;
     @Override public void runOpMode()
     {
@@ -64,11 +62,6 @@ public class DriveToTag extends LinearOpMode {
         strafeController.setTolerance(1);
 
         initAprilTag();
-
-        drivetrainKotlin = new Drivetrain(hardwareMap);
-//        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-//        setManualExposure(6, 250);
 
         telemetry.update();
         waitForStart();
@@ -121,7 +114,13 @@ public class DriveToTag extends LinearOpMode {
             telemetry.addData("Turn",   "%5.2f", turn);
             telemetry.update();
 
-            drivetrainKotlin.move(-drive, -strafe, -turn);
+            drivetrain.setWeightedDrivePower(
+                    new Pose2d(
+                            drive,
+                            strafe,
+                            turn
+                    )
+            );
             sleep(10);
         }
     }
@@ -135,7 +134,7 @@ public class DriveToTag extends LinearOpMode {
         double turn = -gamepad1.right_stick_x * turnMult * speedMult;
         double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-//        drivetrain.move(forward, strafe, turn);
+        drivetrain.setWeightedDrivePower(new Pose2d(forward, strafe, turn));
     }
 
     private void initAprilTag() {

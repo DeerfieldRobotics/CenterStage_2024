@@ -4,15 +4,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utils.detection.DistanceSensorAlignment;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 
 @TeleOp(name="Distance Sensor Tester", group = "c")
 public class DistanceSensorTester extends LinearOpMode {
-    private Drivetrain drivetrain;
+    private CogchampDrive drivetrain;
     private DistanceSensorAlignment distanceSensors;
     @Override
     public void runOpMode() throws InterruptedException {
-        drivetrain = new Drivetrain(hardwareMap);
+        drivetrain = new CogchampDrive(hardwareMap);
         distanceSensors = new DistanceSensorAlignment(hardwareMap, drivetrain);
         waitForStart();
         while (opModeIsActive()) {

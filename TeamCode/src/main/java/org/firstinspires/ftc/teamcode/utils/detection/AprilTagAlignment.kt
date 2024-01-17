@@ -7,7 +7,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary
@@ -125,14 +124,6 @@ class AprilTagAlignment(
         xPower = xController.calculate(xError)
         yPower = yController.calculate(yError)
         headingPower = headingController.calculate(headingError)
-    }
-
-    fun alignRobotToBackboard(drivetrain: Drivetrain?) {
-        forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
-        strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
-        turn = turnMultiplier*headingPower
-
-        drivetrain?.move(forward, strafe, turn);
     }
 
     fun alignRobotToBackboard(drivetrain: CogchampDrive?) {

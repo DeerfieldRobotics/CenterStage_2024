@@ -1,30 +1,20 @@
 package org.firstinspires.ftc.teamcode.testers;
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.camera.names.BuiltinCameraNameImpl;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @TeleOp(name = "AprilTagTester for phone", group = "b")
 public class AprilTagAlignmentTesterPhone extends LinearOpMode {
     private AprilTagAlignment aprilTagAlignment;
-    private boolean dpadLeftToggle = false;
-    private boolean dpadRightToggle = false;
     @Override
     public void runOpMode() throws InterruptedException {
-
         BuiltinCameraName webcam = BuiltinCameraNameImpl.forCameraDirection(BuiltinCameraDirection.BACK);
-
 
         aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AprilTagAlignment.Alliance.RED,
             (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
@@ -35,7 +25,6 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
 
         while (opModeIsActive()) {
             aprilTagAlignment.update();
-//            aprilTagAlignment.alignRobot();
 
             telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
@@ -47,4 +36,3 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
         }
     }
 }
-

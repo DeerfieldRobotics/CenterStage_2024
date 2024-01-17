@@ -1,24 +1,24 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Launcher;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 
 @TeleOp(name = "Main Teleop", group = "a")
 public class MainTeleop extends LinearOpMode {
-    private Drivetrain drivetrain;
+    private CogchampDrive drivetrain;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
@@ -63,7 +63,13 @@ public class MainTeleop extends LinearOpMode {
             double turn = -gamepad1.right_stick_x * turnMult * speedMult;
             double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-            drivetrain.move(forward, strafe, turn);
+            drivetrain.setWeightedDrivePower(
+                    new Pose2d(
+                            forward,
+                            strafe,
+                            turn
+                    )
+            );
         }
     }
 
@@ -89,7 +95,7 @@ public class MainTeleop extends LinearOpMode {
             aprilTagAlignment.update();
 
             telemetry.addLine("--------15118 Teleop-------");
-            telemetry.addData("Drivetrain Average Current", drivetrain.getAvgCurrent());
+            telemetry.addData("CogchampDrive Average Current", drivetrain.getAverageCurrent());
             telemetry.addData("Slide Average Current", slide.getAvgCurrent());
             telemetry.addData("Slide Ticks", slide.getPosition()[0]);
             telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
@@ -192,7 +198,7 @@ public class MainTeleop extends LinearOpMode {
     public void initialize() {
         slide = new Slide(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
-        drivetrain = new Drivetrain(hardwareMap);
+        drivetrain = new CogchampDrive(hardwareMap);
         intake = new Intake(hardwareMap);
         launcher = new Launcher(hardwareMap);
         aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(),
