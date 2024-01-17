@@ -1,27 +1,24 @@
 package org.firstinspires.ftc.teamcode.testers;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
+import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
-import org.firstinspires.ftc.teamcode.utils.hardware.Drivetrain;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @TeleOp(name = "AprilTagTester")
 @Config
 public class AprilTagAlignmentTester extends LinearOpMode {
-    private Drivetrain drivetrain;
+    private CogchampDrive drivetrain;
     private WebcamName webcam;
     private AprilTagAlignment aprilTagAlignment;
     private Datalog datalog;
-    private boolean dpadLeftToggle = false;
-    private boolean dpadRightToggle = false;
     public static double xP = 0.06;
     public static double xI = 0.03;
     public static double xD = 0.0006;
@@ -43,10 +40,10 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         yPID = new PIDController(yP, yI, yD);
         headingPID = new PIDController(headingP, headingI, headingD);
 
-        drivetrain = new Drivetrain(hardwareMap);
+        drivetrain = new CogchampDrive(hardwareMap);
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Companion.getAlliance(), (xPID), (yPID), (headingPID));
 
         waitForStart();
 
@@ -54,9 +51,10 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             xPID.setPID(xP, xI, xD);
             yPID.setPID(yP, yI, yD);
             headingPID.setPID(headingP, headingI, headingD);
+            aprilTagAlignment.update();
 
             if(gamepad1.left_bumper) {
-                aprilTagAlignment.alignRobotToBackboard(AprilTagAlignment.Alliance.BLUE);
+                aprilTagAlignment.alignRobotToBackboard(drivetrain);
                 aprilTagAlignment.setTargetX(aprilTagAlignment.getTargetX()+0.01*gamepad1.left_stick_x);
             }
             else
@@ -68,7 +66,6 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
-            telemetry.addData("drivetrain power", Collections.max(Arrays.asList(drivetrain.getMotorPower())));
             telemetry.addData("xPower", aprilTagAlignment.getXPower());
             telemetry.addData("yPower", aprilTagAlignment.getYPower());
             telemetry.addData("headingPower", aprilTagAlignment.getHeadingPower());
@@ -96,7 +93,7 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         double turn = -gamepad1.right_stick_x * turnMult * speedMult;
         double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-        drivetrain.move(forward, strafe, turn);
+        drivetrain.setWeightedDrivePower(new Pose2d(forward, strafe, turn));
     }
     public static class Datalog
     {

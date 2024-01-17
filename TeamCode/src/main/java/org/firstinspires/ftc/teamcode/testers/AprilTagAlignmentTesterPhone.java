@@ -26,7 +26,7 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
         BuiltinCameraName webcam = BuiltinCameraNameImpl.forCameraDirection(BuiltinCameraDirection.BACK);
 
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, null, 0.0, 12.0, 0.0,
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AprilTagAlignment.Alliance.RED,
             (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
             (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
             (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
@@ -34,7 +34,6 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            aprilTagAlignment.alignRobotToBackboard(AprilTagAlignment.Alliance.RED);
             aprilTagAlignment.update();
 //            aprilTagAlignment.alignRobot();
 

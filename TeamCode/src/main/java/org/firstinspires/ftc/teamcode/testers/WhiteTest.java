@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -11,17 +12,21 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name = "WhiteTest", group = "b")
+@Config
 public class WhiteTest extends OpMode {
     private OpenCvCamera frontCamera;
     private WhiteDetectionPipeline whiteDetection;
     private double timeToAlign = 0;
     Drivetrain drive = new Drivetrain(hardwareMap);
+    public static double kP = 0.001;
+    public static double kI = 0;
+    public static double kD = 0;
     @Override
     public void init() {
         whiteDetection = new WhiteDetectionPipeline();
 
         whiteDetection.setTarget(160);
-        whiteDetection.getController().setPID(0.001, 0, 0);
+        whiteDetection.getController().setPID(kP,kI,kD);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -50,6 +55,7 @@ public class WhiteTest extends OpMode {
     }
     @Override
     public void loop() {
+        whiteDetection.getController().setPID(kP,kI,kD);
         double avg = whiteDetection.getPosition();
         telemetry.addData("Position", avg);
         double error = whiteDetection.getTarget()- avg;
