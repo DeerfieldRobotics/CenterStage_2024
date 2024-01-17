@@ -21,7 +21,7 @@ class AprilTagAlignment(
     var targetX: Double,
     var targetY: Double,
     var targetHeading: Double,
-    public var alliance: Alliance
+    public var alliance: AllianceHelper.Alliance
 ){
 
     var xController = PIDController(0.0174, 0.0, 0.0)
@@ -61,9 +61,6 @@ class AprilTagAlignment(
 
     var targetTagID = -1
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
-    enum class Alliance {
-        BLUE, RED
-    }
     var targetFound = false
         private set
 
@@ -79,7 +76,7 @@ class AprilTagAlignment(
     private var turnMultiplier = 0.75
     constructor(
         camera: CameraName, targetX: Double, targetY: Double,
-        targetHeading: Double, alliance: Alliance, xPID: PIDController, yPID: PIDController,
+        targetHeading: Double, alliance: AllianceHelper.Alliance, xPID: PIDController, yPID: PIDController,
         headingPID: PIDController) : this(camera, targetX, targetY, targetHeading, alliance) {
         xController = xPID
         yController = yPID
@@ -96,14 +93,14 @@ class AprilTagAlignment(
         val rawDetections: List<AprilTagDetection> = processor.detections
         val currentDetections: ArrayList<AprilTagDetection> = ArrayList()
         for(detection in rawDetections)
-            if(if(alliance == Alliance.BLUE) detection.id <= 3 else detection.id >= 4) //Only read the tags corresponding to the alliance
+            if(if(alliance == AllianceHelper.Alliance.BLUE) detection.id <= 3 else detection.id >= 4) //Only read the tags corresponding to the alliance
                 currentDetections.add(detection)
         var total = 0.0
         for (detection in currentDetections) {
             //Weighted average of valid detections weighted by inverse of range squared
             targetFound = true
 
-            currentX += (detection.ftcPose.x - ((detection.id - if(alliance == Alliance.BLUE) 2 else 5 ) * tagXOffset)) / detection.ftcPose.range.pow(2)
+            currentX += (detection.ftcPose.x - ((detection.id - if(alliance == AllianceHelper.Alliance.BLUE) 2 else 5 ) * tagXOffset)) / detection.ftcPose.range.pow(2)
             currentY += detection.ftcPose.y / detection.ftcPose.range.pow(2)
             currentHeading += detection.ftcPose.yaw / detection.ftcPose.range.pow(2)
 

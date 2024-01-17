@@ -407,22 +407,22 @@ public class AutoMeet3 extends LinearOpMode {
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
-                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
-                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
-                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_CLOSE;
-                AllianceHelper.alliance = AprilTagAlignment.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
         }

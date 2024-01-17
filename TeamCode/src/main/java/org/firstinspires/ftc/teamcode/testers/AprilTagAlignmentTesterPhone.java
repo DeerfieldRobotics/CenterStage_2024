@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraName;
 import org.firstinspires.ftc.robotcore.internal.camera.names.BuiltinCameraNameImpl;
+import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 
 @TeleOp(name = "AprilTagTester for phone", group = "b")
@@ -16,7 +17,7 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         BuiltinCameraName webcam = BuiltinCameraNameImpl.forCameraDirection(BuiltinCameraDirection.BACK);
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AprilTagAlignment.Alliance.RED,
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Alliance.RED,
             (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
             (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
             (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
