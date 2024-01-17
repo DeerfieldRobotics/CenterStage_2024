@@ -34,7 +34,7 @@ public class MainTeleop extends LinearOpMode {
     private double avgTickTime = 0;
     private int tickCount = 0;
     private double boardX = 0;
-    public static AprilTagAlignment.Alliance alliance = null;
+    public static AllianceHelper.Alliance alliance = null;
     private boolean robotAligned = false;
 
     private void driveNormal() {
@@ -210,11 +210,11 @@ public class MainTeleop extends LinearOpMode {
 
         while(!isStopRequested() && alliance == null) {
             if(gamepad1.dpad_up || gamepad2.dpad_up) {
-                alliance = AprilTagAlignment.Alliance.RED;
+                alliance = AllianceHelper.Alliance.RED;
                 break;
             }
             else if(gamepad1.dpad_down || gamepad2.dpad_down) {
-                alliance = AprilTagAlignment.Alliance.BLUE;
+                alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             telemetry.addData("Alliance", "Select Alliance");
