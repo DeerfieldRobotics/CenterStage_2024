@@ -108,8 +108,6 @@ public class AutoMeet3 extends OpMode {
 
         initColorDetection();
 
-        initAprilTagDetection();
-
     }
 
     @Override
@@ -122,6 +120,8 @@ public class AutoMeet3 extends OpMode {
     @Override
     public void start() {
         buildAuto();
+        frontCamera.closeCameraDevice();
+        initAprilTagDetection();
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
         if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
@@ -267,7 +267,6 @@ public class AutoMeet3 extends OpMode {
         telemetry.addData("Purple Pixel Path: ", purplePixelPath);
     }
     private void initAprilTagDetection() {
-
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         aprilTagAlignment = new AprilTagAlignment(backCamera, drivetrain, 0.0, 12.0, 0.0, (xPID), (yPID), (headingPID));
     }
@@ -284,19 +283,19 @@ public class AutoMeet3 extends OpMode {
                 preLowerWhiteTangent = 225;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(32.5,30, Math.toRadians(180));
+                        purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
                         backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 1;
                         break;
                     case CENTER:
-                        purplePose = new Pose2d(23,24.2, Math.toRadians(180));
+                        purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
                         backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 1;
                         break;
                     case RIGHT:
-                        purplePose = new Pose2d(12.5,30, Math.toRadians(180));
+                        purplePose = new Pose2d(25,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
                         backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 1;
@@ -310,11 +309,12 @@ public class AutoMeet3 extends OpMode {
                 initTangent = Math.toRadians(90);
                 whiteDetectionPose = new Pose2d(24,-10, Math.toRadians(180));
                 whitePixelStackPose = new Pose2d(-57,16, Math.toRadians(180));
+                preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, -10, Math.toRadians(180));
                 preLowerWhiteTangent = 135;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(32.5,30, Math.toRadians(180));
+                        purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP

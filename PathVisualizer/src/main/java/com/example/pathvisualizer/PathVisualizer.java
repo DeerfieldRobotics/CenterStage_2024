@@ -33,29 +33,33 @@ public class PathVisualizer {
 
         PurplePixelPath purplePixelPath = PurplePixelPath.CENTER;
 
-        initPose = new Pose2d(-34, -63, Math.toRadians(90));
-        purpleTangent = Math.toRadians(90);
+        initPose = new Pose2d(11, -63, Math.toRadians(90));
+        purplePose = new Pose2d(-63, -48, Math.toRadians(0));
+        purpleTangent = Math.toRadians(150);
         initTangent = Math.toRadians(90);
-        firstWhitePickup = new Pose2d(-56,-36, Math.toRadians(180));
         whiteDetectionPose = new Pose2d(24,-10, Math.toRadians(180));
         whitePixelStackPose = new Pose2d(-57,16, Math.toRadians(180));
+        preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
         postLowerWhitePose = new Pose2d(28, -10, Math.toRadians(180));
         preLowerWhiteTangent = 135;
         switch (purplePixelPath) {
             case LEFT:
-                purplePose = new Pose2d(32.5,30, Math.toRadians(180));
-                aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // *this is below* TODO adjust for april tag estimate to get tag in frame
-                centerBackup = 3.5; // FIX THIS POOP
-                break;
+            purplePose = new Pose2d(11,-32, Math.toRadians(180));
+            aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
+            backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+            centerBackup = 1;
+            break;
             case CENTER:
-                purplePose = new Pose2d(-34, -31, Math.toRadians(90));
-                aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
-                centerBackup = 15; // FIX THIS POOP
+                purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
+                aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
+                backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                centerBackup = 1;
                 break;
             case RIGHT:
-                purplePose = new Pose2d(12.5,30, Math.toRadians(180));
-                aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
-                centerBackup = 3.5-8; // FIX THIS POOP
+                purplePose = new Pose2d(25,-32, Math.toRadians(180));
+                aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
+                backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                centerBackup = 1;
                 break;
         }
 
@@ -69,10 +73,10 @@ public class PathVisualizer {
                                 .splineToSplineHeading(purplePose, purpleTangent)
                                 .back(centerBackup)
                                 //.addTemporalMarker(this::outtakePurple)
-                                .splineToSplineHeading(firstWhitePickup, Math.toRadians(135))
                                 .waitSeconds(0.2)
                                 .setTangent(0)
                                 .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
+
                                 .build()
 
                 );
