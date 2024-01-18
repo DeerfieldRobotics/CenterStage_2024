@@ -320,8 +320,8 @@ public class AutoMeet3 extends LinearOpMode {
             case RED_CLOSE:
                 initPose = new Pose2d(11, -63, Math.toRadians(90));
                 purplePose = new Pose2d(-63, -48, Math.toRadians(0));
-                purpleTangent = Math.toRadians(150);
-                initTangent = Math.toRadians(90);
+                purpleTangent = Math.toRadians(60);
+                initTangent = Math.toRadians(80);
                 whiteDetectionPose = new Pose2d(24,-10, Math.toRadians(180));
                 whitePixelStackPose = new Pose2d(-57,16, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
@@ -330,20 +330,20 @@ public class AutoMeet3 extends LinearOpMode {
                 switch (purplePixelPath) {
                     case LEFT:
                         purplePose = new Pose2d(11,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // *this is below* TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
+                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case CENTER:
                         purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
+                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(12.5,-30, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(54, -48, Math.toRadians(0)); // TODO see below
+                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
                         centerBackup = 3.5-8; // FIX THIS POOP
                         break;
                 }
