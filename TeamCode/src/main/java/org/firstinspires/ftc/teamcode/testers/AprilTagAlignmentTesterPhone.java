@@ -27,7 +27,6 @@ public class AprilTagAlignmentTesterPhone extends LinearOpMode {
         while (opModeIsActive()) {
             aprilTagAlignment.update();
 
-            telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());

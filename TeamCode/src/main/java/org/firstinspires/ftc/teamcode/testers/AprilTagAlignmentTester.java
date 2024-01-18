@@ -52,9 +52,6 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-//            xPID.setPID(xP, xI, xD);
-//            yPID.setPID(yP, yI, yD);
-//            headingPID.setPID(headingP, headingI, headingD);
             aprilTagAlignment.update();
 
             if(gamepad1.left_bumper) {
@@ -64,7 +61,6 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             else
                 driveNormal();
 
-            telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
             telemetry.addData("targetX", aprilTagAlignment.getTargetX());
             telemetry.addData("currentX", aprilTagAlignment.getCurrentX());
