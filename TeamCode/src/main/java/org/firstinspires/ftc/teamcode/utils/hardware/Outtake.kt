@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.hardware
 
-import com.qualcomm.robotcore.util.Range
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
@@ -15,9 +14,8 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     private val wristStartAngle = 0.0 //angle of wrist at position 0.0 relative to the arm, positive values flips claw upwards
     private val wristEndAngle = 180.0 //angle of wrist at position 1.0
 
-    private val gateOuttake = 0.8 //open position
-    private val gateIntake = 0.7 //intake position
-    private val gateClose = 0.92 //closed position
+    private val gateOpen = 0.52 //open position
+    private val gateClose = 0.31 //closed position
 
     private var currentTime = 0L //current time for outtake procedure
     private var outtakeProcedureComplete = true
@@ -35,7 +33,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
     //Position definitions for outtake
     private val transferKinematics = OuttakeKinematics(-102.5, 190.5, true) //TODO
     private val insideKinematics = OuttakeKinematics(-108.0, 180.0, false)
-    private var outsideKinematics = OuttakeKinematics(-30.8969, 120.0, true)
+    private var outsideKinematics = OuttakeKinematics(-30.8969, 108.0, true)
     private var middleKinematics = OuttakeKinematics(-102.5, 112.0, false)
 
     enum class OuttakePositions {
@@ -77,11 +75,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
 
     fun update() {
         outtakeProcedure()
-        gateServo.position = when {
-            gateClosed -> gateClose
-            outtakePosition == OuttakePositions.OUTSIDE -> gateOuttake
-            else -> gateIntake
-        }
+        gateServo.position = if(gateClosed) gateClose else gateOpen
         setOuttakeKinematics(
             outtakePositionMap[outtakePosition]!!.armAngle,
             outtakePositionMap[outtakePosition]!!.wristAngle,
@@ -97,6 +91,7 @@ class Outtake (hardwareMap: HardwareMap, private var slide: Slide) {
                     outtakePosition = OuttakePositions.INSIDE
                     if(slide.getPosition().average() <= slide.minSlideHeight) { //When slide is high enough, bring arm out
                         outtakePosition = OuttakePositions.OUTSIDE
+                        outtakeProcedureComplete = true
                         currentTime = 0L
                     }
                 }

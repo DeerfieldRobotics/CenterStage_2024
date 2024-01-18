@@ -43,6 +43,7 @@ public class MainTeleop extends LinearOpMode {
             if(boardX > 10.5) boardX = 10.5;
             if(boardX < -10.5) boardX = -10.5;
             aprilTagAlignment.setTargetX(boardX);
+            aprilTagAlignment.update();
             aprilTagAlignment.alignRobotToBackboard(drivetrain);
             if(robotAligned != aprilTagAlignment.robotAligned()) {
                 robotAligned = aprilTagAlignment.robotAligned();
@@ -59,7 +60,7 @@ public class MainTeleop extends LinearOpMode {
             double turnMult = .75;
             double strafeMult = 1;
 
-            double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+            double forward = -gamepad1.left_stick_y * forwardMult * speedMult;
             double turn = -gamepad1.right_stick_x * turnMult * speedMult;
             double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 

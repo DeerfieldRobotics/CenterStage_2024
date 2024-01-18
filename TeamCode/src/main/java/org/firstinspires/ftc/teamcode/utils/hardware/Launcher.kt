@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
 
 class Launcher (hardwareMap: HardwareMap) {
-    private var loaded = 0.8
-    private var fire = 0.95
+    private var loaded = 0.095
+    private var fire = 0.00
     private var launcherServo: ServoImplEx = hardwareMap.get("ls") as ServoImplEx //control hub: 2
     init {
         launcherServo.position = loaded

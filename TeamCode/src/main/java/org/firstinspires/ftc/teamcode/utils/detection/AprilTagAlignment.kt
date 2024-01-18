@@ -51,7 +51,7 @@ class AprilTagAlignment(
         .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
         .build()
 
-    private val processor = AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3) // Used for managing the AprilTag detection process.
+    private val processor = AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 1) // Used for managing the AprilTag detection process.
 
     private var visionPortal = VisionPortal.Builder()
         .setCamera(camera)
@@ -90,6 +90,20 @@ class AprilTagAlignment(
     }
 
     fun update() {
+        targetFound = false
+
+        currentX = 0.0
+        currentY = 0.0
+        currentHeading = 0.0
+
+        xError = 0.0
+        yError = 0.0
+        headingError = 0.0
+
+        xPower = 0.0
+        yPower = 0.0
+        headingPower = 0.0
+
         val rawDetections: List<AprilTagDetection> = processor.detections
         val currentDetections: ArrayList<AprilTagDetection> = ArrayList()
         for(detection in rawDetections)
@@ -111,8 +125,8 @@ class AprilTagAlignment(
         currentY /= total
         currentHeading /= total
 
-        currentX+=sin(Math.toRadians(currentHeading))*cameraOffset
-        currentY+=cos(Math.toRadians(currentHeading))*cameraOffset
+//        currentX+=sin(Math.toRadians(currentHeading))*cameraOffset
+//        currentY+=cos(Math.toRadians(currentHeading))*cameraOffset
 
         xError = targetX - currentX
         yError = targetY - currentY
@@ -124,6 +138,10 @@ class AprilTagAlignment(
     }
 
     fun alignRobotToBackboard(drivetrain: CogchampDrive?) {
+        forward = 0.0
+        strafe = 0.0
+        turn = 0.0
+
         forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
         strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
         turn = turnMultiplier*headingPower

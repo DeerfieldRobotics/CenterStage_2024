@@ -43,14 +43,14 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         drivetrain = new CogchampDrive(hardwareMap);
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.alliance, (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Alliance.RED, (xPID), (yPID), (headingPID));
 
         waitForStart();
 
         while (opModeIsActive()) {
-            xPID.setPID(xP, xI, xD);
-            yPID.setPID(yP, yI, yD);
-            headingPID.setPID(headingP, headingI, headingD);
+//            xPID.setPID(xP, xI, xD);
+//            yPID.setPID(yP, yI, yD);
+//            headingPID.setPID(headingP, headingI, headingD);
             aprilTagAlignment.update();
 
             if(gamepad1.left_bumper) {
@@ -63,6 +63,9 @@ public class AprilTagAlignmentTester extends LinearOpMode {
             telemetry.addData("targetTagID", aprilTagAlignment.getTargetTagID());
             telemetry.addData("targetFound", aprilTagAlignment.getTargetFound());
             telemetry.addData("targetX", aprilTagAlignment.getTargetX());
+            telemetry.addData("currentX", aprilTagAlignment.getCurrentX());
+            telemetry.addData("currentY", aprilTagAlignment.getCurrentY());
+            telemetry.addData("currentHeading", aprilTagAlignment.getCurrentHeading());
             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());

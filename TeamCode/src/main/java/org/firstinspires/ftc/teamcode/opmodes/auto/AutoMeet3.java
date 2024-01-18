@@ -362,6 +362,7 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     private void outtakePurple() {
+        intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMotorTargetPosition(250);
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setMotorPower(0.5);
