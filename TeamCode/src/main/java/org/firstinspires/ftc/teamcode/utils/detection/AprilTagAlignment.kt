@@ -125,8 +125,8 @@ class AprilTagAlignment(
         currentY /= total
         currentHeading /= total
 
-//        currentX+=sin(Math.toRadians(currentHeading))*cameraOffset
-//        currentY+=cos(Math.toRadians(currentHeading))*cameraOffset
+        currentX+=sin(Math.toRadians(currentHeading))*cameraOffset
+        currentY+=cos(Math.toRadians(currentHeading))*cameraOffset
 
         xError = targetX - currentX
         yError = targetY - currentY

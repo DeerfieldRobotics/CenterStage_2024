@@ -36,14 +36,18 @@ public class AprilTagAlignmentTester extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         datalog = new Datalog("AprilTagAlignmentTester");
 
-        xPID = new PIDController(xP, xI, xD);
-        yPID = new PIDController(yP, yI, yD);
-        headingPID = new PIDController(headingP, headingI, headingD);
-
         drivetrain = new CogchampDrive(hardwareMap);
         webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Alliance.RED, (xPID), (yPID), (headingPID));
+        aprilTagAlignment = new AprilTagAlignment(webcam, 0.0, 12.0, 0.0, AllianceHelper.Alliance.RED);
+
+        xPID = aprilTagAlignment.getXController();
+        yPID = aprilTagAlignment.getYController();
+        headingPID = aprilTagAlignment.getHeadingController();
+
+        xPID.setPID(xP, xI, xD);
+        yPID.setPID(yP, yI, yD);
+        headingPID.setPID(headingP, headingI, headingD);
 
         waitForStart();
 
