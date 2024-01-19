@@ -167,5 +167,5 @@ class AprilTagAlignmentAuto(
         drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn));
     }
 
-    fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()
+    fun robotAligned(): Boolean = xError < 0.5 && yError < 0.5 && headingError < 1.0
 }

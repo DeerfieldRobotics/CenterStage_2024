@@ -10,7 +10,7 @@ class Slide (hardwareMap: HardwareMap){
     private var slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
 
-    var minSlideHeight = -1000
+    var minSlideHeight = -800
         private set
     var bottomOut = false
         private set

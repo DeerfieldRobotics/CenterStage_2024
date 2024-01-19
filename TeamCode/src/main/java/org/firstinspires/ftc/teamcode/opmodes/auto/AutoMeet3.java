@@ -27,7 +27,6 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
-import org.openftc.easyopencv.OpenCvCamera;
 
 import java.util.List;
 
@@ -52,16 +51,12 @@ public class AutoMeet3 extends LinearOpMode {
     private AprilTagProcessorImpl aprilTagProcessor;
     private VisionPortal colorPortal;
     private VisionPortal aprilTagPortal;
-    private int Portal_1_View_ID;
-    private int Portal_2_View_ID;
+    private boolean runAprilTag = true;
     private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
-    private OpenCvCamera frontCamera;
-    private WebcamName backCamera;
-    private WebcamName frontCameraName;
     private VoltageSensor battery;
 
     //PID values
@@ -90,6 +85,7 @@ public class AutoMeet3 extends LinearOpMode {
     private Pose2d purplePose; //SPIKE POSITION
     private Pose2d aprilTagPose; // POSITION AFTER APRIL TAGS
     private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
+    private double backboardApriltagX; // X VALUE OF LOCATION RELATIVE TO BACKBOARD IN INCHES
     private double initTangent; // INITIAL TANGENT 60 degrees
     private double purpleTangent; // TANGENT TO SPIKE
     private double centerBackup = 0; //BACKUP FROM SPIKE //TODO: WHY DO WE NEED THIS??????
@@ -140,8 +136,8 @@ public class AutoMeet3 extends LinearOpMode {
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
         outtake.update();
 
-        initMultiPortals();
-        initColorDetection();
+        initPortals();
+        aprilTagPortal.stopStreaming();
     }
 
     public void initLoop() {
@@ -151,8 +147,8 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
-        colorPortal.close(); //CLOSE COLOR DETECTION
-        initAprilTagDetection(); //START LOOKING FOR TAGS
+        colorPortal.stopStreaming();
+        aprilTagPortal.resumeStreaming();
         telemetry.clear();
         buildAuto(); //INITIALIZE POSITIONS
         datalog.opModeStatus.set("RUNNING");
@@ -167,21 +163,11 @@ public class AutoMeet3 extends LinearOpMode {
                     .waitSeconds(0.2)
                     .setTangent(0)
                     // GO TO BACKBOARD
-                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0)) //GO TO BACKBOARD
-                    .addTemporalMarker(()->{ //RUN APRILTAGS
-                        double currentTime = getRuntime();
-                        while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
-                            //TODO might need to disable samplemecanum drive idk tho
-
-                            aprilTagAlignment.update();
-                            aprilTagAlignment.alignRobotToBackboard(drive);
-
-                            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
-                            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
-                            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
-                            telemetry.addData("drivetrain power", drive.getPoseEstimate());
-                            telemetry.update();
-                        }
+                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
+                    .addTemporalMarker(this::outtake)
+                    .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
+                    .addTemporalMarker(()->{
+                        alignToApriltag();
                         drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                     })
                     .build();
@@ -197,37 +183,19 @@ public class AutoMeet3 extends LinearOpMode {
                     .setTangent(0)
                     .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                     .addTemporalMarker(()->{
-                        double currentTime = getRuntime();
-                        while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
-                            //TODO might need to disable samplemecanum drive idk tho
-                            aprilTagAlignment.update();
-                            aprilTagAlignment.alignRobotToBackboard(drive);
-
-                            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
-                            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
-                            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
-                            telemetry.addData("drivetrain power", drive.getPoseEstimate());
-                            telemetry.update();
-
-                            datalog.xError.set(aprilTagAlignment.getXError());
-                            datalog.yError.set(aprilTagAlignment.getYError());
-                            datalog.headingError.set(aprilTagAlignment.getHeadingError());
-                            datalog.writeLine();
-
-                            if(aprilTagAlignment.getTargetFound()) break;
-                        }
+                        alignToApriltag();
                         drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                     })
                     .build();
         }
 
         pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
-                .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
-                .addTemporalMarker(()->{ setSlideHeight(-240); })
+                .addTemporalMarker(()->{ setSlideHeight(-600); })
                 .waitSeconds(0.2)
-                .back(3.5)
-                .waitSeconds(0.3)
+                .addTemporalMarker(()->runAprilTag = false)
+                .back(5)
+                .waitSeconds(0.5)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.4)
                 .addTemporalMarker(this::outtakeIn)
@@ -268,6 +236,26 @@ public class AutoMeet3 extends LinearOpMode {
         drive.followTrajectorySequenceAsync(spikeThenBackboard);
     }
 
+    private void alignToApriltag() {
+        double currentTime = getRuntime();
+        while(runAprilTag && !isStopRequested()) {
+            aprilTagAlignment.update();
+            aprilTagAlignment.alignRobotToBackboard(drive);
+
+            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
+            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
+            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
+            telemetry.addData("drivetrain power", drive.getPoseEstimate());
+            telemetry.update();
+            slide.update();
+            outtake.update();
+
+            if(aprilTagAlignment.robotAligned() && getRuntime()-currentTime > 3) break;
+        }
+        runAprilTag = true;
+        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
+    }
+
     public void autoLoop() {
         drive.update();
         outtake.update();
@@ -295,7 +283,6 @@ public class AutoMeet3 extends LinearOpMode {
         int portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
         int portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
 
-
         aprilTagPortal = new VisionPortal.Builder()
                 .setCamera(backCamera)
                 .setCameraResolution(new android.util.Size(1280, 720))
@@ -310,52 +297,12 @@ public class AutoMeet3 extends LinearOpMode {
                 .addProcessor(colorDetectionProcessor)
                 .setLiveViewContainerId(portal_1_View_ID)
                 .build();
-
-    }
-    private void initMultiPortals () {
-        List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
-        Portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
-        Portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
-    }
-
-    private void initColorDetection() {
-        frontCameraName = hardwareMap.get(WebcamName.class, "Webcam 2");
-        colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance);
-
-        colorPortal = new VisionPortal.Builder()
-                .setCamera(frontCameraName)
-                .setCameraResolution(new Size(320, 240))
-                .addProcessor(colorDetectionProcessor)
-                .setLiveViewContainerId(Portal_1_View_ID)
-                .build();
     }
     private void detectPurplePath() {
         purplePixelPath = colorDetectionProcessor.getPosition();
         telemetry.addData("Purple Pixel Path: ", purplePixelPath.toString());
     }
 
-    private void initAprilTagDetection() {
-        backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
-
-        AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder()
-                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
-                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
-                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
-                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
-                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
-                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
-                .build();
-
-       aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
-
-        aprilTagPortal = new VisionPortal.Builder()
-                    .setCamera(backCamera)
-                    .setCameraResolution(new android.util.Size(1280, 720))
-                    .addProcessor(aprilTagProcessor)
-                    .setLiveViewContainerId(Portal_2_View_ID)
-                    .build();
-        aprilTagAlignment = new AprilTagAlignmentAuto(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, aprilTagProcessor);
-    }
     public void buildAuto() {
         switch (startPosition) {
             case BLUE_CLOSE:
@@ -370,20 +317,23 @@ public class AutoMeet3 extends LinearOpMode {
                 switch (purplePixelPath) {
                     case LEFT:
                         purplePose = new Pose2d(11,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
-                        backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        aprilTagPose = new Pose2d(-63, -42, Math.toRadians(0)); // TODO see below
+                        backboardPose = new Pose2d(-65, -42, Math.toRadians(0)); // TODO see below
+                        backboardApriltagX = -6;
                         centerBackup = 1;
                         break;
                     case CENTER:
                         purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
                         backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        backboardApriltagX = 0;
                         centerBackup = 1;
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(25,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(-63, -48, Math.toRadians(0)); // TODO see below
-                        backboardPose = new Pose2d(-65, -48, Math.toRadians(0)); // TODO see below
+                        aprilTagPose = new Pose2d(-63, -54, Math.toRadians(0)); // TODO see below
+                        backboardPose = new Pose2d(-65, -54, Math.toRadians(0)); // TODO see below
+                        backboardApriltagX = 6;
                         centerBackup = 1;
                         break;
                 }
@@ -403,18 +353,21 @@ public class AutoMeet3 extends LinearOpMode {
                         purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
+                        backboardApriltagX = -6;
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case CENTER:
                         purplePose = new Pose2d(23,-24.2, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
+                        backboardApriltagX = 0;
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(12.5,-30, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
+                        backboardApriltagX = 6;
                         centerBackup = 3.5-8; // FIX THIS POOP
                         break;
                 }
@@ -442,12 +395,12 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void outtake() {
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE);
-        setSlideHeight(-1200);
+        setSlideHeight(-900);
     }
 
     private void outtakeIn() {
         if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE)
-            setSlideHeight(-1200);
+            setSlideHeight(-900);
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
     }
 
