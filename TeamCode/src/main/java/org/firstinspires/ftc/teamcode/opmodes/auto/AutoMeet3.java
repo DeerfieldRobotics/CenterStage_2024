@@ -35,17 +35,19 @@ import java.util.List;
 public class AutoMeet3 extends LinearOpMode {
     //Define and declare Robot Starting Locations
     private enum START_POSITION {
+        //IN RELATION TO BACKBOARD
         BLUE_CLOSE,
         BLUE_FAR,
         RED_FAR,
         RED_CLOSE,
+        // ????
         UNKNOWN
     }
 
-    private static START_POSITION startPosition = START_POSITION.UNKNOWN;
+    private static START_POSITION startPosition = START_POSITION.UNKNOWN; //WHERE WE ARE ON THE FIELD/ RED CLOSE ETC
 
-    private Datalog datalog;
-    private AprilTagAlignmentAuto aprilTagAlignment;
+    private Datalog datalog; //TELEMETRY
+    private AprilTagAlignmentAuto aprilTagAlignment; //APRIL TAG DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
     private AprilTagProcessorImpl aprilTagProcessor;
     private VisionPortal colorPortal;
@@ -62,6 +64,7 @@ public class AutoMeet3 extends LinearOpMode {
     private WebcamName frontCameraName;
     private VoltageSensor battery;
 
+    //PID values
     public static double xP = 0.06;
     public static double xI = 0.03;
     public static double xD = 0.0006;
@@ -76,18 +79,20 @@ public class AutoMeet3 extends LinearOpMode {
     private PIDController headingPID;
     private boolean positionFound = false;
 
-    private TrajectorySequence spikeThenBackboard;
-    private TrajectorySequence pathBackboardToWhite;
-    private TrajectorySequence pathWhiteToBackboard;
-    private TrajectorySequence pathBackboardToPark;
+    // TRAJECTORIES
+    private TrajectorySequence spikeThenBackboard; // SPIKE THEN GO TO BACKBOARD
+    private TrajectorySequence pathBackboardToWhite; //BACKBOARD TO STACK
+    private TrajectorySequence pathWhiteToBackboard;// STACK BACK TO BACKBOARD
+    private TrajectorySequence pathBackboardToPark; //PARK AFTER SCORING STACK
 
-    private Pose2d initPose;
-    private Pose2d purplePose;
-    private Pose2d aprilTagPose;
-    private Pose2d backboardPose;
-    private double initTangent;
-    private double purpleTangent;
-    private double centerBackup = 0;
+    //POSITIONS & TANGENTS
+    private Pose2d initPose; //INITIAL POSITION
+    private Pose2d purplePose; //SPIKE POSITION
+    private Pose2d aprilTagPose; // POSITION AFTER APRIL TAGS
+    private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
+    private double initTangent; // INITIAL TANGENT 60 degrees
+    private double purpleTangent; // TANGENT TO SPIKE
+    private double centerBackup = 0; //BACKUP FROM SPIKE //TODO: WHY DO WE NEED THIS??????
     private Pose2d beforeStackPose;
     private Pose2d preWhitePose;
     private Pose2d whitePixelStackPose;
@@ -97,19 +102,19 @@ public class AutoMeet3 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        selectStartingPosition();
-        initialize();
+        selectStartingPosition(); //FIND FIELD POSITION & COLOR
+        initialize(); //INITIALIZE CLASSES
 
         while(!isStarted() && !isStopRequested()) {
-            initLoop();
+            initLoop();// LEFT/CENTER/RIGHT???
         }
 
         waitForStart();
 
-        startAuto();
+        startAuto(); // GO!!!!!!
 
         while (opModeIsActive() && !isStopRequested()) {
-            autoLoop();
+            autoLoop(); //update classes
         }
     }
 
@@ -146,24 +151,24 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
-        colorPortal.close();
-        initAprilTagDetection();
+        colorPortal.close(); //CLOSE COLOR DETECTION
+        initAprilTagDetection(); //START LOOKING FOR TAGS
         telemetry.clear();
-        buildAuto();
+        buildAuto(); //INITIALIZE POSITIONS
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
-        if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
+        if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) { //CLOSE TO BACKBOARD
             spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
                     .setTangent(initTangent)
                     .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
                     .splineToSplineHeading(purplePose, purpleTangent)
-                    .back(centerBackup)
-                    .addTemporalMarker(this::outtakePurple)
+                    .back(centerBackup) //BACKUP FROM SPIKE
+                    .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
                     .waitSeconds(0.2)
                     .setTangent(0)
                     // GO TO BACKBOARD
-                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
-                    .addTemporalMarker(()->{
+                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0)) //GO TO BACKBOARD
+                    .addTemporalMarker(()->{ //RUN APRILTAGS
                         double currentTime = getRuntime();
                         while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
@@ -182,7 +187,7 @@ public class AutoMeet3 extends LinearOpMode {
                     .build();
         }
         else {
-            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
+            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose) // NOT CLOSE TO BACKBOARD
                     .setTangent(initTangent)
                     .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
                     .splineToSplineHeading(purplePose, purpleTangent)
@@ -216,7 +221,7 @@ public class AutoMeet3 extends LinearOpMode {
                     .build();
         }
 
-        pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose)
+        pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
                 .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{ setSlideHeight(-240); })
@@ -237,7 +242,7 @@ public class AutoMeet3 extends LinearOpMode {
                 })
                 .build();
 
-        pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose)
+        pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose) // TODO: WTF IS THIS?????????????
                 .addTemporalMarker(this::intake)
                 .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
                 .addTemporalMarker(this::transfer)
