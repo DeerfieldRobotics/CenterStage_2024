@@ -20,6 +20,8 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentAuto;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
+import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionProcessor;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
@@ -48,6 +50,7 @@ public class AutoMeet3 extends LinearOpMode {
     private Datalog datalog; //TELEMETRY
     private AprilTagAlignmentAuto aprilTagAlignment; //APRIL TAG DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
+    private WhiteDetectionProcessor whiteDetectionProcessor;
     private AprilTagProcessorImpl aprilTagProcessor;
     private VisionPortal colorPortal;
     private VisionPortal aprilTagPortal;
@@ -137,7 +140,6 @@ public class AutoMeet3 extends LinearOpMode {
         outtake.update();
 
         initPortals();
-        aprilTagPortal.stopStreaming();
     }
 
     public void initLoop() {
@@ -206,6 +208,9 @@ public class AutoMeet3 extends LinearOpMode {
                 .splineToSplineHeading(beforeStackPose, Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     //TODO add white detection
+                    colorPortal.resumeStreaming(); //probably do this earlier
+                    colorPortal.setProcessorEnabled(whiteDetectionProcessor, true);
+                    whiteDetectionProcessor.alignRobot(drive);
                     drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
                 })
                 .build();
@@ -278,6 +283,7 @@ public class AutoMeet3 extends LinearOpMode {
 
         aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1); // Used for managing the AprilTag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.Alliance.RED); // Used for managing the color detection process.
+        whiteDetectionProcessor = new WhiteDetectionProcessor(); // Used for managing the white detection process.
 
         List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
         int portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
@@ -294,9 +300,13 @@ public class AutoMeet3 extends LinearOpMode {
         colorPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
                 .setCameraResolution(new android.util.Size(320, 240))
-                .addProcessor(colorDetectionProcessor)
+                .addProcessors(colorDetectionProcessor, whiteDetectionProcessor)
                 .setLiveViewContainerId(portal_1_View_ID)
                 .build();
+
+        aprilTagPortal.stopStreaming();
+        colorPortal.setProcessorEnabled(colorDetectionProcessor, true);
+        colorPortal.setProcessorEnabled(whiteDetectionProcessor, false);
     }
     private void detectPurplePath() {
         purplePixelPath = colorDetectionProcessor.getPosition();
