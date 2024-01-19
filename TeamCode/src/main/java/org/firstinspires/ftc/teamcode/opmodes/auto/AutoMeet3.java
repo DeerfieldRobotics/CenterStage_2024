@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import android.util.Size;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -95,7 +96,7 @@ public class AutoMeet3 extends LinearOpMode {
     private Pose2d beforeStackPose; //before we go to the stack,
     private Pose2d preWhitePose;
     private Pose2d whitePixelStackPose;
-    private Pose2d postLowerWhitePose;
+    private Pose2d postLowerWhitePose; //pose after
     private double preLowerWhiteTangent;
 
 
@@ -223,7 +224,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .addTemporalMarker(this::outtakeIn)
                 .setTangent(0)
                 .splineToSplineHeading(postLowerWhitePose, 0)
-                .splineToSplineHeading(aprilTagPose, Math.toRadians(45))
+                .splineToConstantHeading(new Vector2d(aprilTagPose.getX(), aprilTagPose.getY()), Math.toRadians(45))
                 .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{ setSlideHeight(-400); })
@@ -376,7 +377,7 @@ public class AutoMeet3 extends LinearOpMode {
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
                         backboardApriltagX = 6;
-                        centerBackup = 3.5-8; // FIX THIS POOP
+                        centerBackup = 3.5; // FIX THIS POOP
                         break;
                 }
                 break;
