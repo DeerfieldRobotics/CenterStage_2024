@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
@@ -19,15 +18,19 @@ public class AprilTagAlignmentTester extends LinearOpMode {
     private WebcamName webcam;
     private AprilTagAlignment aprilTagAlignment;
     private Datalog datalog;
-    public static double xP = 0.06;
-    public static double xI = 0.03;
+    public static double xP = 0.04;
+    public static double xI = 0.04;
     public static double xD = 0.0006;
-    public static double yP = 0.04;
-    public static double yI = 0.04;
+    public static double yP = 0.027;
+    public static double yI = 0.017;
     public static double yD = 0.0009;
-    public static double headingP = 0.02;
+    public static double headingP = 0.03;
     public static double headingI = 0.035;
     public static double headingD = 0.001;
+
+    public static double targetX = 0.0;
+    public static double targetY = 12.0;
+    public static double targetHeading = 0.0;
     private PIDController xPID;
     private PIDController yPID;
     private PIDController headingPID;
@@ -49,9 +52,21 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         yPID.setPID(yP, yI, yD);
         headingPID.setPID(headingP, headingI, headingD);
 
+        aprilTagAlignment.setTargetX(targetX);
+        aprilTagAlignment.setTargetY(targetY);
+        aprilTagAlignment.setTargetHeading(targetHeading);
+
         waitForStart();
 
         while (opModeIsActive()) {
+            xPID.setPID(xP, xI, xD);
+            yPID.setPID(yP, yI, yD);
+            headingPID.setPID(headingP, headingI, headingD);
+
+            aprilTagAlignment.setTargetX(targetX);
+            aprilTagAlignment.setTargetY(targetY);
+            aprilTagAlignment.setTargetHeading(targetHeading);
+
             aprilTagAlignment.update();
 
             if(gamepad1.left_bumper) {
@@ -92,7 +107,7 @@ public class AprilTagAlignmentTester extends LinearOpMode {
         double turnMult = .75;
         double strafeMult = 1;
 
-        double forward = gamepad1.left_stick_y * forwardMult * speedMult;
+        double forward = -gamepad1.left_stick_y * forwardMult * speedMult;
         double turn = -gamepad1.right_stick_x * turnMult * speedMult;
         double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
+import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
@@ -137,7 +137,6 @@ public class AutoMeet3 extends LinearOpMode {
         telemetry.clear();
         buildAuto();
         frontCamera.closeCameraDevice();
-        initAprilTagDetection();
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
         if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
@@ -152,10 +151,15 @@ public class AutoMeet3 extends LinearOpMode {
                     .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                     .addTemporalMarker(()->{
                         double currentTime = getRuntime();
-                        while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
+                        initAprilTagDetection();
+                        while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
+
+                            aprilTagAlignment.update();
                             aprilTagAlignment.alignRobotToBackboard(drive);
 
+
+                            telemetry.addData("Camera State", aprilTagAlignment.getCameraState());
                             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
                             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
                             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
@@ -172,7 +176,8 @@ public class AutoMeet3 extends LinearOpMode {
                         drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                     })
                     .build();
-        } else {
+        }
+        else {
             pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
                     .setTangent(initTangent)
                     .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
@@ -184,8 +189,9 @@ public class AutoMeet3 extends LinearOpMode {
                     .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                     .addTemporalMarker(()->{
                         double currentTime = getRuntime();
-                        while(getRuntime() - currentTime < 3) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
+                        while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
+                            aprilTagAlignment.update();
                             aprilTagAlignment.alignRobotToBackboard(drive);
 
                             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
@@ -263,6 +269,8 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void initColorDetection() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        telemetry.addData("Camera Monitor ID: ", cameraMonitorViewId);
+        telemetry.update();
         frontCameraName = hardwareMap.get(WebcamName.class, "Webcam 2");
         frontCamera = OpenCvCameraFactory.getInstance().createWebcam(frontCameraName, cameraMonitorViewId);
         frontCamera.setPipeline(colorDetectionPipeline);

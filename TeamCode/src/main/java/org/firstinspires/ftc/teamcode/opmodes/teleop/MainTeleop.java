@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
@@ -95,19 +94,19 @@ public class MainTeleop extends LinearOpMode {
             slide.update();
             aprilTagAlignment.update();
 
-            telemetry.addLine("--------15118 Teleop-------");
-            telemetry.addData("CogchampDrive Average Current", drivetrain.getAverageCurrent());
-            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
-            telemetry.addData("Slide Ticks", slide.getPosition()[0]);
-            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
-
-            tickCount++;
-            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
-            lastTickTime = runtime.milliseconds();
-            avgTickTime = (avgTickTime*(tickCount-1)+ runtime.milliseconds()-lastTickTime)/tickCount;
-            telemetry.addData("Avg Tick Time", avgTickTime);
-
-            telemetry.update();
+//            telemetry.addLine("--------15118 Teleop-------");
+//            telemetry.addData("CogchampDrive Average Current", drivetrain.getAverageCurrent());
+//            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
+//            telemetry.addData("Slide Ticks", slide.getPosition()[0]);
+//            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
+//
+//            tickCount++;
+//            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
+//            lastTickTime = runtime.milliseconds();
+//            avgTickTime = (avgTickTime*(tickCount-1)+ runtime.milliseconds()-lastTickTime)/tickCount;
+//            telemetry.addData("Avg Tick Time", avgTickTime);
+//
+//            telemetry.update();
         }
 
     }
@@ -136,7 +135,7 @@ public class MainTeleop extends LinearOpMode {
             intake.setServoPosition(Intake.IntakePositions.DRIVE);
 
         if(gamepad2.left_bumper)
-            intake.setBoosterServoPower(1.0);
+            intake.setBoosterServoPower(-1.0);
         else if(leftTrigger > 0.1)
             intake.setBoosterServoPower(-leftTrigger);
         else

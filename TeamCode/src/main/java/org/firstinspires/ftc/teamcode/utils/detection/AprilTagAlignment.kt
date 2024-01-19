@@ -17,22 +17,20 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 class AprilTagAlignment(
-    camera: CameraName,
+    var camera: CameraName,
     var targetX: Double,
     var targetY: Double,
     var targetHeading: Double,
     var alliance: AllianceHelper.Alliance
 ){
     //DEFAULT PID VALUES
-    var xP = 0.06
-    var xI = 0.03
+    var xP = 0.04
+    var xI = 0.04
     var xD = 0.0006
-
-    var yP = 0.04
-    var yI = 0.04
+    var yP = 0.027
+    var yI = 0.017
     var yD = 0.0009
-
-    var headingP = 0.02
+    var headingP = 0.03
     var headingI = 0.035
     var headingD = 0.001
 
@@ -117,6 +115,8 @@ class AprilTagAlignment(
         this.headingD = headingD
     }
 
+    fun getCameraState() = visionPortal.cameraState
+
     fun update() {
         targetFound = false
 
@@ -170,13 +170,22 @@ class AprilTagAlignment(
         yController.setPID(yP, yI, yD)
         headingController.setPID(headingP, headingI, headingD)
 
-        xPower = xController.calculate(xError)
-        yPower = yController.calculate(yError)
-        headingPower = headingController.calculate(headingError)
+        if(targetFound) {
 
-        forward = forwardMultiplier*(yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(Math.toRadians(currentHeading)))
-        strafe = strafeMultiplier*(yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(Math.toRadians(currentHeading)))
-        turn = turnMultiplier*headingPower
+            xPower = xController.calculate(xError)
+            yPower = yController.calculate(yError)
+            headingPower = headingController.calculate(headingError)
+
+            forward =
+                -forwardMultiplier * (yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(
+                    Math.toRadians(currentHeading)
+                ))
+            strafe =
+                strafeMultiplier * (yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(
+                    Math.toRadians(currentHeading)
+                ))
+            turn = turnMultiplier * headingPower
+        }
 
         drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn));
     }
