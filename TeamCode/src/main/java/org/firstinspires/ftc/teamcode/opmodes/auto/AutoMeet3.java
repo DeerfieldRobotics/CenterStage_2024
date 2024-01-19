@@ -151,53 +151,37 @@ public class AutoMeet3 extends LinearOpMode {
 
     public void startAuto() {
         colorPortal.stopStreaming();
-        aprilTagPortal.resumeStreaming();
+        aprilTagPortal.resumeLiveView();
         telemetry.clear();
         buildAuto(); //INITIALIZE POSITIONS
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
-        if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) { //CLOSE TO BACKBOARD
-            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
-                    .setTangent(initTangent)
-                    .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
-                    .splineToSplineHeading(purplePose, purpleTangent)
-                    .back(centerBackup) //BACKUP FROM SPIKE
-                    .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
-                    .waitSeconds(0.2)
-                    .setTangent(0)
-                    // GO TO BACKBOARD
-                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
-                    .addTemporalMarker(this::outtake)
-                    .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
-                    .addTemporalMarker(()->{
-                        alignToApriltag();
-                        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
-                    })
-                    .build();
-        }
-        else {
-            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose) // NOT CLOSE TO BACKBOARD
-                    .setTangent(initTangent)
-                    .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
-                    .splineToSplineHeading(purplePose, purpleTangent)
-                    .back(centerBackup)
-                    .addTemporalMarker(this::outtakePurple)
-                    .waitSeconds(0.2)
-                    .setTangent(0)
-                    .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
-                    .addTemporalMarker(()->{
-                        alignToApriltag();
-                        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
-                    })
-                    .build();
-        }
+        spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
+                .setTangent(initTangent)
+                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
+                .splineToSplineHeading(purplePose, purpleTangent)
+                .back(centerBackup) //BACKUP FROM SPIKE
+                .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
+                .waitSeconds(0.2)
+                .setTangent(0)
+                // GO TO BACKBOARD
+                .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
+                .addTemporalMarker(this::outtake)
+                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
+                .addTemporalMarker(()->{
+                    alignToApriltag();
+                    drive.setPoseEstimate(backboardPose);
+                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
+                })
+                .build();
 
         pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->runAprilTag = false)
+                .setTangent(0)
                 .back(5)
                 .waitSeconds(0.5)
                 .addTemporalMarker(this::drop)
+                .addTemporalMarker(()->{ setSlideHeight(-1200); })
                 .waitSeconds(0.4)
                 .addTemporalMarker(this::outtakeIn)
                 .forward(10)
@@ -242,7 +226,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void alignToApriltag() {
         double currentTime = getRuntime();
-        while(runAprilTag && !isStopRequested()) {
+        while(!isStopRequested()) {
             aprilTagAlignment.update();
             aprilTagAlignment.alignRobotToBackboard(drive);
 
@@ -251,13 +235,12 @@ public class AutoMeet3 extends LinearOpMode {
             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
+            intake.update();
             slide.update();
             outtake.update();
 
-            if(aprilTagAlignment.robotAligned() && getRuntime()-currentTime > 3) break;
+            if(getRuntime()-currentTime > 2) break;
         }
-        runAprilTag = true;
-        drive.followTrajectorySequenceAsync(pathBackboardToWhite);
     }
 
     public void autoLoop() {
@@ -303,7 +286,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .setLiveViewContainerId(portal_1_View_ID)
                 .build();
 
-        aprilTagPortal.stopStreaming();
+        aprilTagPortal.stopLiveView();
         colorPortal.setProcessorEnabled(colorDetectionProcessor, true);
         colorPortal.setProcessorEnabled(whiteDetectionProcessor, false);
     }
@@ -327,8 +310,8 @@ public class AutoMeet3 extends LinearOpMode {
                     case LEFT:
                         purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -42, Math.toRadians(0)); // TODO see below
-                        backboardPose = new Pose2d(-65, -42, Math.toRadians(0)); // TODO see below
-                        backboardApriltagX = -6;
+                        backboardPose = new Pose2d(-65, -54, Math.toRadians(0)); // TODO see below
+                        backboardApriltagX = 6;
                         centerBackup = 1;
                         break;
                     case CENTER:
@@ -341,8 +324,8 @@ public class AutoMeet3 extends LinearOpMode {
                     case RIGHT:
                         purplePose = new Pose2d(25,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(-63, -54, Math.toRadians(0)); // TODO see below
-                        backboardPose = new Pose2d(-65, -54, Math.toRadians(0)); // TODO see below
-                        backboardApriltagX = 6;
+                        backboardPose = new Pose2d(-65, -42, Math.toRadians(0)); // TODO see below
+                        backboardApriltagX = -6;
                         centerBackup = 1;
                         break;
                 }
@@ -361,8 +344,8 @@ public class AutoMeet3 extends LinearOpMode {
                     case LEFT:
                         purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
-                        backboardApriltagX = -6;
+                        backboardPose = new Pose2d(52, -33, Math.toRadians(180)); // TODO see below
+                        backboardApriltagX = 6;
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case CENTER:
@@ -373,10 +356,10 @@ public class AutoMeet3 extends LinearOpMode {
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                     case RIGHT:
-                        purplePose = new Pose2d(12.5,-30, Math.toRadians(180));
+                        purplePose = new Pose2d(34,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
-                        backboardApriltagX = 6;
+                        backboardPose = new Pose2d(52, -45, Math.toRadians(180)); // TODO see below
+                        backboardApriltagX = -6;
                         centerBackup = 3.5; // FIX THIS POOP
                         break;
                 }
@@ -396,9 +379,12 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void outtakePurple() {
         intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.update();
         intake.setMotorTargetPosition(250);
+        intake.update();
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setMotorPower(0.5);
+        intake.update();
+        intake.setMotorPower(0.7);
         intake.update();
     }
 
@@ -409,7 +395,7 @@ public class AutoMeet3 extends LinearOpMode {
 
     private void outtakeIn() {
         if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE)
-            setSlideHeight(-900);
+            setSlideHeight(-1200);
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
     }
 
