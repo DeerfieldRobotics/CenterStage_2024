@@ -61,7 +61,7 @@ public class AutoMeet3 extends LinearOpMode {
     private PIDController headingPID;
     private boolean positionFound = false;
 
-    private TrajectorySequence pathInitToBackboard;
+    private TrajectorySequence spikeThenBackboard;
     private TrajectorySequence pathBackboardToWhite;
     private TrajectorySequence pathWhiteToBackboard;
     private TrajectorySequence pathBackboardToPark;
@@ -73,7 +73,7 @@ public class AutoMeet3 extends LinearOpMode {
     private double initTangent;
     private double purpleTangent;
     private double centerBackup = 0;
-    private Pose2d whiteDetectionPose;
+    private Pose2d beforeStackPose;
     private Pose2d preWhitePose;
     private Pose2d whitePixelStackPose;
     private Pose2d postLowerWhitePose;
@@ -140,7 +140,7 @@ public class AutoMeet3 extends LinearOpMode {
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
         if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
-            pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
+            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
                     .setTangent(initTangent)
                     .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
                     .splineToSplineHeading(purplePose, purpleTangent)
@@ -148,6 +148,7 @@ public class AutoMeet3 extends LinearOpMode {
                     .addTemporalMarker(this::outtakePurple)
                     .waitSeconds(0.2)
                     .setTangent(0)
+                    // GO TO BACKBOARD
                     .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                     .addTemporalMarker(()->{
                         double currentTime = getRuntime();
@@ -178,7 +179,7 @@ public class AutoMeet3 extends LinearOpMode {
                     .build();
         }
         else {
-            pathInitToBackboard = drive.trajectorySequenceBuilder(initPose)
+            spikeThenBackboard = drive.trajectorySequenceBuilder(initPose)
                     .setTangent(initTangent)
                     .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
                     .splineToSplineHeading(purplePose, purpleTangent)
@@ -226,7 +227,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .waitSeconds(0.7)
                 .setTangent(preLowerWhiteTangent)
                 .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FIVE); })
-                .splineToSplineHeading(whiteDetectionPose, Math.toRadians(180))
+                .splineToSplineHeading(beforeStackPose, Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     //TODO add white detection
                     drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
@@ -256,7 +257,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .forward(7)
                 .build();
 
-        drive.followTrajectorySequenceAsync(pathInitToBackboard);
+        drive.followTrajectorySequenceAsync(spikeThenBackboard);
     }
 
     public void autoLoop() {
@@ -300,7 +301,7 @@ public class AutoMeet3 extends LinearOpMode {
                 purplePose = new Pose2d(-63, -48, Math.toRadians(0));
                 purpleTangent = Math.toRadians(210);
                 initTangent = Math.toRadians(300);
-                whiteDetectionPose = new Pose2d(24,11, Math.toRadians(180));
+                beforeStackPose = new Pose2d(24,11, Math.toRadians(180));
                 whitePixelStackPose = new Pose2d(-57,-6.5, Math.toRadians(180));//This had better be the same every time TY
                 postLowerWhitePose = new Pose2d(28, 10, Math.toRadians(180));
                 preLowerWhiteTangent = 225;
@@ -327,10 +328,10 @@ public class AutoMeet3 extends LinearOpMode {
                 break;
             case RED_CLOSE:
                 initPose = new Pose2d(11, -63, Math.toRadians(90));
-                purplePose = new Pose2d(-63, -48, Math.toRadians(0));
-                purpleTangent = Math.toRadians(60);
-                initTangent = Math.toRadians(80);
-                whiteDetectionPose = new Pose2d(24,-10, Math.toRadians(180));
+                purplePose = new Pose2d(11, -25, Math.toRadians(180));
+                purpleTangent = Math.toRadians(120);
+                initTangent = Math.toRadians(60);
+                beforeStackPose = new Pose2d(24,-10, Math.toRadians(180));
                 whitePixelStackPose = new Pose2d(-57,16, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, -10, Math.toRadians(180));

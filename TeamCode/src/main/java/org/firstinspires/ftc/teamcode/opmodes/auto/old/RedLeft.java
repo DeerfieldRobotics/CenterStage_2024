@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.auto;
+package org.firstinspires.ftc.teamcode.opmodes.auto.old;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -21,8 +21,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Disabled
 @Autonomous(group = "e")
-public class BlueRight extends OpMode {
-    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline(AllianceHelper.Alliance.BLUE);
+public class RedLeft extends OpMode{
+    private final ColorDetectionPipeline colorDetection = new ColorDetectionPipeline(AllianceHelper.Alliance.RED);
     private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
@@ -38,6 +38,7 @@ public class BlueRight extends OpMode {
     private double leftIntakeYOffset = 0.0;
     private double rightIntakeYOffset = 0.0;
     private double secondBackboardYOffset = 0.0;
+    private double secondBackboardXOffset = 0.0;
 
 
     private OpenCvCamera frontCamera;
@@ -80,15 +81,16 @@ public class BlueRight extends OpMode {
         purplePixelPath = colorDetection.getPosition();
         if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.LEFT))
         {
-            leftSpikeXOffest = -12.0;
-            leftBackboardYOffset = 5.0;
-            leftIntakeYOffset = -1.2;
+            leftSpikeXOffest = 9.5;
+            leftBackboardYOffset = 4.5;
+            leftIntakeYOffset = 4.0;
             rightSpikeXOffset = 0.0;
             rightBackboardYOffset = 0.0;
             rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
             centerSpikeBackOffset = 0;
-            secondBackboardYOffset = -7.0;
+            secondBackboardYOffset = -5.0;
+            secondBackboardXOffset = 0.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.CENTER))
         {
@@ -98,21 +100,23 @@ public class BlueRight extends OpMode {
             rightSpikeXOffset = 0.0;
             rightIntakeYOffset = 0.0;
             rightBackboardYOffset = 0.0;
-            centerSpikeYOffset = 7.3;
+            centerSpikeYOffset = -5.8;
             centerSpikeBackOffset = 0.0;
-            secondBackboardYOffset = -7.0;
+            secondBackboardYOffset = -6.0;
+            secondBackboardXOffset = -2.0;
         }
         else if(purplePixelPath.equals(ColorDetectionPipeline.StartingPosition.RIGHT))
         {
             leftSpikeXOffest = 0.0;
             leftBackboardYOffset = 0.0;
             leftIntakeYOffset = 0.0;
-            rightSpikeXOffset = 3.0;
-            rightBackboardYOffset = -7;
-            rightIntakeYOffset = -.75;
+            rightSpikeXOffset = -10.5;
+            rightBackboardYOffset = -7.5;
+            rightIntakeYOffset = 0.0;
             centerSpikeYOffset = 0.0;
-            centerSpikeBackOffset = -8;
-            secondBackboardYOffset = 4.0;
+            centerSpikeBackOffset = 0;
+            secondBackboardYOffset = 6.0;
+            secondBackboardXOffset = 0.0;
         }
 
         telemetry.addLine(colorDetection.toString());
@@ -127,15 +131,15 @@ public class BlueRight extends OpMode {
         intake.setServoPosition(Intake.IntakePositions.INIT);
         intake.update();
 
-        drive.setPoseEstimate(new Pose2d(11,-63, Math.toRadians(90)));
-        path = drive.trajectorySequenceBuilder(new Pose2d(11,-63, Math.toRadians(90)))
-                .setTangent(Math.toRadians(60))
+        drive.setPoseEstimate(new Pose2d(16,63, Math.toRadians(270)));
+        path = drive.trajectorySequenceBuilder(new Pose2d(16,63, Math.toRadians(270)))
+                .setTangent(Math.toRadians(300))
                 .addTemporalMarker(()->{
                     intake.setServoPosition(Intake.IntakePositions.DRIVE);
                     intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     intake.update();
                 })
-                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,-32+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(150))
+                .splineToSplineHeading(new Pose2d(23+leftSpikeXOffest+rightSpikeXOffset,30+centerSpikeYOffset, Math.toRadians(180)), Math.toRadians(210))
 
                 // TODO: SPIKE PURPLE
                 .back(3.5-centerSpikeBackOffset)
@@ -145,7 +149,6 @@ public class BlueRight extends OpMode {
                     intake.setMotorPower(0.5);
                     intake.update();
                 })
-                // TODO: SLIDE DOWN, INTAKE CHANGE POSITION
                 .build();
 
         drive.followTrajectorySequenceAsync(path);
