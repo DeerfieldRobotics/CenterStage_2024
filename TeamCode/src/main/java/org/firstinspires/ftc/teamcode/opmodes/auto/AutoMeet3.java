@@ -190,10 +190,9 @@ public class AutoMeet3 extends LinearOpMode {
                 .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FIVE); })
                 .splineToConstantHeading(new Vector2d(beforeStackPose.getX(), beforeStackPose.getY()), Math.toRadians(180))
                 .addTemporalMarker(() -> {
-                    //TODO add white detection
                     colorPortal.resumeStreaming(); //probably do this earlier
                     colorPortal.setProcessorEnabled(whiteDetectionProcessor, true);
-                    whiteDetectionProcessor.alignRobot(drive);
+                    alignToWhite();
                     drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
                 })
                 .build();
@@ -220,6 +219,10 @@ public class AutoMeet3 extends LinearOpMode {
                 .build();
 
         drive.followTrajectorySequenceAsync(spikeThenBackboard);
+    }
+
+    private void alignToWhite() {
+        whiteDetectionProcessor.alignRobot(drive);
     }
 
     private void alignToApriltag() {
@@ -340,8 +343,8 @@ public class AutoMeet3 extends LinearOpMode {
                 preLowerWhiteTangent = 135;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(12,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
+                        purplePose = new Pose2d(15,-32, Math.toRadians(180));
+                        aprilTagPose = new Pose2d(52, -33, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -33, Math.toRadians(180)); // TODO see below
                         backboardApriltagX = 6;
                         centerBackup = 3.5; // FIX THIS POOP
@@ -355,7 +358,7 @@ public class AutoMeet3 extends LinearOpMode {
                         break;
                     case RIGHT:
                         purplePose = new Pose2d(34,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        aprilTagPose = new Pose2d(52, -45, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -45, Math.toRadians(180)); // TODO see below
                         backboardApriltagX = -6;
                         centerBackup = 3.5; // FIX THIS POOP
