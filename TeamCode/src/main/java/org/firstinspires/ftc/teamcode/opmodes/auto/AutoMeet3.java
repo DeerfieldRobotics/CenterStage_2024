@@ -92,7 +92,7 @@ public class AutoMeet3 extends LinearOpMode {
     private double initTangent; // INITIAL TANGENT 60 degrees
     private double purpleTangent; // TANGENT TO SPIKE
     private double centerBackup = 0; //BACKUP FROM SPIKE //TODO: WHY DO WE NEED THIS??????
-    private Pose2d beforeStackPose;
+    private Pose2d beforeStackPose; //before we go to the stack,
     private Pose2d preWhitePose;
     private Pose2d whitePixelStackPose;
     private Pose2d postLowerWhitePose;
@@ -349,10 +349,10 @@ public class AutoMeet3 extends LinearOpMode {
             case RED_CLOSE:
                 initPose = new Pose2d(11, -63, Math.toRadians(90));
                 purplePose = new Pose2d(11, -25, Math.toRadians(180));
-                purpleTangent = Math.toRadians(120);
+                purpleTangent = Math.toRadians(80);
                 initTangent = Math.toRadians(60);
                 beforeStackPose = new Pose2d(24,-10, Math.toRadians(180));
-                whitePixelStackPose = new Pose2d(-57,16, Math.toRadians(180));
+                whitePixelStackPose = new Pose2d(-57,-10, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, -10, Math.toRadians(180));
                 preLowerWhiteTangent = 135;
