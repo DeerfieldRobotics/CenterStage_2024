@@ -211,9 +211,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(aprilTagPose.getX(), aprilTagPose.getY()), Math.toRadians(45))
                 .addTemporalMarker(this::outtake)
                 .waitSeconds(0.5)
-                .addTemporalMarker(()->{ setSlideHeight(-400); })
-                .waitSeconds(0.2)
-                .back(6)
+                .back(4.5)
                 .waitSeconds(0.6)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.4)
@@ -336,13 +334,13 @@ public class AutoMeet3 extends LinearOpMode {
                 purpleTangent = Math.toRadians(80);
                 initTangent = Math.toRadians(60);
                 beforeStackPose = new Pose2d(24,-14, Math.toRadians(180));
-                whitePixelStackPose = new Pose2d(-57,-14, Math.toRadians(180));
+                whitePixelStackPose = new Pose2d(-57,-12, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, -14, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, -14, Math.toRadians(180));
                 preLowerWhiteTangent = 135;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(11,-32, Math.toRadians(180));
+                        purplePose = new Pose2d(12,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -33, Math.toRadians(180)); // TODO see below
                         backboardApriltagX = 6;
@@ -384,7 +382,7 @@ public class AutoMeet3 extends LinearOpMode {
         intake.update();
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.update();
-        intake.setMotorPower(0.7);
+        intake.setMotorPower(0.5);
         intake.update();
     }
 
