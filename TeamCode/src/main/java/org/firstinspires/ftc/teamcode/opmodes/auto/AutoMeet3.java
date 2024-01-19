@@ -204,7 +204,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .waitSeconds(0.7)
                 .setTangent(preLowerWhiteTangent)
                 .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FIVE); })
-                .splineToSplineHeading(beforeStackPose, Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(beforeStackPose.getX(), beforeStackPose.getY()), Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     //TODO add white detection
                     colorPortal.resumeStreaming(); //probably do this earlier
@@ -352,10 +352,10 @@ public class AutoMeet3 extends LinearOpMode {
                 purplePose = new Pose2d(11, -25, Math.toRadians(180));
                 purpleTangent = Math.toRadians(80);
                 initTangent = Math.toRadians(60);
-                beforeStackPose = new Pose2d(24,-10, Math.toRadians(180));
-                whitePixelStackPose = new Pose2d(-57,-10, Math.toRadians(180));
-                preWhitePose = new Pose2d(24, -10, Math.toRadians(180));
-                postLowerWhitePose = new Pose2d(28, -10, Math.toRadians(180));
+                beforeStackPose = new Pose2d(24,-14, Math.toRadians(180));
+                whitePixelStackPose = new Pose2d(-57,-14, Math.toRadians(180));
+                preWhitePose = new Pose2d(24, -14, Math.toRadians(180));
+                postLowerWhitePose = new Pose2d(28, -14, Math.toRadians(180));
                 preLowerWhiteTangent = 135;
                 switch (purplePixelPath) {
                     case LEFT:
