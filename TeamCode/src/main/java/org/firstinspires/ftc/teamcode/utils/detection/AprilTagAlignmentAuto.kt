@@ -16,13 +16,13 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class AprilTagAlignment(
+class AprilTagAlignmentAuto(
     var camera: CameraName,
     var targetX: Double,
     var targetY: Double,
     var targetHeading: Double,
     var alliance: AllianceHelper.Alliance,
-    viewportID: Int
+    private var processor: AprilTagProcessor,
 ){
     //DEFAULT PID VALUES
     var xP = 0.04
@@ -58,18 +58,6 @@ class AprilTagAlignment(
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
     private val cameraOffset = 6.5;
 
-    private var aprilTagLibrary = AprilTagLibrary.Builder()
-        .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
-        .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
-        .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
-        .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
-        .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
-        .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
-        .build()
-
-    private val processor = AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1) // Used for managing the AprilTag detection process.
-
-    private var visionPortal: VisionPortal
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
     private var usingMultiplePortals = true;
@@ -87,42 +75,11 @@ class AprilTagAlignment(
     private var strafeMultiplier = 1.48
     private var turnMultiplier = 0.75
 
-    constructor(
-        camera: CameraName, targetX: Double, targetY: Double,
-        targetHeading: Double, alliance: AllianceHelper.Alliance, xPID: PIDController, yPID: PIDController,
-        headingPID: PIDController) : this(camera, targetX, targetY, targetHeading, alliance, 0) {
-        xController = xPID
-        yController = yPID
-        headingController = headingPID
-    }
-    constructor(
-        camera: CameraName, targetX: Double, targetY: Double,
-        targetHeading: Double, alliance: AllianceHelper.Alliance) : this(camera, targetX, targetY, targetHeading, alliance, 0) {
-        usingMultiplePortals = false
-    }
-
-
-
 
     init {
         xController.setTolerance(0.5)
         yController.setTolerance(0.5)
         headingController.setTolerance(1.0)
-
-        visionPortal = if(usingMultiplePortals) {
-            VisionPortal.Builder()
-                .setCamera(camera)
-                .setCameraResolution(android.util.Size(1280, 720))
-                .addProcessor(processor)
-                .setLiveViewContainerId(viewportID)
-                .build();
-        } else {
-            VisionPortal.Builder()
-                .setCamera(camera)
-                .setCameraResolution(android.util.Size(1280, 720))
-                .addProcessor(processor)
-                .build();
-        }
     }
 
     fun setPIDCoefficients(xP: Double, xI: Double, xD: Double, yP: Double, yI: Double, yD: Double, headingP: Double, headingI: Double, headingD: Double) {
@@ -136,8 +93,6 @@ class AprilTagAlignment(
         this.headingI = headingI
         this.headingD = headingD
     }
-
-    fun getCameraState() = visionPortal.cameraState
 
     fun update() {
         targetFound = false

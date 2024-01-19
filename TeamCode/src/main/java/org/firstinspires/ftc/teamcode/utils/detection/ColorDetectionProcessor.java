@@ -28,7 +28,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
     private int x1 = 100; // first x division
     private int x2 = 220; // second x division
     private String color;
-    private ColorDetectionPipeline.StartingPosition position;
+    private StartingPosition position;
 
     int targetIndex = 0;
     public enum StartingPosition {
@@ -55,6 +55,12 @@ public class ColorDetectionProcessor implements VisionProcessor {
     Point rightB = new Point(
             endX,
             endY);
+
+    public ColorDetectionProcessor(AllianceHelper.Alliance alliance) {
+        //default
+        position = StartingPosition.CENTER;
+        targetIndex = (alliance == AllianceHelper.Alliance.RED? 0 : 2);
+    }
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
@@ -102,13 +108,13 @@ public class ColorDetectionProcessor implements VisionProcessor {
         rightAvg /= rightCnt.size();
 
         if (leftAvg > centerAvg && leftAvg > rightAvg)
-            position = ColorDetectionPipeline.StartingPosition.LEFT;
+            position = StartingPosition.LEFT;
         else if (centerAvg > leftAvg && centerAvg > rightAvg)
-            position = ColorDetectionPipeline.StartingPosition.CENTER;
+            position = StartingPosition.CENTER;
         else if (rightAvg > leftAvg && rightAvg > centerAvg)
-            position = ColorDetectionPipeline.StartingPosition.RIGHT;
+            position = StartingPosition.RIGHT;
         else
-            position = ColorDetectionPipeline.StartingPosition.CENTER;
+            position = StartingPosition.CENTER;
 
         // int maxRed = Math.max(red[0], Math.max(red[1], red[2]));
         // int maxBlue = Math.max(blue[0], Math.max(blue[1], blue[2]));
@@ -137,6 +143,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
         return null;
     }
 
+    public StartingPosition getPosition() { return position; }
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 

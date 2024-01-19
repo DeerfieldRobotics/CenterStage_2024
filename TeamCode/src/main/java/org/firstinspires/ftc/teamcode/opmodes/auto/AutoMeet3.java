@@ -1,25 +1,35 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import android.util.Size;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
-import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
-import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionPipeline;
+import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentAuto;
+import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.List;
 
 @Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
 public class AutoMeet3 extends LinearOpMode {
@@ -35,9 +45,14 @@ public class AutoMeet3 extends LinearOpMode {
     private static START_POSITION startPosition = START_POSITION.UNKNOWN;
 
     private Datalog datalog;
-    private AprilTagAlignment aprilTagAlignment;
-    private ColorDetectionPipeline colorDetectionPipeline;
-    private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
+    private AprilTagAlignmentAuto aprilTagAlignment;
+    private ColorDetectionProcessor colorDetectionProcessor;
+    private AprilTagProcessorImpl aprilTagProcessor;
+    private VisionPortal colorPortal;
+    private VisionPortal aprilTagPortal;
+    private int Portal_1_View_ID;
+    private int Portal_2_View_ID;
+    private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
@@ -82,11 +97,8 @@ public class AutoMeet3 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        initialize();
-
         selectStartingPosition();
-
-        colorDetectionPipeline = new ColorDetectionPipeline(AllianceHelper.alliance);
+        initialize();
 
         while(!isStarted() && !isStopRequested()) {
             initLoop();
@@ -123,8 +135,8 @@ public class AutoMeet3 extends LinearOpMode {
         outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE);
         outtake.update();
 
+        initMultiPortals();
         initColorDetection();
-
     }
 
     public void initLoop() {
@@ -134,9 +146,10 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
+        colorPortal.close();
+        initAprilTagDetection();
         telemetry.clear();
         buildAuto();
-        frontCamera.closeCameraDevice();
         datalog.opModeStatus.set("RUNNING");
         drive.setPoseEstimate(initPose);
         if (startPosition == START_POSITION.BLUE_CLOSE || startPosition == START_POSITION.RED_CLOSE) {
@@ -151,27 +164,17 @@ public class AutoMeet3 extends LinearOpMode {
                     .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                     .addTemporalMarker(()->{
                         double currentTime = getRuntime();
-                        initAprilTagDetection();
                         while(getRuntime() - currentTime < 20 && !isStopRequested()) { //TODO find the number of seconds, optimal would be 2 sd over mean time to reach apriltag
                             //TODO might need to disable samplemecanum drive idk tho
 
                             aprilTagAlignment.update();
                             aprilTagAlignment.alignRobotToBackboard(drive);
 
-
-                            telemetry.addData("Camera State", aprilTagAlignment.getCameraState());
                             telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
                             telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
                             telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
                             telemetry.addData("drivetrain power", drive.getPoseEstimate());
                             telemetry.update();
-
-                            datalog.xError.set(aprilTagAlignment.getXError());
-                            datalog.yError.set(aprilTagAlignment.getYError());
-                            datalog.headingError.set(aprilTagAlignment.getHeadingError());
-                            datalog.writeLine();
-
-                            if(aprilTagAlignment.getTargetFound()) break;
                         }
                         drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                     })
@@ -264,35 +267,89 @@ public class AutoMeet3 extends LinearOpMode {
         outtake.update();
         intake.update();
         slide.update();
-        telemetry.update();
+    }
+
+    private void initPortals() {
+        CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
+        CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
+
+        AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder()
+                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
+                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
+                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
+                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
+                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
+                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
+                .build();
+
+        aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1); // Used for managing the AprilTag detection process.
+        colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.Alliance.RED); // Used for managing the color detection process.
+
+        List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
+        int portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
+        int portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
+
+
+        aprilTagPortal = new VisionPortal.Builder()
+                .setCamera(backCamera)
+                .setCameraResolution(new android.util.Size(1280, 720))
+                .addProcessor(aprilTagProcessor)
+                .setLiveViewContainerId(portal_2_View_ID)
+                .build();
+        aprilTagAlignment = new AprilTagAlignmentAuto(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, aprilTagProcessor);
+
+        colorPortal = new VisionPortal.Builder()
+                .setCamera(frontCamera)
+                .setCameraResolution(new android.util.Size(320, 240))
+                .addProcessor(colorDetectionProcessor)
+                .setLiveViewContainerId(portal_1_View_ID)
+                .build();
+
+    }
+    private void initMultiPortals () {
+        List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
+        Portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
+        Portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
     }
 
     private void initColorDetection() {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        telemetry.addData("Camera Monitor ID: ", cameraMonitorViewId);
-        telemetry.update();
         frontCameraName = hardwareMap.get(WebcamName.class, "Webcam 2");
-        frontCamera = OpenCvCameraFactory.getInstance().createWebcam(frontCameraName, cameraMonitorViewId);
-        frontCamera.setPipeline(colorDetectionPipeline);
-        frontCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                frontCamera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-            }
-            @Override
-            public void onError(int errorCode) {}
-        });
+        colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance);
+
+        colorPortal = new VisionPortal.Builder()
+                .setCamera(frontCameraName)
+                .setCameraResolution(new Size(320, 240))
+                .addProcessor(colorDetectionProcessor)
+                .setLiveViewContainerId(Portal_1_View_ID)
+                .build();
     }
     private void detectPurplePath() {
-        purplePixelPath = colorDetectionPipeline.getPosition();
+        purplePixelPath = colorDetectionProcessor.getPosition();
         telemetry.addData("Purple Pixel Path: ", purplePixelPath.toString());
     }
 
     private void initAprilTagDetection() {
         backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
-        aprilTagAlignment = new AprilTagAlignment(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, (xPID), (yPID), (headingPID));
-    }
 
+        AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder()
+                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
+                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
+                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
+                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
+                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
+                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
+                .build();
+
+       aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
+
+        aprilTagPortal = new VisionPortal.Builder()
+                    .setCamera(backCamera)
+                    .setCameraResolution(new android.util.Size(1280, 720))
+                    .addProcessor(aprilTagProcessor)
+                    .setLiveViewContainerId(Portal_2_View_ID)
+                    .build();
+        aprilTagAlignment = new AprilTagAlignmentAuto(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, aprilTagProcessor);
+    }
     public void buildAuto() {
         switch (startPosition) {
             case BLUE_CLOSE:
@@ -426,12 +483,12 @@ public class AutoMeet3 extends LinearOpMode {
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
-                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 positionFound = true;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_CLOSE;
-                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
+                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 positionFound = true;
             }
             telemetry.update();
