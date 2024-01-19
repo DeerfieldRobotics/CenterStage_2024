@@ -192,8 +192,6 @@ public class AutoMeet3 extends LinearOpMode {
         }
 
         pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
-                .waitSeconds(0.5)
-                .addTemporalMarker(()->{ setSlideHeight(-600); })
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->runAprilTag = false)
                 .back(5)
