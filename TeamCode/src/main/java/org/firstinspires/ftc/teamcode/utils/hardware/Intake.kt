@@ -75,6 +75,10 @@ class Intake(hardwareMap: HardwareMap){
         motorPower = power*motorPowerMultiplier
     }
 
+    fun intakePower (power: Double) {
+        motorPower = power*motorPowerMultiplier
+    }
+
     fun update() {
         transferProcedure()
         intakeMotor.targetPosition = motorTargetPosition
