@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.detection
 
 import android.graphics.Canvas
+import android.graphics.Paint
 import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
@@ -61,6 +62,7 @@ class WhiteDetectionProcessor : VisionProcessor {
         scaleCanvasDensity: Float,
         userContext: Any
     ) {
+        canvas.drawLine(position.toFloat(), 0f, position.toFloat(), 240f, Paint());
     }
     internal class WhiteFrame(
         private var maxSize: Int, //number of sectors to consider

@@ -87,6 +87,7 @@ class Slide (hardwareMap: HardwareMap){
     }
 
     fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
+    fun getAvgPosition(): Int = getPosition().average().toInt()
     private fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))
     fun getAvgCurrent(): Double = getCurrent().average()
 }
