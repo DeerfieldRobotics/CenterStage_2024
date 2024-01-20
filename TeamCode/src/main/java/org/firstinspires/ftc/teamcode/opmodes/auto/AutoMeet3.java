@@ -265,7 +265,7 @@ public class AutoMeet3 extends LinearOpMode {
                 .build();
 
         aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1); // Used for managing the AprilTag detection process.
-        colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.Alliance.RED); // Used for managing the color detection process.
+        colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
         whiteDetectionProcessor = new WhiteDetectionProcessor(); // Used for managing the white detection process.
 
         List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
