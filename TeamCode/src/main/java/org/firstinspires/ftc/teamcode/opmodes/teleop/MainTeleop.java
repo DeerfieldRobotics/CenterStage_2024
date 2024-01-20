@@ -22,7 +22,6 @@ public class MainTeleop extends LinearOpMode {
     private Outtake outtake;
     private Slide slide;
     private Launcher launcher;
-    private AprilTagAlignment aprilTagAlignment;
 
     private boolean crossToggle = false;
     private boolean triangleToggle = false;
@@ -32,45 +31,28 @@ public class MainTeleop extends LinearOpMode {
     private double lastTickTime = 0;
     private double avgTickTime = 0;
     private int tickCount = 0;
-    private double boardX = 0;
-    public static AllianceHelper.Alliance alliance = null;
-    private boolean robotAligned = false;
 
     private void driveNormal() {
-        if(gamepad1.left_bumper) {
-            boardX += 0.1*gamepad1.left_stick_x;
-            if(boardX > 10.5) boardX = 10.5;
-            if(boardX < -10.5) boardX = -10.5;
-            aprilTagAlignment.setTargetX(boardX);
-            aprilTagAlignment.update();
-            aprilTagAlignment.alignRobotToBackboard(drivetrain);
-            if(robotAligned != aprilTagAlignment.robotAligned()) {
-                robotAligned = aprilTagAlignment.robotAligned();
-                gamepad1.rumbleBlips(1);
-            }
-        }
-        else {
-            //driving values
-            double speedMult = .7 + 0.3 * gamepad1.right_trigger - 0.3 * gamepad1.left_trigger;
+        //driving values
+        double speedMult = .7 + 0.3 * gamepad1.right_trigger - 0.3 * gamepad1.left_trigger;
 
-            gamepad1.rumble(gamepad1.left_trigger > 0.5 ? (gamepad1.left_trigger - 0.5) / .4 : 0.0, gamepad1.right_trigger > 0.4 ? (gamepad1.right_trigger - 0.4) / 0.8 : 0.0, 50);
+        gamepad1.rumble(gamepad1.left_trigger > 0.5 ? (gamepad1.left_trigger - 0.5) / .4 : 0.0, gamepad1.right_trigger > 0.4 ? (gamepad1.right_trigger - 0.4) / 0.8 : 0.0, 50);
 
-            double forwardMult = 1;
-            double turnMult = .75;
-            double strafeMult = 1;
+        double forwardMult = 1;
+        double turnMult = .75;
+        double strafeMult = 1;
 
-            double forward = -gamepad1.left_stick_y * forwardMult * speedMult;
-            double turn = -gamepad1.right_stick_x * turnMult * speedMult;
-            double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
+        double forward = -gamepad1.left_stick_y * forwardMult * speedMult;
+        double turn = -gamepad1.right_stick_x * turnMult * speedMult;
+        double strafe = -gamepad1.left_stick_x * strafeMult * speedMult;
 
-            drivetrain.setWeightedDrivePower(
-                    new Pose2d(
-                            forward,
-                            strafe,
-                            turn
-                    )
-            );
-        }
+        drivetrain.setWeightedDrivePower(
+                new Pose2d(
+                        forward,
+                        strafe,
+                        turn
+                )
+        );
     }
 
     @Override
@@ -92,7 +74,6 @@ public class MainTeleop extends LinearOpMode {
             intake.update();
             outtake.update();
             slide.update();
-            aprilTagAlignment.update();
 
 //            telemetry.addLine("--------15118 Teleop-------");
 //            telemetry.addData("CogchampDrive Average Current", drivetrain.getAverageCurrent());
@@ -196,32 +177,28 @@ public class MainTeleop extends LinearOpMode {
     }
 
     public void initialize() {
-        while(!isStopRequested() && alliance == null) {
-            if(gamepad1.dpad_up || gamepad2.dpad_up) {
-                alliance = AllianceHelper.Alliance.RED;
-                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-                break;
-            }
-            else if(gamepad1.dpad_down || gamepad2.dpad_down) {
-                alliance = AllianceHelper.Alliance.BLUE;
-                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-                break;
-            }
-            telemetry.addData("Alliance", "Select Alliance");
-            telemetry.addData("↑", "Red");
-            telemetry.addData("↓", "Blue");
-            telemetry.update();
-        }
+//        while(!isStopRequested() && alliance == null) {
+//            if(gamepad1.dpad_up || gamepad2.dpad_up) {
+//                alliance = AllianceHelper.Alliance.RED;
+//                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
+//                break;
+//            }
+//            else if(gamepad1.dpad_down || gamepad2.dpad_down) {
+//                alliance = AllianceHelper.Alliance.BLUE;
+//                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
+//                break;
+//            }
+//            telemetry.addData("Alliance", "Select Alliance");
+//            telemetry.addData("↑", "Red");
+//            telemetry.addData("↓", "Blue");
+//            telemetry.update();
+//        }
         telemetry.clear();
         slide = new Slide(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
         drivetrain = new CogchampDrive(hardwareMap);
         intake = new Intake(hardwareMap);
         launcher = new Launcher(hardwareMap);
-        aprilTagAlignment = new AprilTagAlignment(hardwareMap.get(WebcamName.class, "Webcam 1"), 0.0, 12.0, 0.0, AllianceHelper.alliance,
-                (new PIDController(0.0174, 0.0, 0.0)), //x PID controller
-                (new PIDController(0.0174, 0.0, 0.0)), //y PID controller
-                (new PIDController(0.0174, 0.0, 0.0))); //heading PID controller
 
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
