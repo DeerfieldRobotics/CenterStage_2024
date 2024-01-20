@@ -231,12 +231,11 @@ public class AutoMeet3 extends LinearOpMode {
                     setSlideHeight(-1400);
                 })
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()-> {
-                    aprilTagPortal.resumeStreaming();
-                })
                 .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
+                    aprilTagPortal.close();
+                    colorPortal.close();
                     drive.setPoseEstimate(backboardPose);
                     drive.followTrajectorySequenceAsync(pathBackboardToPark);
                 })
