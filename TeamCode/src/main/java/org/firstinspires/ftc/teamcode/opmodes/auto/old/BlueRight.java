@@ -44,7 +44,7 @@ public class BlueRight extends OpMode {
 
     private ColorDetectionPipeline.StartingPosition purplePixelPath = ColorDetectionPipeline.StartingPosition.CENTER;
 
-    private double avg = -1;
+    private final double avg = -1;
 
     @Override
     public void init() {

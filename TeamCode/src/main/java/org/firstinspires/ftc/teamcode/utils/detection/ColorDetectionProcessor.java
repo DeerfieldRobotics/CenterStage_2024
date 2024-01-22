@@ -18,15 +18,16 @@ public class ColorDetectionProcessor implements VisionProcessor {
     // center, 2 is right
     // private int red[] = new int [3]; //array with red pixels, 0 is left, 1 is
     // center, 2 is right
-    private int color_counts[] = new int[3];
-    private ArrayList<Integer> leftCnt = new ArrayList<Integer>(), centerCnt = new ArrayList<Integer>(),
-            rightCnt = new ArrayList<Integer>();
-    private int startY = 120;
-    private int endY = 240;
-    private int startX = 0;
-    private int endX = 320;
-    private int x1 = 100; // first x division
-    private int x2 = 220; // second x division
+    private int[] color_counts = new int[3];
+    private final ArrayList<Integer> leftCnt = new ArrayList<Integer>();
+    private final ArrayList<Integer> centerCnt = new ArrayList<Integer>();
+    private final ArrayList<Integer> rightCnt = new ArrayList<Integer>();
+    private final int startY = 120;
+    private final int endY = 240;
+    private final int startX = 0;
+    private final int endX = 320;
+    private final int x1 = 100; // first x division
+    private final int x2 = 220; // second x division
     private String color;
     private StartingPosition position;
 

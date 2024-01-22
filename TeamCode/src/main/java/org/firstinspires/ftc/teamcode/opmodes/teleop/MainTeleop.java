@@ -28,9 +28,9 @@ public class MainTeleop extends LinearOpMode {
     private boolean squareToggle = false;
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
-    private double lastTickTime = 0;
-    private double avgTickTime = 0;
-    private int tickCount = 0;
+    private final double lastTickTime = 0;
+    private final double avgTickTime = 0;
+    private final int tickCount = 0;
 
     private void driveNormal() {
         //driving values

@@ -10,7 +10,7 @@ import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 import java.util.TreeSet
 
-class WhiteDetectionPipeline () : OpenCvPipeline() {
+class WhiteDetectionPipeline : OpenCvPipeline() {
     private val threshold = 240
     private val whiteFrames: ArrayList<WhiteFrame> = ArrayList()
     private val startY = 120

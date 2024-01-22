@@ -55,7 +55,7 @@ public class AutoMeet3SimplePlacement extends LinearOpMode{
     private AprilTagProcessorImpl aprilTagProcessor;
     private VisionPortal colorPortal;
     private VisionPortal aprilTagPortal;
-    private boolean runAprilTag = true;
+    private final boolean runAprilTag = true;
     private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class HeadingTest extends LinearOpMode {
     private IMU imu;
     // TODO fix parameters for c-hub placement
-    private IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+    private final IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
             RevHubOrientationOnRobot.UsbFacingDirection.UP
     ));

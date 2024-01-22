@@ -39,14 +39,14 @@ public class DriveToTag extends LinearOpMode {
     private static final int TAG_ID = 6; // -1 for any tag
     private VisionPortal visionPortal;
     private final AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder().addTag(6, "RedRight", 2, DistanceUnit.INCH).build();
-    private AprilTagProcessorImpl processor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
+    private final AprilTagProcessorImpl processor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, false, false, false, false, AprilTagProcessor.TagFamily.TAG_36h11, 3); // Used for managing the AprilTag detection process.
     private AprilTagDetection detection = null; // Used to hold the data for a detected AprilTag
 
     //driving values
     private double speedMult;
-    private double forwardMult = 1;
-    private double turnMult = .75;
-    private double strafeMult = 1.48;
+    private final double forwardMult = 1;
+    private final double turnMult = .75;
+    private final double strafeMult = 1.48;
 
     CogchampDrive drivetrain;
     @Override public void runOpMode()

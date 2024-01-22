@@ -19,6 +19,9 @@ class WhiteDetectionProcessor : VisionProcessor {
     private val endX = 200
     private val numSectors = 10
 
+    var error = 0.0
+    var power = 0.0
+
     var target = 160
     var controller = PIDController(0.001, 0.0, 0.0)
 
@@ -62,7 +65,7 @@ class WhiteDetectionProcessor : VisionProcessor {
         scaleCanvasDensity: Float,
         userContext: Any
     ) {
-        canvas.drawLine(position.toFloat(), 0f, position.toFloat(), 240f, Paint());
+        canvas.drawLine(position.toFloat(), 0f, position.toFloat(), 240f, Paint())
     }
     internal class WhiteFrame(
         private var maxSize: Int, //number of sectors to consider
@@ -96,9 +99,14 @@ class WhiteDetectionProcessor : VisionProcessor {
             }
     }
 
+    fun update() {
+        error = target - position
+        power = controller.calculate(error)
+    }
+
     fun alignRobot(drivetrain: CogchampDrive) {
-        val error = target - position
-        val power = controller.calculate(error)
+        error = target - position
+        power = controller.calculate(error)
         drivetrain.setWeightedDrivePower(Pose2d(0.0, power, 0.0))
     }
     fun robotAligned() = controller.atSetPoint()
