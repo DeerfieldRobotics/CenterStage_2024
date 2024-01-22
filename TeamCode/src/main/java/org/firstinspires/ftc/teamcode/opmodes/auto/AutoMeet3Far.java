@@ -35,9 +35,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
-public class AutoMeet3 extends LinearOpMode {
-    //Define and declare Robot Starting Locations
+@Autonomous(name = "Auto Meet 3 Far", preselectTeleOp = "MainTeleop", group = "a")
+public class AutoMeet3Far extends LinearOpMode{
     private enum START_POSITION {
         //IN RELATION TO BACKBOARD
         BLUE_CLOSE,
@@ -48,9 +47,9 @@ public class AutoMeet3 extends LinearOpMode {
         UNKNOWN
     }
 
-    private static START_POSITION startPosition = START_POSITION.UNKNOWN; //WHERE WE ARE ON THE FIELD/ RED CLOSE ETC
+    private static AutoMeet3Far.START_POSITION startPosition = AutoMeet3Far.START_POSITION.UNKNOWN; //WHERE WE ARE ON THE FIELD/ RED CLOSE ETC
 
-    private Datalog datalog; //TELEMETRY
+    private AutoMeet3.Datalog datalog; //TELEMETRY
     private AprilTagAlignmentAuto aprilTagAlignment; //APRIL TAG DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
     private WhiteDetectionProcessor whiteDetectionProcessor;
@@ -85,7 +84,6 @@ public class AutoMeet3 extends LinearOpMode {
     private TrajectorySequence pathBackboardToWhite; //BACKBOARD TO STACK
     private TrajectorySequence pathWhiteToBackboard;// STACK BACK TO BACKBOARD
     private TrajectorySequence pathBackboardToPark; //PARK AFTER SCORING STACK
-    private TrajectorySequence spikeThenStack; //SPIKE THEN STACK
 
     //POSITIONS & TANGENTS
     private Pose2d initPose; //INITIAL POSITION
@@ -103,10 +101,14 @@ public class AutoMeet3 extends LinearOpMode {
     private Pose2d whitePixelStackPose;
     private Pose2d postLowerWhitePose; //pose after
     private double preLowerWhiteTangent;
-    private double afterSpikeTangent;
-    private double farStackTangent;
-
-    private Pose2d farStackPose;
+    private double parkingTangent;
+    private Vector2d parkingVector;
+    private double preBackboardTangent;
+    private Vector2d preBackboardPose;
+    private double preBackboardEndTangent;
+    private Vector2d noTrussHitPose;
+    private double toBackboardTangent;
+    private double stackTangent;
 
 
     @Override
@@ -139,7 +141,7 @@ public class AutoMeet3 extends LinearOpMode {
 
         battery = hardwareMap.voltageSensor.get("Control Hub");
 
-        datalog = new Datalog("AutoDatalogger");
+        datalog = new AutoMeet3.Datalog("AutoDatalogger");
 
         datalog.opModeStatus.set("INIT");
         datalog.battery.set(battery.getVoltage());
@@ -172,43 +174,11 @@ public class AutoMeet3 extends LinearOpMode {
                 .back(centerBackup) //BACKUP FROM SPIKE
                 .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
                 .waitSeconds(0.2)
-                .setTangent(0)
-                // GO TO BACKBOARD
-                .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
-                .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
+//                .setTangent(preLowerWhiteTangent)
                 .addTemporalMarker(()->{
-                    alignToApriltag();
-                    drive.setPoseEstimate(backboardPose);
-                    colorPortal.close();
-                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
+                    intake.setServoPosition(Intake.IntakePositions.FIVE);
                 })
-                .build();
-
-        pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
-                .waitSeconds(0.2)
-                .setTangent(0)
-                .back(5)
-                .waitSeconds(0.2)
-                .addTemporalMarker(this::drop)
-                .waitSeconds(0.3)
-                .addTemporalMarker(()->{ setSlideHeight(-1200); })
-                .waitSeconds(0.4)
-                .addTemporalMarker(this::outtakeIn)
-                .forward(10)
-                .setTangent(preLowerWhiteTangent)
-                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FOUR); intake.update(); })
-                .splineToConstantHeading(new Vector2d(beforeStackPose.getX(), beforeStackPose.getY()), Math.toRadians(180))
-                .addTemporalMarker(() -> {
-//                    colorPortal.resumeStreaming(); //probably do this earlier
-//                    colorPortal.setProcessorEnabled(whiteDetectionProcessor, true);
-//                    alignToWhite();
-                    drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
-                })
-                .build();
-
-        pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose) // TODO: WTF IS THIS?????????????
-                .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
+                .lineToLinearHeading(whitePixelStackPose)
                 .forward(2)
                 .addTemporalMarker(()->{
                     intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -231,97 +201,101 @@ public class AutoMeet3 extends LinearOpMode {
                 .waitSeconds(0.7)
 //                .addTemporalMarker(this::outtakeIn)
                 .setTangent(0)
-                .splineToSplineHeading(postLowerWhitePose, 0)
-                .splineToSplineHeading(aprilTagPose2, Math.toRadians(45))
-                .addTemporalMarker(()->{
-                    setSlideHeight(-1400);
-                })
+                .back(5)
+                .setTangent(preBackboardTangent)
+                .splineToConstantHeading(preBackboardPose, Math.toRadians(preBackboardEndTangent))
+                .splineToConstantHeading(noTrussHitPose, Math.toRadians(0))
+
+                .splineToConstantHeading(new Vector2d(aprilTagPose.getX(), aprilTagPose.getY()), Math.toRadians(toBackboardTangent))
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
+                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
                     drive.setPoseEstimate(backboardPose);
                     aprilTagPortal.close();
-                    drive.followTrajectorySequenceAsync(pathBackboardToPark);
+                    colorPortal.close();
+                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                 })
                 .build();
-        pathBackboardToPark = drive.trajectorySequenceBuilder(backboardPose)
-                .back(4.5)
-                .waitSeconds(0.6)
+
+        pathBackboardToWhite = drive.trajectorySequenceBuilder(backboardPose) //GO TO STACK
+                .waitSeconds(0.2)
+                .setTangent(0)
+                .back(5)
+                .waitSeconds(0.2)
                 .addTemporalMarker(this::drop)
-                .addTemporalMarker(() -> {
-                    setSlideHeight(-1400);
-                    aprilTagPortal.close();
-                })
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{ setSlideHeight(-1200); })
                 .waitSeconds(0.4)
                 .addTemporalMarker(this::outtakeIn)
-                .forward(7)
+                .forward(10)
+                .setTangent(parkingTangent)
+                .splineToConstantHeading(parkingVector, Math.toRadians(0))
+//                .setTangent(preLowerWhiteTangent)
+//                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.FOUR); intake.update(); })
+//                .splineToConstantHeading(new Vector2d(beforeStackPose.getX(), beforeStackPose.getY()), Math.toRadians(180))
+//                .addTemporalMarker(() -> {
+////                    colorPortal.resumeStreaming(); //probably do this earlier
+////                    colorPortal.setProcessorEnabled(whiteDetectionProcessor, true);
+////                    alignToWhite();
+//                    drive.followTrajectorySequenceAsync(pathWhiteToBackboard);
+//                })
                 .build();
 
-        drive.followTrajectorySequenceAsync(spikeThenBackboard);
-    }
-
-//    public void startAutoFar(){
-//        colorPortal.stopStreaming();
-//        aprilTagPortal.resumeLiveView();
-//        telemetry.clear();
-//        buildAuto(); //INITIALIZE POSITIONS
-//        datalog.opModeStatus.set("RUNNING");
-//        drive.setPoseEstimate(initPose);
-//        // 1. Spike
-//        // 2. Stack
-//        // 3. Backboard
-//
-//        spikeThenStack = drive.trajectorySequenceBuilder(initPose)
-//                .setTangent(initTangent)
-//                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
-//                .splineToSplineHeading(purplePose, purpleTangent)
-//                .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
-//                .setTangent(afterSpikeTangent)
-//                // GO TO STACK
-//                .splineToLinearHeading(farStackPose, Math.toRadians(farStackTangent))
-//                .addTemporalMarker(this::intake)
-//                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
-//                .addTemporalMarker(()->{
-//                    alignToApriltag();
-//                    drive.setPoseEstimate(backboardPose);
-//                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
-//                })
-//                .build();
-//
 //        pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose) // TODO: WTF IS THIS?????????????
 //                .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
 //                .forward(2)
-//                .addTemporalMarker(this::intake)
-//                .waitSeconds(0.5)
+//                .addTemporalMarker(()->{
+//                    intake.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                    intake.intakePower(1.0);
+//                    intake.update();
+//                })
+//                .addTemporalMarker(this::outtakeTransfer)
+//                .waitSeconds(1.0)
+//                .addTemporalMarker(() -> {
+//                    intake.setBoosterServoPower(-1.0);
+//                    intake.update();
+//                })
+//                .waitSeconds(0.2)
+//                .addTemporalMarker(()->{
+//                    intake.setBoosterServoPower(0.0);
+//                    intake.update();
+//                })
 //                .back(4)
 //                .addTemporalMarker(this::transfer)
 //                .waitSeconds(0.7)
-//                .addTemporalMarker(this::outtakeIn)
+////                .addTemporalMarker(this::outtakeIn)
 //                .setTangent(0)
 //                .splineToSplineHeading(postLowerWhitePose, 0)
-//                .splineToConstantHeading(new Vector2d(aprilTagPose2.getX(), aprilTagPose2.getY()), Math.toRadians(45))
+//                .splineToSplineHeading(aprilTagPose2, Math.toRadians(45))
 //                .addTemporalMarker(()->{
-//                    slide.setTargetPosition(-1400);
+//                    setSlideHeight(-1400);
 //                })
 //                .addTemporalMarker(this::outtake)
+//                .addTemporalMarker(()-> {
+//                    aprilTagPortal.resumeStreaming();
+//                })
 //                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
 //                .addTemporalMarker(()->{
 //                    alignToApriltag();
 //                    drive.setPoseEstimate(backboardPose);
+//                    drive.followTrajectorySequenceAsync(pathBackboardToPark);
 //                })
-//                .waitSeconds(0.5)
+//                .build();
+//        pathBackboardToPark = drive.trajectorySequenceBuilder(backboardPose)
 //                .back(4.5)
 //                .waitSeconds(0.6)
 //                .addTemporalMarker(this::drop)
+//                .addTemporalMarker(() -> {
+//                    setSlideHeight(-1400);
+//                })
 //                .waitSeconds(0.4)
 //                .addTemporalMarker(this::outtakeIn)
 //                .forward(7)
 //                .build();
-//
-//
-//        drive.followTrajectorySequenceAsync(spikeThenStack);
-//    }
+
+        drive.followTrajectorySequenceAsync(spikeThenBackboard);
+    }
 
     private void alignToWhite() {
         whiteDetectionProcessor.alignRobot(drive);
@@ -400,99 +374,109 @@ public class AutoMeet3 extends LinearOpMode {
 
     public void buildAuto() {
         switch (startPosition) {
-            case BLUE_CLOSE:
-                initPose = new Pose2d(18, 63, Math.toRadians(270));
-                purplePose = new Pose2d(11, 25, Math.toRadians(180));
-                purpleTangent = Math.toRadians(180);
-                initTangent = Math.toRadians(300);
+            case BLUE_FAR:
+                initPose = new Pose2d(-34, 63, Math.toRadians(270));
+                purplePose = new Pose2d(-45, 25, Math.toRadians(0));
+                purpleTangent = Math.toRadians(0);
+                initTangent = Math.toRadians(-120);
                 beforeStackPose = new Pose2d(24,14, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, 14, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, 14, Math.toRadians(180));
                 preLowerWhiteTangent = 225;
+                parkingTangent = 135;
+                parkingVector = new Vector2d(60, 63);
+                preBackboardTangent = 80;
+                preBackboardPose = new Vector2d(-50, 54);
+                preBackboardEndTangent = 0;
+                noTrussHitPose = new Vector2d(24, 54);
+                toBackboardTangent= -30;
+                stackTangent = -120;
                 switch (purplePixelPath) {
                     case RIGHT:
-                        purplePose = new Pose2d(12,32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, 31, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
+                        initTangent = -60;
+                        purpleTangent = 180;
+                        purplePose = new Pose2d(-42, 32, Math.toRadians(180));
+                        aprilTagPose = new Pose2d(50, 35, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, 32, Math.toRadians(180)); // TODO see below
                         aprilTagPose2 = new Pose2d(48, 42, Math.toRadians(180));
                         backboardApriltagX = -7;
                         secondBackboardApriltagX = 7;
                         centerBackup = 4; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-53,17.5, Math.toRadians(180));
+                        whitePixelStackPose = new Pose2d(-54, 11, Math.toRadians(180));
                         break;
                     case CENTER:
-                        purplePose = new Pose2d(23,24.2, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, 39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        purplePose = new Pose2d(-45, 24.2, Math.toRadians(0));
+                        aprilTagPose = new Pose2d(50, 35, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, 39, Math.toRadians(180)); // TODO see below
                         aprilTagPose2 = new Pose2d(48, 33, Math.toRadians(180));
                         backboardApriltagX = 0;
                         secondBackboardApriltagX = 7;
                         centerBackup = 3.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-54,18.5, Math.toRadians(180));
+                        whitePixelStackPose = new Pose2d(-54, 11, Math.toRadians(180));
                         break;
                     case LEFT:
-                        purplePose = new Pose2d(36,32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, 42, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        purplePose = new Pose2d(-34, 32, Math.toRadians(0));
+                        aprilTagPose = new Pose2d(50, 35, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, 41, Math.toRadians(180)); // TODO see below
                         aprilTagPose2 = new Pose2d(48, 33, Math.toRadians(180));
                         backboardApriltagX = 7;
                         secondBackboardApriltagX = -7;
-                        centerBackup = 1.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-53,13, Math.toRadians(180));
+                        centerBackup = 3.5; // FIX THIS POOP
+                        whitePixelStackPose = new Pose2d(-52, 9, Math.toRadians(180));
                         break;
                 }
                 break;
-            case RED_CLOSE:
-                initPose = new Pose2d(11, -63, Math.toRadians(90));
-                purplePose = new Pose2d(11, -25, Math.toRadians(180));
-                purpleTangent = Math.toRadians(180);
-                initTangent = Math.toRadians(60);
+            case RED_FAR:
+                initPose = new Pose2d(-40, -63, Math.toRadians(90));
+                purplePose = new Pose2d(-45, -25, Math.toRadians(0));
+                purpleTangent = Math.toRadians(0);
+                initTangent = Math.toRadians(120);
                 beforeStackPose = new Pose2d(24,-14, Math.toRadians(180));
-                whitePixelStackPose = new Pose2d(-57,-12, Math.toRadians(180));
                 preWhitePose = new Pose2d(24, -14, Math.toRadians(180));
                 postLowerWhitePose = new Pose2d(28, -14, Math.toRadians(180));
                 preLowerWhiteTangent = 135;
+                parkingTangent = 225;
+                parkingVector = new Vector2d(60, -60);
+                preBackboardTangent = -80;
+                preBackboardPose = new Vector2d(-50, -54);
+                preBackboardEndTangent = 0;
+                noTrussHitPose = new Vector2d(24, -54);
+                toBackboardTangent= -30;
+                stackTangent = 120;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(9.5,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, -30, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(52, -30, Math.toRadians(180)); // TODO see below
-                        aprilTagPose2 = new Pose2d(48, -36, Math.toRadians(180));
-                        backboardApriltagX = 7;
-                        secondBackboardApriltagX = -7;
-                        centerBackup = 8.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-53.5,-11, Math.toRadians(180));
-                        break;
-                    case CENTER:
-                        purplePose = new Pose2d(20,-24.2, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
-                        aprilTagPose2 = new Pose2d(48, -30, Math.toRadians(180));
-                        backboardApriltagX = 0;
-                        secondBackboardApriltagX = 7;
-                        centerBackup = 5.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-52,-10, Math.toRadians(180));
-                        break;
-                    case RIGHT:
-                        purplePose = new Pose2d(33,-32, Math.toRadians(180));
-                        aprilTagPose = new Pose2d(52, -41, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
-                        backboardPose = new Pose2d(52, -45, Math.toRadians(180)); // TODO see below
-                        aprilTagPose2 = new Pose2d(48, -30, Math.toRadians(180));
+                        initTangent = 60;
+                        purpleTangent = 180;
+                        purplePose = new Pose2d(-42, -32, Math.toRadians(180));
+                        aprilTagPose = new Pose2d(50, -35, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -32, Math.toRadians(180)); // TODO see below
+                        aprilTagPose2 = new Pose2d(48, -42, Math.toRadians(180));
                         backboardApriltagX = -7;
                         secondBackboardApriltagX = 7;
-                        centerBackup = 5.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-52,-7.5, Math.toRadians(180));
+                        centerBackup = 4; // FIX THIS POOP
+                        whitePixelStackPose = new Pose2d(-54, -11, Math.toRadians(180));
+                        break;
+                    case CENTER:
+                        purplePose = new Pose2d(-45, -24.2, Math.toRadians(0));
+                        aprilTagPose = new Pose2d(50, -35, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -39, Math.toRadians(180)); // TODO see below
+                        aprilTagPose2 = new Pose2d(48, -33, Math.toRadians(180));
+                        backboardApriltagX = 0;
+                        secondBackboardApriltagX = 7;
+                        centerBackup = 3.5; // FIX THIS POOP
+                        whitePixelStackPose = new Pose2d(-55, -11, Math.toRadians(180));
+                        break;
+                    case RIGHT:
+                        purplePose = new Pose2d(-36, -32, Math.toRadians(0));
+                        aprilTagPose = new Pose2d(50, -35, Math.toRadians(180)); // TODO adjust for april tag estimate to get tag in frame
+                        backboardPose = new Pose2d(52, -41, Math.toRadians(180)); // TODO see below
+                        aprilTagPose2 = new Pose2d(48, -33, Math.toRadians(180));
+                        backboardApriltagX = 7;
+                        secondBackboardApriltagX = -7;
+                        centerBackup = 3.5; // FIX THIS POOP
+                        whitePixelStackPose = new Pose2d(-55, -11, Math.toRadians(180));
                         break;
                 }
-                break;
-            case BLUE_FAR:
-                initPose = new Pose2d(-34, 63, Math.toRadians(-90));
-                purplePose = new Pose2d(-45, 24, Math.toRadians(0));
-
-
-                break;
-            case RED_FAR:
-                // TODO: Write auto
                 break;
         }
     }
@@ -559,22 +543,22 @@ public class AutoMeet3 extends LinearOpMode {
             telemetry.addData("    Red Right  ", "(>)");
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
-                startPosition = START_POSITION.BLUE_CLOSE;
+                startPosition = AutoMeet3Far.START_POSITION.BLUE_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                startPosition = START_POSITION.BLUE_FAR;
+                startPosition = AutoMeet3Far.START_POSITION.BLUE_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 positionFound = true;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
-                startPosition = START_POSITION.RED_FAR;
+                startPosition = AutoMeet3Far.START_POSITION.RED_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 positionFound = true;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_left) {
-                startPosition = START_POSITION.RED_CLOSE;
+                startPosition = AutoMeet3Far.START_POSITION.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 positionFound = true;
             }

@@ -24,7 +24,7 @@ class Intake(hardwareMap: HardwareMap){
         IntakePositions.INIT to 0.75,
         IntakePositions.INTAKE to 0.0,
         IntakePositions.TRANSFER to 0.65,
-        IntakePositions.FIVE to 0.523,
+        IntakePositions.FIVE to 0.518,
         IntakePositions.FOUR to 0.49,
         IntakePositions.DRIVE to 0.45,
         IntakePositions.HIGH to 0.6

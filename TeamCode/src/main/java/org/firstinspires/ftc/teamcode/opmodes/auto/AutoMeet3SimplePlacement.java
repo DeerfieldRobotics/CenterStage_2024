@@ -175,6 +175,8 @@ public class AutoMeet3SimplePlacement extends LinearOpMode{
                 .addTemporalMarker(()->{
                     alignToApriltag();
                     drive.setPoseEstimate(backboardPose);
+                    aprilTagPortal.close();
+                    colorPortal.close();
                     drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                 })
                 .build();
@@ -393,7 +395,7 @@ public class AutoMeet3SimplePlacement extends LinearOpMode{
                 parkingVector = new Vector2d(60, -63);
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(11,-32, Math.toRadians(180));
+                        purplePose = new Pose2d(10,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -30, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -30, Math.toRadians(180)); // TODO see below
                         aprilTagPose2 = new Pose2d(48, -39, Math.toRadians(180));
