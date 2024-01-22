@@ -76,6 +76,7 @@ class Intake(hardwareMap: HardwareMap){
     }
 
     fun intakePower (power: Double) {
+        motorMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motorPower = power*motorPowerMultiplier
     }
 

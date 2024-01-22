@@ -25,7 +25,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
+@Autonomous(name = "Auto Meet 3", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoMeet3 extends LinearOpMode {
     //Define and declare Robot Starting Locations
     private enum START_POSITION {
@@ -46,28 +46,12 @@ public class AutoMeet3 extends LinearOpMode {
     private AprilTagAlignmentProcessor aprilTagProcessorFront;
     private VisionPortal frontCameraPortal;
     private VisionPortal backCameraPortal;
-    private final boolean runAprilTag = true;
     private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
     private VoltageSensor battery;
-
-    //PID values
-    public static double xP = 0.06;
-    public static double xI = 0.03;
-    public static double xD = 0.0006;
-    public static double yP = 0.04;
-    public static double yI = 0.04;
-    public static double yD = 0.0009;
-    public static double headingP = 0.02;
-    public static double headingI = 0.035;
-    public static double headingD = 0.001;
-    private PIDController xPID;
-    private PIDController yPID;
-    private PIDController headingPID;
-    private boolean positionFound = false;
 
     // TRAJECTORIES
     private TrajectorySequence spikeThenBackboard; // SPIKE THEN GO TO BACKBOARD
@@ -116,10 +100,6 @@ public class AutoMeet3 extends LinearOpMode {
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
-
-        xPID = new PIDController(xP, xI, xD);
-        yPID = new PIDController(yP, yI, yD);
-        headingPID = new PIDController(headingP, headingI, headingD);
 
         battery = hardwareMap.voltageSensor.get("Control Hub");
 
@@ -455,7 +435,7 @@ public class AutoMeet3 extends LinearOpMode {
     //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
         //******select start pose*****
-        while (!positionFound && !isStopRequested()) {
+        while (!isStopRequested()) {
             telemetry.addLine("Auto Meet 3 Initialized");
             telemetry.addData("---------------------------------------", "");
             telemetry.addLine("Select Starting Position using DPAD Keys");
@@ -467,22 +447,22 @@ public class AutoMeet3 extends LinearOpMode {
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-                positionFound = true;
+                break;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-                positionFound = true;
+                break;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-                positionFound = true;
+                break;
             }
-            if (gamepad1.dpad_right || gamepad2.dpad_left) {
+            if (gamepad1.dpad_right || gamepad2.dpad_right) {
                 startPosition = START_POSITION.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-                positionFound = true;
+                break;
             }
             telemetry.update();
         }
