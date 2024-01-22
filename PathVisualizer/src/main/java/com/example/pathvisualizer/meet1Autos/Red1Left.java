@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Red1Left {
-    private static double mult = 0.0;
+    private static final double mult = 0.0;
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(700);
 

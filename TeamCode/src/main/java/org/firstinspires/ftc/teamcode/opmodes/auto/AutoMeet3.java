@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import android.util.Size;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -12,30 +10,22 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.sun.tools.javac.comp.Todo;
 
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
-import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentAuto;
+import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionProcessor;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Meet 3", preselectTeleOp = "MainTeleop", group = "a")
+@Autonomous(name = "Auto Meet 3", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoMeet3 extends LinearOpMode {
     //Define and declare Robot Starting Locations
     private enum START_POSITION {
@@ -51,13 +41,11 @@ public class AutoMeet3 extends LinearOpMode {
     private static START_POSITION startPosition = START_POSITION.UNKNOWN; //WHERE WE ARE ON THE FIELD/ RED CLOSE ETC
 
     private Datalog datalog; //TELEMETRY
-    private AprilTagAlignmentAuto aprilTagAlignment; //APRIL TAG DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
-    private WhiteDetectionProcessor whiteDetectionProcessor;
-    private AprilTagProcessorImpl aprilTagProcessor;
-    private VisionPortal colorPortal;
-    private VisionPortal aprilTagPortal;
-    private boolean runAprilTag = true;
+    private AprilTagAlignmentProcessor aprilTagProcessorBack;
+    private AprilTagAlignmentProcessor aprilTagProcessorFront;
+    private VisionPortal frontCameraPortal;
+    private VisionPortal backCameraPortal;
     private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
@@ -65,27 +53,11 @@ public class AutoMeet3 extends LinearOpMode {
     private Slide slide;
     private VoltageSensor battery;
 
-    //PID values
-    public static double xP = 0.06;
-    public static double xI = 0.03;
-    public static double xD = 0.0006;
-    public static double yP = 0.04;
-    public static double yI = 0.04;
-    public static double yD = 0.0009;
-    public static double headingP = 0.02;
-    public static double headingI = 0.035;
-    public static double headingD = 0.001;
-    private PIDController xPID;
-    private PIDController yPID;
-    private PIDController headingPID;
-    private boolean positionFound = false;
-
     // TRAJECTORIES
     private TrajectorySequence spikeThenBackboard; // SPIKE THEN GO TO BACKBOARD
     private TrajectorySequence pathBackboardToWhite; //BACKBOARD TO STACK
     private TrajectorySequence pathWhiteToBackboard;// STACK BACK TO BACKBOARD
     private TrajectorySequence pathBackboardToPark; //PARK AFTER SCORING STACK
-    private TrajectorySequence spikeThenStack; //SPIKE THEN STACK
 
     //POSITIONS & TANGENTS
     private Pose2d initPose; //INITIAL POSITION
@@ -103,10 +75,6 @@ public class AutoMeet3 extends LinearOpMode {
     private Pose2d whitePixelStackPose;
     private Pose2d postLowerWhitePose; //pose after
     private double preLowerWhiteTangent;
-    private double afterSpikeTangent;
-    private double farStackTangent;
-
-    private Pose2d farStackPose;
 
 
     @Override
@@ -133,10 +101,6 @@ public class AutoMeet3 extends LinearOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
 
-        xPID = new PIDController(xP, xI, xD);
-        yPID = new PIDController(yP, yI, yD);
-        headingPID = new PIDController(headingP, headingI, headingD);
-
         battery = hardwareMap.voltageSensor.get("Control Hub");
 
         datalog = new Datalog("AutoDatalogger");
@@ -159,8 +123,8 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
-        colorPortal.stopStreaming();
-        aprilTagPortal.resumeLiveView();
+        frontCameraPortal.stopStreaming();
+        backCameraPortal.resumeLiveView();
         telemetry.clear();
         buildAuto(); //INITIALIZE POSITIONS
         datalog.opModeStatus.set("RUNNING");
@@ -176,11 +140,11 @@ public class AutoMeet3 extends LinearOpMode {
                 // GO TO BACKBOARD
                 .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
+                .addTemporalMarker(()->{
+                    aprilTagProcessorBack.setTargetX(backboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
                     drive.setPoseEstimate(backboardPose);
-                    colorPortal.close();
                     drive.followTrajectorySequenceAsync(pathBackboardToWhite);
                 })
                 .build();
@@ -237,11 +201,13 @@ public class AutoMeet3 extends LinearOpMode {
                     setSlideHeight(-1400);
                 })
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
+                .addTemporalMarker(()->{
+                    aprilTagProcessorBack.setTargetX(secondBackboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
+                    backCameraPortal.close();
+                    frontCameraPortal.close();
                     drive.setPoseEstimate(backboardPose);
-                    aprilTagPortal.close();
                     drive.followTrajectorySequenceAsync(pathBackboardToPark);
                 })
                 .build();
@@ -251,7 +217,6 @@ public class AutoMeet3 extends LinearOpMode {
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(() -> {
                     setSlideHeight(-1400);
-                    aprilTagPortal.close();
                 })
                 .waitSeconds(0.4)
                 .addTemporalMarker(this::outtakeIn)
@@ -261,81 +226,15 @@ public class AutoMeet3 extends LinearOpMode {
         drive.followTrajectorySequenceAsync(spikeThenBackboard);
     }
 
-//    public void startAutoFar(){
-//        colorPortal.stopStreaming();
-//        aprilTagPortal.resumeLiveView();
-//        telemetry.clear();
-//        buildAuto(); //INITIALIZE POSITIONS
-//        datalog.opModeStatus.set("RUNNING");
-//        drive.setPoseEstimate(initPose);
-//        // 1. Spike
-//        // 2. Stack
-//        // 3. Backboard
-//
-//        spikeThenStack = drive.trajectorySequenceBuilder(initPose)
-//                .setTangent(initTangent)
-//                .addTemporalMarker(()->{ intake.setServoPosition(Intake.IntakePositions.DRIVE); })
-//                .splineToSplineHeading(purplePose, purpleTangent)
-//                .addTemporalMarker(this::outtakePurple) // SPIKE AND SCORE
-//                .setTangent(afterSpikeTangent)
-//                // GO TO STACK
-//                .splineToLinearHeading(farStackPose, Math.toRadians(farStackTangent))
-//                .addTemporalMarker(this::intake)
-//                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
-//                .addTemporalMarker(()->{
-//                    alignToApriltag();
-//                    drive.setPoseEstimate(backboardPose);
-//                    drive.followTrajectorySequenceAsync(pathBackboardToWhite);
-//                })
-//                .build();
-//
-//        pathWhiteToBackboard = drive.trajectorySequenceBuilder(preWhitePose) // TODO: WTF IS THIS?????????????
-//                .splineToSplineHeading(whitePixelStackPose, Math.toRadians(180))
-//                .forward(2)
-//                .addTemporalMarker(this::intake)
-//                .waitSeconds(0.5)
-//                .back(4)
-//                .addTemporalMarker(this::transfer)
-//                .waitSeconds(0.7)
-//                .addTemporalMarker(this::outtakeIn)
-//                .setTangent(0)
-//                .splineToSplineHeading(postLowerWhitePose, 0)
-//                .splineToConstantHeading(new Vector2d(aprilTagPose2.getX(), aprilTagPose2.getY()), Math.toRadians(45))
-//                .addTemporalMarker(()->{
-//                    slide.setTargetPosition(-1400);
-//                })
-//                .addTemporalMarker(this::outtake)
-//                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
-//                .addTemporalMarker(()->{
-//                    alignToApriltag();
-//                    drive.setPoseEstimate(backboardPose);
-//                })
-//                .waitSeconds(0.5)
-//                .back(4.5)
-//                .waitSeconds(0.6)
-//                .addTemporalMarker(this::drop)
-//                .waitSeconds(0.4)
-//                .addTemporalMarker(this::outtakeIn)
-//                .forward(7)
-//                .build();
-//
-//
-//        drive.followTrajectorySequenceAsync(spikeThenStack);
-//    }
-
-    private void alignToWhite() {
-        whiteDetectionProcessor.alignRobot(drive);
-    }
-
     private void alignToApriltag() {
         double currentTime = getRuntime();
         while(!isStopRequested()) {
-            aprilTagAlignment.update();
-            aprilTagAlignment.alignRobotToBackboard(drive);
+            aprilTagProcessorBack.update();
+            aprilTagProcessorBack.alignRobotToBackboard(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
-            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
             intake.update();
@@ -357,41 +256,31 @@ public class AutoMeet3 extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder()
-                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
-                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
-                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
-                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
-                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
-                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
-                .build();
-
-        aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1); // Used for managing the AprilTag detection process.
+        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
+        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
-        whiteDetectionProcessor = new WhiteDetectionProcessor(); // Used for managing the white detection process.
 
-        List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
-        int portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
-        int portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
+        List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
+        int frontPortalId = (Integer) JavaUtil.inListGet(portalList, JavaUtil.AtMode.FROM_START, 0, false);
+        int backPortalId = (Integer) JavaUtil.inListGet(portalList, JavaUtil.AtMode.FROM_START, 1, false);
 
-        aprilTagPortal = new VisionPortal.Builder()
-                .setCamera(backCamera)
-                .setCameraResolution(new android.util.Size(1280, 720))
-                .addProcessor(aprilTagProcessor)
-                .setLiveViewContainerId(portal_2_View_ID)
-                .build();
-        aprilTagAlignment = new AprilTagAlignmentAuto(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, aprilTagProcessor);
-
-        colorPortal = new VisionPortal.Builder()
+        frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
                 .setCameraResolution(new android.util.Size(320, 240))
-                .addProcessors(colorDetectionProcessor, whiteDetectionProcessor)
-                .setLiveViewContainerId(portal_1_View_ID)
+                .addProcessors(colorDetectionProcessor, aprilTagProcessorFront)
+                .setLiveViewContainerId(frontPortalId)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        aprilTagPortal.stopLiveView();
-        colorPortal.setProcessorEnabled(colorDetectionProcessor, true);
-        colorPortal.setProcessorEnabled(whiteDetectionProcessor, false);
+        backCameraPortal = new VisionPortal.Builder()
+                .setCamera(backCamera)
+                .setCameraResolution(new android.util.Size(1280, 720))
+                .addProcessor(aprilTagProcessorBack)
+                .setLiveViewContainerId(backPortalId)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .build();
+
+        backCameraPortal.stopLiveView();
     }
     private void detectPurplePath() {
         purplePixelPath = colorDetectionProcessor.getPosition();
@@ -454,14 +343,14 @@ public class AutoMeet3 extends LinearOpMode {
                 preLowerWhiteTangent = 135;
                 switch (purplePixelPath) {
                     case LEFT:
-                        purplePose = new Pose2d(9.5,-32, Math.toRadians(180));
+                        purplePose = new Pose2d(11,-32, Math.toRadians(180));
                         aprilTagPose = new Pose2d(52, -30, Math.toRadians(180)); // *this is below* TODO adjust for april tag estimate to get tag in frame
                         backboardPose = new Pose2d(52, -30, Math.toRadians(180)); // TODO see below
-                        aprilTagPose2 = new Pose2d(48, -36, Math.toRadians(180));
+                        aprilTagPose2 = new Pose2d(48, -39, Math.toRadians(180));
                         backboardApriltagX = 7;
                         secondBackboardApriltagX = -7;
-                        centerBackup = 8.5; // FIX THIS POOP
-                        whitePixelStackPose = new Pose2d(-53.5,-11, Math.toRadians(180));
+                        centerBackup = 5.5; // FIX THIS POOP
+                        whitePixelStackPose = new Pose2d(-52,-11, Math.toRadians(180));
                         break;
                     case CENTER:
                         purplePose = new Pose2d(20,-24.2, Math.toRadians(180));
@@ -486,10 +375,7 @@ public class AutoMeet3 extends LinearOpMode {
                 }
                 break;
             case BLUE_FAR:
-                initPose = new Pose2d(-34, 63, Math.toRadians(-90));
-                purplePose = new Pose2d(-45, 24, Math.toRadians(0));
-
-
+                // TODO: Write auto
                 break;
             case RED_FAR:
                 // TODO: Write auto
@@ -549,7 +435,7 @@ public class AutoMeet3 extends LinearOpMode {
     //Method to select starting position using dpad on gamepad
     public void selectStartingPosition() {
         //******select start pose*****
-        while (!positionFound && !isStopRequested()) {
+        while (!isStopRequested()) {
             telemetry.addLine("Auto Meet 3 Initialized");
             telemetry.addData("---------------------------------------", "");
             telemetry.addLine("Select Starting Position using DPAD Keys");
@@ -561,22 +447,22 @@ public class AutoMeet3 extends LinearOpMode {
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = START_POSITION.BLUE_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-                positionFound = true;
+                break;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
                 startPosition = START_POSITION.BLUE_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-                positionFound = true;
+                break;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 startPosition = START_POSITION.RED_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-                positionFound = true;
+                break;
             }
-            if (gamepad1.dpad_right || gamepad2.dpad_left) {
+            if (gamepad1.dpad_right || gamepad2.dpad_right) {
                 startPosition = START_POSITION.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-                positionFound = true;
+                break;
             }
             telemetry.update();
         }

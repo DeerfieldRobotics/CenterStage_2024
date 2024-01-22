@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "Servo Tester", group = "c")
 public class ServoTester extends LinearOpMode {
     private Servo s, ws;
-    private double maxSpeed = 0.001; // Adjust this value to change the maximum speed
+    private final double maxSpeed = 0.001; // Adjust this value to change the maximum speed
     private double servoPosition = 0.5; // Initial position of the servo
 
     @Override

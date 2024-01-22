@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.arcrobotics.ftclib.controller.PIDController;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
-import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignment;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Launcher;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
+
+import java.util.List;
 
 @TeleOp(name = "Main Teleop", group = "a")
 public class MainTeleop extends LinearOpMode {
@@ -28,9 +27,9 @@ public class MainTeleop extends LinearOpMode {
     private boolean squareToggle = false;
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
-    private double lastTickTime = 0;
-    private double avgTickTime = 0;
-    private int tickCount = 0;
+    private final double lastTickTime = 0;
+    private final double avgTickTime = 0;
+    private final int tickCount = 0;
 
     private void driveNormal() {
         //driving values
@@ -177,23 +176,11 @@ public class MainTeleop extends LinearOpMode {
     }
 
     public void initialize() {
-//        while(!isStopRequested() && alliance == null) {
-//            if(gamepad1.dpad_up || gamepad2.dpad_up) {
-//                alliance = AllianceHelper.Alliance.RED;
-//                AllianceHelper.alliance = AllianceHelper.Alliance.RED;
-//                break;
-//            }
-//            else if(gamepad1.dpad_down || gamepad2.dpad_down) {
-//                alliance = AllianceHelper.Alliance.BLUE;
-//                AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
-//                break;
-//            }
-//            telemetry.addData("Alliance", "Select Alliance");
-//            telemetry.addData("↑", "Red");
-//            telemetry.addData("↓", "Blue");
-//            telemetry.update();
-//        }
-        telemetry.clear();
+        //BULK READS
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+
+        //HARDWARE
         slide = new Slide(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
         drivetrain = new CogchampDrive(hardwareMap);
@@ -201,15 +188,6 @@ public class MainTeleop extends LinearOpMode {
         launcher = new Launcher(hardwareMap);
 
         drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-//        if (AprilTagAlignment.Alliance.RED == alliance) {
-//            gamepad1.setLedColor(255, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
-//            gamepad2.setLedColor(255, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
-//        } else {
-//            gamepad1.setLedColor(0, 0, 255, Gamepad.LED_DURATION_CONTINUOUS);
-//            gamepad2.setLedColor(0, 0, 255, Gamepad.LED_DURATION_CONTINUOUS);
-//        }
 
         waitForStart();
     }

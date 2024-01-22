@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 public class OuttakeTester extends LinearOpMode {
     private Slide slide;
     private Outtake outtake;
-    private boolean crossToggle = false;
+    private final boolean crossToggle = false;
     private double armAngle;
     private double wristAngle;
     @Override
