@@ -56,11 +56,11 @@ class AprilTagAlignmentAuto(
     var turn = 0.0
 
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
-    private val cameraOffset = 6.5;
+    private val cameraOffset = 6.5
 
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
-    private var usingMultiplePortals = true;
+    private var usingMultiplePortals = true
     var targetFound = false
         private set
 
@@ -164,7 +164,7 @@ class AprilTagAlignmentAuto(
             turn = turnMultiplier * headingPower
         }
 
-        drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn));
+        drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn))
     }
 
     fun robotAligned(): Boolean = xError < 0.5 && yError < 0.5 && headingError < 1.0

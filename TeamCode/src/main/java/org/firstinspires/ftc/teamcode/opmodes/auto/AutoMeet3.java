@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import android.util.Size;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -12,26 +10,18 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.sun.tools.javac.comp.Todo;
 
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
-import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentAuto;
+import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionPipeline;
-import org.firstinspires.ftc.teamcode.utils.detection.WhiteDetectionProcessor;
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl;
 
 import java.util.List;
 
@@ -51,13 +41,12 @@ public class AutoMeet3 extends LinearOpMode {
     private static START_POSITION startPosition = START_POSITION.UNKNOWN; //WHERE WE ARE ON THE FIELD/ RED CLOSE ETC
 
     private Datalog datalog; //TELEMETRY
-    private AprilTagAlignmentAuto aprilTagAlignment; //APRIL TAG DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
-    private WhiteDetectionProcessor whiteDetectionProcessor;
-    private AprilTagProcessorImpl aprilTagProcessor;
-    private VisionPortal colorPortal;
-    private VisionPortal aprilTagPortal;
-    private boolean runAprilTag = true;
+    private AprilTagAlignmentProcessor aprilTagProcessorBack;
+    private AprilTagAlignmentProcessor aprilTagProcessorFront;
+    private VisionPortal frontCameraPortal;
+    private VisionPortal backCameraPortal;
+    private final boolean runAprilTag = true;
     private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
     private CogchampDrive drive;
     private Intake intake;
@@ -154,8 +143,8 @@ public class AutoMeet3 extends LinearOpMode {
     }
 
     public void startAuto() {
-        colorPortal.stopStreaming();
-        aprilTagPortal.resumeLiveView();
+        frontCameraPortal.stopStreaming();
+        backCameraPortal.resumeLiveView();
         telemetry.clear();
         buildAuto(); //INITIALIZE POSITIONS
         datalog.opModeStatus.set("RUNNING");
@@ -171,7 +160,8 @@ public class AutoMeet3 extends LinearOpMode {
                 // GO TO BACKBOARD
                 .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(backboardApriltagX);})
+                .addTemporalMarker(()->{
+                    aprilTagProcessorBack.setTargetX(backboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
                     drive.setPoseEstimate(backboardPose);
@@ -231,11 +221,12 @@ public class AutoMeet3 extends LinearOpMode {
                     setSlideHeight(-1400);
                 })
                 .addTemporalMarker(this::outtake)
-                .addTemporalMarker(()->{aprilTagAlignment.setTargetX(secondBackboardApriltagX);})
+                .addTemporalMarker(()->{
+                    aprilTagProcessorBack.setTargetX(secondBackboardApriltagX);})
                 .addTemporalMarker(()->{
                     alignToApriltag();
-                    aprilTagPortal.close();
-                    colorPortal.close();
+                    backCameraPortal.close();
+                    frontCameraPortal.close();
                     drive.setPoseEstimate(backboardPose);
                     drive.followTrajectorySequenceAsync(pathBackboardToPark);
                 })
@@ -255,19 +246,15 @@ public class AutoMeet3 extends LinearOpMode {
         drive.followTrajectorySequenceAsync(spikeThenBackboard);
     }
 
-    private void alignToWhite() {
-        whiteDetectionProcessor.alignRobot(drive);
-    }
-
     private void alignToApriltag() {
         double currentTime = getRuntime();
         while(!isStopRequested()) {
-            aprilTagAlignment.update();
-            aprilTagAlignment.alignRobotToBackboard(drive);
+            aprilTagProcessorBack.update();
+            aprilTagProcessorBack.alignRobotToBackboard(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagAlignment.getXError());
-            telemetry.addData("y error","%5.1f inches", aprilTagAlignment.getYError());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagAlignment.getHeadingError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
             intake.update();
@@ -289,41 +276,31 @@ public class AutoMeet3 extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        AprilTagLibrary aprilTagLibrary = new AprilTagLibrary.Builder()
-                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
-                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
-                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
-                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
-                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
-                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
-                .build();
-
-        aprilTagProcessor = new AprilTagProcessorImpl(902.125, 902.125, 604.652, 368.362, DistanceUnit.INCH, AngleUnit.DEGREES, aprilTagLibrary, true, true, true, true, AprilTagProcessor.TagFamily.TAG_36h11, 1); // Used for managing the AprilTag detection process.
+        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
+        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
-        whiteDetectionProcessor = new WhiteDetectionProcessor(); // Used for managing the white detection process.
 
-        List<Integer> myPortalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
-        int portal_1_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 0, false);
-        int portal_2_View_ID = (Integer) JavaUtil.inListGet(myPortalList, JavaUtil.AtMode.FROM_START, 1, false);
+        List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
+        int frontPortalId = (Integer) JavaUtil.inListGet(portalList, JavaUtil.AtMode.FROM_START, 0, false);
+        int backPortalId = (Integer) JavaUtil.inListGet(portalList, JavaUtil.AtMode.FROM_START, 1, false);
 
-        aprilTagPortal = new VisionPortal.Builder()
-                .setCamera(backCamera)
-                .setCameraResolution(new android.util.Size(1280, 720))
-                .addProcessor(aprilTagProcessor)
-                .setLiveViewContainerId(portal_2_View_ID)
-                .build();
-        aprilTagAlignment = new AprilTagAlignmentAuto(backCamera, 0.0, 12.0, 0.0, AllianceHelper.alliance, aprilTagProcessor);
-
-        colorPortal = new VisionPortal.Builder()
+        frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
                 .setCameraResolution(new android.util.Size(320, 240))
-                .addProcessors(colorDetectionProcessor, whiteDetectionProcessor)
-                .setLiveViewContainerId(portal_1_View_ID)
+                .addProcessors(colorDetectionProcessor, aprilTagProcessorFront)
+                .setLiveViewContainerId(frontPortalId)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        aprilTagPortal.stopLiveView();
-        colorPortal.setProcessorEnabled(colorDetectionProcessor, true);
-        colorPortal.setProcessorEnabled(whiteDetectionProcessor, false);
+        backCameraPortal = new VisionPortal.Builder()
+                .setCamera(backCamera)
+                .setCameraResolution(new android.util.Size(1280, 720))
+                .addProcessor(aprilTagProcessorBack)
+                .setLiveViewContainerId(backPortalId)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .build();
+
+        backCameraPortal.stopLiveView();
     }
     private void detectPurplePath() {
         purplePixelPath = colorDetectionProcessor.getPosition();

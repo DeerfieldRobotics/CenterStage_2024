@@ -56,7 +56,7 @@ class AprilTagAlignment(
     var turn = 0.0
 
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
-    private val cameraOffset = 6.5;
+    private val cameraOffset = 6.5
 
     private var aprilTagLibrary = AprilTagLibrary.Builder()
         .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
@@ -72,7 +72,7 @@ class AprilTagAlignment(
     private var visionPortal: VisionPortal
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
-    private var usingMultiplePortals = true;
+    private var usingMultiplePortals = true
     var targetFound = false
         private set
 
@@ -112,16 +112,16 @@ class AprilTagAlignment(
         visionPortal = if(usingMultiplePortals) {
             VisionPortal.Builder()
                 .setCamera(camera)
-                .setCameraResolution(android.util.Size(1280, 720))
+                .setCameraResolution(Size(1280, 720))
                 .addProcessor(processor)
                 .setLiveViewContainerId(viewportID)
-                .build();
+                .build()
         } else {
             VisionPortal.Builder()
                 .setCamera(camera)
-                .setCameraResolution(android.util.Size(1280, 720))
+                .setCameraResolution(Size(1280, 720))
                 .addProcessor(processor)
-                .build();
+                .build()
         }
     }
 
@@ -209,7 +209,7 @@ class AprilTagAlignment(
             turn = turnMultiplier * headingPower
         }
 
-        drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn));
+        drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn))
     }
 
     fun robotAligned(): Boolean = xController.atSetPoint() && yController.atSetPoint() && headingController.atSetPoint()
