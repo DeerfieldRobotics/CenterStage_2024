@@ -158,7 +158,6 @@ public class AutoRegionals extends LinearOpMode {
                 //TODO BACKBOARD
             }
             //TODO PARK
-
         }
     }
 
@@ -295,9 +294,9 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addLine("-------------------------------------------------");
             telemetry.addLine("Select Autonomous Starting Position using DPAD Keys");
             telemetry.addData("    Blue Close   ", "(^)");
-            telemetry.addData("    Blue Far ", "(v)");
-            telemetry.addData("    Red Far    ", "(<)");
-            telemetry.addData("    Red Close  ", "(>)");
+            telemetry.addData("    Blue Far     ", "(v)");
+            telemetry.addData("    Red Far      ", "(<)");
+            telemetry.addData("    Red Close    ", "(>)");
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 startPosition = StartPosition.BLUE_CLOSE;
