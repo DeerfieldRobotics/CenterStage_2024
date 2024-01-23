@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -60,14 +58,18 @@ public class AutoRegionals extends LinearOpMode {
     private VoltageSensor battery;
 
     // TRAJECTORIES
-    private TrajectorySequence spikeThenBackboard; // SPIKE THEN GO TO BACKBOARD
-    private TrajectorySequence pathBackboardToWhite; //BACKBOARD TO STACK
-    private TrajectorySequence pathWhiteToBackboard;// STACK BACK TO BACKBOARD
-    private TrajectorySequence pathBackboardToPark; //PARK AFTER SCORING STACK
+    private TrajectorySequence init; // INIT THEN GO TO BACKBOARD
+    private TrajectorySequence backboardToSpike; // BACKBOARD TO SPIKE
+    private TrajectorySequence backboardToWhite; //BACKBOARD TO STACK
+    private TrajectorySequence whiteToBackboard;// STACK BACK TO BACKBOARD
+    private TrajectorySequence backboardToPark; //PARK AFTER SCORING STACK
+    private TrajectorySequence spikeToBackboard; //SPIKE TO BACKBOARD
 
     //POSITIONS & TANGENTS
     private Pose2d initPose; //INITIAL POSITION
-    private Pose2d purplePose; //SPIKE POSITION
+    private Pose2d spikePose; //SPIKE POSITION
+    private Pose2d wingTruss; //WING TRUSS POSITION
+    private Pose2d boardTruss; //BOARD TRUSS POSITION
     private Pose2d aprilTagPose; // POSITION AFTER APRIL TAGS
     private Pose2d aprilTagPose2;
     private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
@@ -143,22 +145,49 @@ public class AutoRegionals extends LinearOpMode {
         buildAuto();
         drive.setPoseEstimate(initPose);
         if(startPosition == StartPosition.RED_CLOSE || startPosition == StartPosition.BLUE_CLOSE) {
-            //TODO SPIKE PLACEMENT AND BACKBOARD
-            if(path != Path.PLACEMENT) {
-                //TODO CYCLE
-            }
+            init = drive.trajectorySequenceBuilder(initPose)
+                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+                    .addTemporalMarker(() -> {
+                        alignToApriltagBackboard(); //TODO add apriltag errors
+                        drive.setPoseEstimate(backboardPose);
+                        drive.followTrajectorySequenceAsync(backboardToSpike); })
+                    .build();
+            backboardToSpike = drive.trajectorySequenceBuilder(backboardPose)
+                    .splineToLinearHeading(spikePose, spikePose.getHeading())
+                    .addTemporalMarker(this::outtakePurple)
+                    .addTemporalMarker(() -> {
+                        if(path != Path.PLACEMENT)
+                            drive.followTrajectorySequenceAsync(backboardToWhite);
+                        else
+                            drive.followTrajectorySequenceAsync(backboardToPark);
+                    })
+                    .build();
             //TODO PARK
         }
         else { //FAR AUTO
-            //TODO SPIKE PLACEMENT
-            if(path != Path.PLACEMENT) {
-                //TODO BACKBOARD AND CYCLE
-            }
-            else {
-                //TODO BACKBOARD
-            }
+            init = drive.trajectorySequenceBuilder(initPose)
+                    .splineToLinearHeading(spikePose, purpleTangent) //TODO forgot to add spline to white and such
+                    .addTemporalMarker(() -> {
+                        drive.followTrajectorySequenceAsync(spikeToBackboard);
+                    })
+                    .build();
+            spikeToBackboard = drive.trajectorySequenceBuilder(spikePose)
+                    .splineToSplineHeading(wingTruss, Math.toRadians(180.0))
+                    .splineToSplineHeading(boardTruss, Math.toRadians(180.0))
+                    .addTemporalMarker(this::outtake)
+                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+                    .addTemporalMarker(() -> {
+                        alignToApriltagBackboard();
+                        drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
+                        if(path != Path.PLACEMENT)
+                            drive.followTrajectorySequenceAsync(backboardToWhite);
+                        else
+                            drive.followTrajectorySequenceAsync(backboardToPark);
+                    })
+                    .build();
             //TODO PARK
         }
+        drive.followTrajectorySequenceAsync(init);
     }
 
     private void autoLoop() {
@@ -171,42 +200,86 @@ public class AutoRegionals extends LinearOpMode {
     private void buildAuto() {
         switch(startPosition) {
             case RED_CLOSE:
+                initPose = PoseHelper.initCloseRed;
+                switch(path) {
+                    case OUTSIDE:
+                        wingTruss = PoseHelper.wingTrussRed;
+                        boardTruss = PoseHelper.boardTrussRed;
+                    case INSIDE:
+
+                }
                 switch(purplePixelPath) {
                     case LEFT:
+                        spikePose = PoseHelper.closeSpikeLeftRed;
                         break;
                     case CENTER:
+                        spikePose = PoseHelper.closeSpikeCenterRed;
                         break;
                     case RIGHT:
+                        spikePose = PoseHelper.closeSpikeRightRed;
                         break;
                 }
                 break;
             case RED_FAR:
+                initPose = PoseHelper.initFarRed;
+                switch(path) {
+                    case OUTSIDE:
+                        wingTruss = PoseHelper.wingTrussRed;
+                        boardTruss = PoseHelper.boardTrussRed;
+                    case INSIDE:
+
+                }
                 switch(purplePixelPath) {
                     case LEFT:
+                        spikePose = PoseHelper.farSpikeLeftRed;
                         break;
                     case CENTER:
+                        spikePose = PoseHelper.farSpikeCenterRed;
                         break;
                     case RIGHT:
+                        spikePose = PoseHelper.farSpikeRightRed;
                         break;
                 }
                 break;
             case BLUE_CLOSE:
+                initPose = PoseHelper.initCloseBlue;
+                switch(path) {
+                    case OUTSIDE:
+                        wingTruss = PoseHelper.wingTrussBlue;
+                        boardTruss = PoseHelper.boardTrussBlue;
+                    case INSIDE:
+
+                }
                 switch(purplePixelPath) {
                     case LEFT:
+                        spikePose = PoseHelper.closeSpikeLeftBlue;
                         break;
                     case CENTER:
+                        spikePose = PoseHelper.closeSpikeCenterBlue;
                         break;
                     case RIGHT:
+                        spikePose = PoseHelper.closeSpikeRightBlue;
                         break;
                 }
                 break;
             case BLUE_FAR:
+                initPose = PoseHelper.initFarBlue;
+                switch(path) {
+                    case OUTSIDE:
+                        wingTruss = PoseHelper.wingTrussBlue;
+                        boardTruss = PoseHelper.boardTrussBlue;
+                    case INSIDE:
+
+                }
                 switch(purplePixelPath) {
                     case LEFT:
+                        spikePose = PoseHelper.farSpikeLeftBlue;
                         break;
                     case CENTER:
+                        spikePose = PoseHelper.farSpikeCenterBlue;
                         break;
                     case RIGHT:
+                        spikePose = PoseHelper.farSpikeRightBlue;
                         break;
                 }
                 break;
