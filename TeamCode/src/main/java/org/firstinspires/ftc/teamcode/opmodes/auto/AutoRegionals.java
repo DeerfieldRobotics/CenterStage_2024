@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.teamcode.opmodes.auto.PoseHelper;
 
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class AutoRegionals extends LinearOpMode {
     private TrajectorySequence init; // INIT THEN GO TO BACKBOARD
     private TrajectorySequence backboardToSpike; // BACKBOARD TO SPIKE
     private TrajectorySequence backboardToWhite; //BACKBOARD TO STACK
+    private TrajectorySequence spikeToStack; //SPIKE TO STACK
     private TrajectorySequence whiteToBackboard;// STACK BACK TO BACKBOARD
     private TrajectorySequence backboardToPark; //PARK AFTER SCORING STACK
     private TrajectorySequence spikeToBackboard; //SPIKE TO BACKBOARD
@@ -166,12 +168,25 @@ public class AutoRegionals extends LinearOpMode {
         }
         else { //FAR AUTO
             init = drive.trajectorySequenceBuilder(initPose)
-                    .splineToLinearHeading(spikePose, purpleTangent) //TODO forgot to add spline to white and such
+                    .splineToLinearHeading(spikePose, spikePose.getHeading())
+                    .build();
+            spikeToStack = drive.trajectorySequenceBuilder(backboardPose)
+                    .addTemporalMarker(this::outtakePurple)
                     .addTemporalMarker(() -> {
+                        intake.setServoPosition(Intake.IntakePositions.FIVE);
+                    })
+                    .setTangent(Math.toRadians(240))
+                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                    .addTemporalMarker(() -> {
+                        alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(spikeToBackboard);
                     })
                     .build();
             spikeToBackboard = drive.trajectorySequenceBuilder(spikePose)
+                    .addTemporalMarker(this::intake)
+                    .forward(4)
+                    .waitSeconds(1)
+                    .addTemporalMarker(this::stopIntake)
                     .splineToSplineHeading(wingTruss, Math.toRadians(180.0))
                     .splineToSplineHeading(boardTruss, Math.toRadians(180.0))
                     .addTemporalMarker(this::outtake)
@@ -321,9 +336,12 @@ public class AutoRegionals extends LinearOpMode {
 
     private void alignToApriltagBackboard() {
         double currentTime = getRuntime();
+        aprilTagProcessorBack.setTargetX(backboardApriltagX);
+        aprilTagProcessorBack.setTargetY(12.0);
+        aprilTagProcessorBack.setTargetHeading(0.0);
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
-            aprilTagProcessorBack.alignRobotToBackboard(drive);
+            aprilTagProcessorBack.alignRobot(drive);
 
             telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
@@ -334,7 +352,29 @@ public class AutoRegionals extends LinearOpMode {
             slide.update();
             outtake.update();
 
-            if(getRuntime()-currentTime > 2) break;
+            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
+        }
+    }
+
+    private void alignToApriltagStack() {
+        double currentTime = getRuntime();
+        aprilTagProcessorFront.setTargetX(0.0);
+        aprilTagProcessorFront.setTargetY(12.0);
+        aprilTagProcessorFront.setTargetHeading(0.0);
+        while(!isStopRequested()) {
+            aprilTagProcessorFront.update();
+            aprilTagProcessorFront.alignRobot(drive);
+
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
+            telemetry.addData("drivetrain power", drive.getPoseEstimate());
+            telemetry.update();
+            intake.update();
+            slide.update();
+            outtake.update();
+
+            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
         }
     }
 

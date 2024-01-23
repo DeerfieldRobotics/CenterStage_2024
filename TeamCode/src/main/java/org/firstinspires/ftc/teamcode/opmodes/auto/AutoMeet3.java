@@ -13,7 +13,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
-import com.arcrobotics.ftclib.controller.PIDController;
 
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
@@ -230,7 +229,7 @@ public class AutoMeet3 extends LinearOpMode {
         double currentTime = getRuntime();
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
-            aprilTagProcessorBack.alignRobotToBackboard(drive);
+            aprilTagProcessorBack.alignRobot(drive);
 
             telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
             telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());

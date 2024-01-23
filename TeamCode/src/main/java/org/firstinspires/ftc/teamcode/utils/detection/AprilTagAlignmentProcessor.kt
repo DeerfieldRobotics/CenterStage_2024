@@ -96,9 +96,12 @@ class AprilTagAlignmentProcessor(
         private set
 
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
-    private val cameraOffset = 6.5 //TODO FIGURE OUT PROPER CAMERA OFFSET, WITH X AN Y COMPONENTS FOR FRONT AND BACK
+    private val backCameraOffset = 6.0787402 //TODO FIGURE OUT PROPER CAMERA OFFSET, WITH X AN Y COMPONENTS FOR FRONT AND BACK
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
+
+    private val frontCameraXOffset = 3.7823051181;
+    private val frontCameraYOffset = 8.3031496;
 
     var targetFound = false
         private set
@@ -165,8 +168,8 @@ class AprilTagAlignmentProcessor(
                 currentY /= total
                 currentHeading /= total
 
-                currentX += sin(Math.toRadians(currentHeading)) * cameraOffset
-                currentY += cos(Math.toRadians(currentHeading)) * cameraOffset
+                currentX += sin(Math.toRadians(currentHeading)) * backCameraOffset
+                currentY += cos(Math.toRadians(currentHeading)) * backCameraOffset
 
                 xError = targetX - currentX
                 yError = targetY - currentY
@@ -194,8 +197,8 @@ class AprilTagAlignmentProcessor(
                 currentY /= total
                 currentHeading /= total
 
-                currentX += sin(Math.toRadians(currentHeading)) * cameraOffset
-                currentY += cos(Math.toRadians(currentHeading)) * cameraOffset
+                currentX += sin(Math.toRadians(currentHeading)) * frontCameraXOffset + cos(Math.toRadians(currentHeading)) * frontCameraYOffset
+                currentY += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
 
                 xError = targetX - currentX
                 yError = targetY - currentY
@@ -204,7 +207,7 @@ class AprilTagAlignmentProcessor(
         }
     }
 
-    fun alignRobotToBackboard(drivetrain: CogchampDrive?) {
+    fun alignRobot(drivetrain: CogchampDrive?) {
         xPower = 0.0
         yPower = 0.0
         headingPower = 0.0
