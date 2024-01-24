@@ -190,10 +190,12 @@ public class AutoRegionals extends LinearOpMode {
                     .setTangent(0)
                     .addTemporalMarker(this::stopIntake)
                     .addTemporalMarker(this::transfer)
+                    .addTemporalMarker(() ->{ intake.intakePower(-1.0); })
                     .splineToSplineHeading(wingTruss, Math.toRadians(0))
+                    .addTemporalMarker(() -> { intake.intakePower(0.0); })
                     .splineToSplineHeading(boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(0))
+                    .splineToLinearHeading(backboardPose, Math.toRadians(30))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
@@ -207,9 +209,9 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::drop)
                     .addTemporalMarker(this::outtakeIn)
                     .waitSeconds(0.5)
-                    .setTangent(Math.toRadians(180))
+                    .setTangent(Math.toRadians(210.0))
                     .splineToLinearHeading(PoseHelper.boardTrussRed, Math.toRadians(180.0))
-                    .splineToSplineHeading(PoseHelper.wingTrussRed, Math.toRadians(180.0))
+                    .splineToLinearHeading(PoseHelper.wingTrussRed, Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
@@ -321,8 +323,8 @@ public class AutoRegionals extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
-        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
+        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRed : PoseHelper.backboardBlue); // Used for managing the april tag detection process.
+        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.apriltagStackRed : PoseHelper.apriltagStackBlue); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
 
         List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
@@ -352,15 +354,12 @@ public class AutoRegionals extends LinearOpMode {
 
     private void alignToApriltagBackboard() {
         double currentTime = getRuntime();
-        aprilTagProcessorBack.setTargetX(backboardApriltagX);
-        aprilTagProcessorBack.setTargetY(12.0);
-        aprilTagProcessorBack.setTargetHeading(0.0);
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
             aprilTagProcessorBack.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
@@ -374,15 +373,12 @@ public class AutoRegionals extends LinearOpMode {
 
     private void alignToApriltagStack() {
         double currentTime = getRuntime();
-        aprilTagProcessorFront.setTargetX(0.0);
-        aprilTagProcessorFront.setTargetY(12.0);
-        aprilTagProcessorFront.setTargetHeading(0.0);
         while(!isStopRequested()) {
             aprilTagProcessorFront.update();
             aprilTagProcessorFront.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();

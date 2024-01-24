@@ -5,7 +5,6 @@ import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessorImpl
 import kotlin.math.cos
@@ -13,11 +12,8 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 class AprilTagAlignmentProcessor(
-    var cameraType: CameraType,
-    var targetX: Double,
-    var targetY: Double,
-    var targetHeading: Double,
-    val alliance: AllianceHelper.Alliance,
+    private var cameraType: CameraType,
+    private var targetPose2d: Pose2d,
     ) : AprilTagProcessorImpl( //BOTH VALUES FOR 1280x720 RESOLUTION, FRONT C920, BACK ARDUCAM
     when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
     when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
@@ -54,6 +50,18 @@ class AprilTagAlignmentProcessor(
         FRONT, BACK
     }
 
+    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -28.36, 0.0)
+    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -34.36, 0.0)
+    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -40.36, 0.0)
+    private val aprilTagPoseLeftBlue: Pose2d = Pose2d(61.87, 40.36, 0.0)
+    private val aprilTagPoseCenterBlue: Pose2d = Pose2d(61.87, 34.36, 0.0)
+    private val aprilTagPoseRightBlue: Pose2d = Pose2d(61.87, 28.36, 0.0)
+
+    private val aprilTagPoseSmallStackRed: Pose2d = Pose2d(-70.75, -35.47, 180.0)
+    private val aprilTagPoseBigStackRed: Pose2d = Pose2d(-70.75, -40.97, 180.0)
+    private val aprilTagPoseSmallStackBlue: Pose2d = Pose2d(-70.75, 35.47, 180.0)
+    private val aprilTagPoseBigStackBlue: Pose2d = Pose2d(-70.75, 40.97, 180.0)
+
     //DEFAULT PID VALUES
     var xP = 0.04
     var xI = 0.04
@@ -72,9 +80,9 @@ class AprilTagAlignmentProcessor(
     var headingController = PIDController(headingP, headingI, headingD)
 
     //CURRENT POSITIONS
-    var currentX = 0.0
-        private set
     var currentY = 0.0
+        private set
+    var currentX = 0.0
         private set
     var currentHeading = 0.0
         private set
@@ -106,9 +114,9 @@ class AprilTagAlignmentProcessor(
     var targetFound = false
         private set
 
-    var xError: Double = 0.0
-        private set
     var yError: Double = 0.0
+        private set
+    var xError: Double = 0.0
         private set
     var headingError: Double = 0.0
         private set
@@ -132,79 +140,82 @@ class AprilTagAlignmentProcessor(
     fun update() {
         targetFound = false
 
-        currentX = 0.0
         currentY = 0.0
+        currentX = 0.0
         currentHeading = 0.0
 
-        xError = 0.0
         yError = 0.0
+        xError = 0.0
         headingError = 0.0
 
-        val rawDetections : List<AprilTagDetection> = detections
-        val currentDetections : ArrayList<AprilTagDetection> = ArrayList()
+        var total = 0.0
+
+        for (detection in detections) {
+            //Weighted average of valid detections weighted by inverse of range squared
+            targetFound = true
+
+            currentY += (when(detection.id) {
+                1 -> aprilTagPoseLeftBlue.y
+                2 -> aprilTagPoseCenterBlue.y
+                3 -> aprilTagPoseRightBlue.y
+                4 -> aprilTagPoseLeftRed.y
+                5 -> aprilTagPoseCenterRed.y
+                6 -> aprilTagPoseRightRed.y
+                7 -> aprilTagPoseBigStackRed.y
+                8 -> aprilTagPoseSmallStackRed.y
+                9 -> aprilTagPoseSmallStackBlue.y
+                10 -> aprilTagPoseBigStackBlue.y
+                else -> 0.0
+            } - detection.ftcPose.x) / detection.ftcPose.range.pow(2)
+
+            currentX += (when(detection.id) {
+                1 -> aprilTagPoseLeftBlue.x
+                2 -> aprilTagPoseCenterBlue.x
+                3 -> aprilTagPoseRightBlue.x
+                4 -> aprilTagPoseLeftRed.x
+                5 -> aprilTagPoseCenterRed.x
+                6 -> aprilTagPoseRightRed.x
+                7 -> aprilTagPoseBigStackRed.x
+                8 -> aprilTagPoseSmallStackRed.x
+                9 -> aprilTagPoseSmallStackBlue.x
+                10 -> aprilTagPoseBigStackBlue.x
+                else -> 0.0
+            } - detection.ftcPose.y) / detection.ftcPose.range.pow(2)
+
+            currentHeading += (when(detection.id) {
+                1 -> aprilTagPoseLeftBlue.heading
+                2 -> aprilTagPoseCenterBlue.heading
+                3 -> aprilTagPoseRightBlue.heading
+                4 -> aprilTagPoseLeftRed.heading
+                5 -> aprilTagPoseCenterRed.heading
+                6 -> aprilTagPoseRightRed.heading
+                7 -> aprilTagPoseBigStackRed.heading
+                8 -> aprilTagPoseSmallStackRed.heading
+                9 -> aprilTagPoseSmallStackBlue.heading
+                10 -> aprilTagPoseBigStackBlue.heading
+                else -> 0.0
+            } + detection.ftcPose.yaw) / detection.ftcPose.range.pow(2)
+
+            total += 1 / detection.ftcPose.range.pow(2)
+        }
+
+        currentY /= total
+        currentX /= total
+        currentHeading /= total
 
         when(cameraType) {
             CameraType.FRONT -> {
-                for (detection in rawDetections)
-                    if (if (alliance == AllianceHelper.Alliance.BLUE) detection.id <= 3 else detection.id >= 4) //Only read the tags corresponding to the alliance
-                        currentDetections.add(detection)
-
-                var total = 0.0
-
-                for (detection in currentDetections) {
-                    //Weighted average of valid detections weighted by inverse of range squared
-                    targetFound = true
-
-                    currentX += (detection.ftcPose.x - ((detection.id - if (alliance == AllianceHelper.Alliance.BLUE) 2 else 5) * tagXOffset)) / detection.ftcPose.range.pow(
-                        2
-                    )
-                    currentY += detection.ftcPose.y / detection.ftcPose.range.pow(2)
-                    currentHeading += detection.ftcPose.yaw / detection.ftcPose.range.pow(2)
-
-                    total += 1 / detection.ftcPose.range.pow(2)
-                }
-
-                currentX /= total
-                currentY /= total
-                currentHeading /= total
-
-                currentX += sin(Math.toRadians(currentHeading)) * backCameraOffset
-                currentY += cos(Math.toRadians(currentHeading)) * backCameraOffset
-
-                xError = targetX - currentX
-                yError = targetY - currentY
-                headingError = targetHeading - currentHeading
+                currentY += sin(Math.toRadians(currentHeading)) * backCameraOffset
+                currentX += cos(Math.toRadians(currentHeading)) * backCameraOffset
             }
             CameraType.BACK -> {
-                for (detection in rawDetections)
-                    if (if (alliance == AllianceHelper.Alliance.BLUE) detection.id >= 9 else detection.id <= 7) //Only read the tags corresponding to the alliance
-                        currentDetections.add(detection)
-
-                var total = 0.0
-
-                for (detection in currentDetections) {
-                    //Weighted average of valid detections weighted by inverse of range squared
-                    targetFound = true
-
-                    currentX += (detection.ftcPose.x + (if(detection.id == 10) 5.5 else if(detection.id == 7) -5.5 else 0.0)) / detection.ftcPose.range.pow(2)
-                    currentY += detection.ftcPose.y / detection.ftcPose.range.pow(2)
-                    currentHeading += detection.ftcPose.yaw / detection.ftcPose.range.pow(2)
-
-                    total += 1 / detection.ftcPose.range.pow(2)
-                }
-
-                currentX /= total
-                currentY /= total
-                currentHeading /= total
-
-                currentX += sin(Math.toRadians(currentHeading)) * frontCameraXOffset + cos(Math.toRadians(currentHeading)) * frontCameraYOffset
-                currentY += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
-
-                xError = targetX - currentX
-                yError = targetY - currentY
-                headingError = targetHeading - currentHeading
+                currentY += sin(Math.toRadians(currentHeading)) * frontCameraXOffset + cos(Math.toRadians(currentHeading)) * frontCameraYOffset
+                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
+        yError = targetPose2d.y - currentY
+        xError = targetPose2d.x - currentX
+        headingError = targetPose2d.heading - currentHeading
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {
@@ -222,8 +233,8 @@ class AprilTagAlignmentProcessor(
 
         if(targetFound) {
 
-            xPower = xController.calculate(xError)
-            yPower = yController.calculate(yError)
+            xPower = xController.calculate(yError)
+            yPower = yController.calculate(xError)
             headingPower = headingController.calculate(headingError)
 
             forward =
@@ -240,5 +251,5 @@ class AprilTagAlignmentProcessor(
         drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn))
     }
 
-    fun robotAligned(): Boolean = xError < 0.5 && yError < 0.5 && headingError < 1.0
+    fun robotAligned(): Boolean = yError < 0.5 && xError < 0.5 && headingError < 1.0
 }

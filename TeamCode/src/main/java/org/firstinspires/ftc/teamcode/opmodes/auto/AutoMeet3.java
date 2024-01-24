@@ -140,8 +140,6 @@ public class AutoMeet3 extends LinearOpMode {
                 .splineToLinearHeading(aprilTagPose, Math.toRadians(0))
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(()->{
-                    aprilTagProcessorBack.setTargetX(backboardApriltagX);})
-                .addTemporalMarker(()->{
                     alignToApriltag();
                     drive.setPoseEstimate(backboardPose);
                     drive.followTrajectorySequenceAsync(pathBackboardToWhite);
@@ -201,8 +199,6 @@ public class AutoMeet3 extends LinearOpMode {
                 })
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(()->{
-                    aprilTagProcessorBack.setTargetX(secondBackboardApriltagX);})
-                .addTemporalMarker(()->{
                     alignToApriltag();
                     backCameraPortal.close();
                     frontCameraPortal.close();
@@ -231,8 +227,8 @@ public class AutoMeet3 extends LinearOpMode {
             aprilTagProcessorBack.update();
             aprilTagProcessorBack.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
             telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
@@ -255,8 +251,8 @@ public class AutoMeet3 extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
-        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
+//        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
+//        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, 12.0, 0.0, 0.0, AllianceHelper.alliance); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
 
         List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
