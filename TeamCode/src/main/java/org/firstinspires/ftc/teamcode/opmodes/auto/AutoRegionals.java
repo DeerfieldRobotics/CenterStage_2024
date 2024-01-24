@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Intake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.teamcode.opmodes.auto.PoseHelper;
 
 import java.util.List;
 
@@ -172,25 +171,29 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
             spikeToStack = drive.trajectorySequenceBuilder(backboardPose)
                     .addTemporalMarker(this::outtakePurple)
+                    .back(4)
                     .addTemporalMarker(() -> {
                         intake.setServoPosition(Intake.IntakePositions.FIVE);
                     })
-                    .setTangent(Math.toRadians(240))
+                    .setTangent(Math.toRadians(180))
                     .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
-                        drive.followTrajectorySequenceAsync(spikeToBackboard);
+                        drive.followTrajectorySequenceAsync(whiteToBackboard);
                     })
                     .build();
-            spikeToBackboard = drive.trajectorySequenceBuilder(spikePose)
+            whiteToBackboard = drive.trajectorySequenceBuilder(spikePose)
                     .addTemporalMarker(this::intake)
-                    .forward(4)
+                    .addTemporalMarker(this::outtakeTransfer)
+                    .forward(2)
                     .waitSeconds(1)
+                    .setTangent(0)
                     .addTemporalMarker(this::stopIntake)
-                    .splineToSplineHeading(wingTruss, Math.toRadians(180.0))
-                    .splineToSplineHeading(boardTruss, Math.toRadians(180.0))
+                    .addTemporalMarker(this::transfer)
+                    .splineToSplineHeading(wingTruss, Math.toRadians(0))
+                    .splineToSplineHeading(boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+                    .splineToLinearHeading(backboardPose, Math.toRadians(0))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
@@ -198,6 +201,19 @@ public class AutoRegionals extends LinearOpMode {
                             drive.followTrajectorySequenceAsync(backboardToWhite);
                         else
                             drive.followTrajectorySequenceAsync(backboardToPark);
+                    })
+                    .build();
+            backboardToWhite = drive.trajectorySequenceBuilder(backboardPose)
+                    .addTemporalMarker(this::drop)
+                    .addTemporalMarker(this::outtakeIn)
+                    .waitSeconds(0.5)
+                    .setTangent(Math.toRadians(180))
+                    .splineToLinearHeading(PoseHelper.boardTrussRed, Math.toRadians(180.0))
+                    .splineToSplineHeading(PoseHelper.wingTrussRed, Math.toRadians(180.0))
+                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                    .addTemporalMarker(() -> {
+                        alignToApriltagStack();
+                        drive.followTrajectorySequenceAsync(whiteToBackboard);
                     })
                     .build();
             //TODO PARK
@@ -380,7 +396,11 @@ public class AutoRegionals extends LinearOpMode {
 
     //INTAKE METHODS
     private void intake() { intake.intakePower(1.0); intake.update(); }
-    private void stopIntake() { intake.intakePower(0.0); intake.update(); }
+    private void stopIntake() {
+        intake.intakePower(0.0);
+        intake.setBoosterServoPower(-1.0);
+        intake.update();
+    }
     private void transfer() { intake.transfer(); intake.update(); }
     private void outtakePurple() {
         intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

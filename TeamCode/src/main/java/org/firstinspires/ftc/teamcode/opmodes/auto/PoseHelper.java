@@ -8,7 +8,7 @@ abstract public class PoseHelper {
     public static Pose2d backboardRed = new Pose2d(50, -35, Math.toRadians(180.0));
     public static Pose2d initFarRed = new Pose2d(-39.5, -63, Math.toRadians(90.0));
     public static Pose2d farSpikeRightRed = new Pose2d(-29, -36, Math.toRadians(50.0));
-    public static Pose2d farSpikeCenterRed = new Pose2d(-44.5,-34.5, Math.toRadians(90.0));
+    public static Pose2d farSpikeCenterRed = new Pose2d(-40.5,-34.5, Math.toRadians(90.0));
     public static Pose2d farSpikeLeftRed = new Pose2d(-48.5, -39.5, Math.toRadians(80.0));
     public static Pose2d closeSpikeRightRed = new Pose2d(32.5, -30, Math.toRadians(180));
     public static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -24, Math.toRadians(180));
@@ -25,7 +25,7 @@ abstract public class PoseHelper {
     public static Pose2d backboardBlue = new Pose2d(50, 35, Math.toRadians(180.0));
     public static Pose2d initFarBlue = null; //TODO
     public static Pose2d farSpikeRightBlue = new Pose2d(-29, 36, Math.toRadians(50.0));
-    public static Pose2d farSpikeCenterBlue = new Pose2d(-44.5,34.5, Math.toRadians(90.0));
+    public static Pose2d farSpikeCenterBlue = new Pose2d(-40.5,34.5, Math.toRadians(90.0));
     public static Pose2d farSpikeLeftBlue = new Pose2d(-48.5, 39.5, Math.toRadians(80.0));
     public static Pose2d closeSpikeRightBlue = null; //TODO
     public static Pose2d closeSpikeCenterBlue = null; //TODO
