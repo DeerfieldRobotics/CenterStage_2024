@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 
+@TeleOp(name = "April Tag Tester")
 public class AprilTagTester extends LinearOpMode {
     private CogchampDrive drivetrain;
     @Override
