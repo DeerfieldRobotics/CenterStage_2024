@@ -61,10 +61,10 @@ public class PathVisualizer
     private double preLowerWhiteTangent;
     public static void main(String[] args) {
         initPose = PoseHelper.initFarRed;
-        spikePose = PoseHelper.farSpikeRightRed;
+        spikePose = PoseHelper.farSpikeCenterRed;
         MeepMeep meepMeep = new MeepMeep(700);
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
-                .setDimensions(17.5,14.5)
+                .setDimensions(14.5,15.3)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 9)
                 .setStartPose(initPose)
@@ -79,9 +79,9 @@ public class PathVisualizer
                                 .setTangent(0)
                                 .splineToLinearHeading(PoseHelper.wingTrussRed, Math.toRadians(0.0))
                                 .splineToSplineHeading(PoseHelper.boardTrussRed, Math.toRadians(0.0))
-                                .splineToLinearHeading(PoseHelper.backboardRed, Math.toRadians(0.0))
+                                .splineToLinearHeading(PoseHelper.backboardRed, Math.toRadians(30.0))
                                 .waitSeconds(3)
-                                .setTangent(Math.toRadians(180))
+                                .setTangent(Math.toRadians(210))
                                 .splineToLinearHeading(PoseHelper.boardTrussRed, Math.toRadians(180.0))
                                 .splineToSplineHeading(PoseHelper.wingTrussRed, Math.toRadians(180.0))
                                 .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
