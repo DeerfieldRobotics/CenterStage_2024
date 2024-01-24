@@ -80,12 +80,10 @@ class AprilTagAlignmentProcessor(
     var headingController = PIDController(headingP, headingI, headingD)
 
     //CURRENT POSITIONS
-    var currentY = 0.0
-        private set
-    var currentX = 0.0
-        private set
-    var currentHeading = 0.0
-        private set
+    private var currentY = 0.0
+    private var currentX = 0.0
+    private var currentHeading = 0.0
+    var poseEstimate = Pose2d(currentX, currentY, currentHeading)
 
     //PID OUTPUTS
     var xPower = 0.0
@@ -213,8 +211,10 @@ class AprilTagAlignmentProcessor(
                 currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
-        yError = targetPose2d.y - currentY
-        xError = targetPose2d.x - currentX
+        poseEstimate = Pose2d(currentX, currentY, currentHeading)
+
+        yError = targetPose2d.y - poseEstimate.y
+        xError = targetPose2d.x - poseEstimate.x
         headingError = targetPose2d.heading - currentHeading
     }
 
