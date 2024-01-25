@@ -13,7 +13,7 @@ import kotlin.math.sin
 
 class AprilTagAlignmentProcessor(
     private var cameraType: CameraType,
-    private var targetPose2d: Pose2d,
+    var targetPose: Pose2d,
     ) : AprilTagProcessorImpl( //BOTH VALUES FOR 1280x720 RESOLUTION, FRONT C920, BACK ARDUCAM
     when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
     when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
@@ -208,9 +208,9 @@ class AprilTagAlignmentProcessor(
         }
         poseEstimate = Pose2d(currentX, currentY, currentHeading)
 
-        yError = targetPose2d.y - poseEstimate.y
-        xError = targetPose2d.x - poseEstimate.x
-        headingError = targetPose2d.heading - currentHeading
+        yError = targetPose.y - poseEstimate.y
+        xError = targetPose.x - poseEstimate.x
+        headingError = targetPose.heading - currentHeading
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {

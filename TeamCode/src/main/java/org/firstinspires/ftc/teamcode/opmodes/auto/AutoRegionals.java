@@ -171,7 +171,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::outtake)
                     .splineToLinearHeading(backboardPose, Math.toRadians(30))
                     .addTemporalMarker(() -> {
-                        aprilTagProcessorBack
+                        aprilTagProcessorBack.setTargetPose(backboardPose);
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
                         if (path != Path.PLACEMENT)
