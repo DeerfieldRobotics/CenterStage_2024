@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-abstract public class PoseHelper {
+public final class PoseHelper {
     // RED POSES
     public static Pose2d initCloseRed = new Pose2d(10.5, -63, Math.toRadians(90.0));
     public static Pose2d backboardRed = new Pose2d(50, -35, Math.toRadians(180.0));
@@ -20,11 +20,9 @@ abstract public class PoseHelper {
     public static Pose2d wingTrussInsideRed = null;
     public static Pose2d boardTrussInsideRed = null;
     public static Pose2d parkPoseRedInside = null;
-    public static Pose2d parkPoseRedOutside = null;
+    public static Pose2d parkPoseRedOutside = new Pose2d(50, -55, Math.toRadians(180.0));;
 
     // BLUE POSES
-
-
     public static Pose2d initCloseBlue = null; //TODO
     public static Pose2d backboardBlue = new Pose2d(50, 35, Math.toRadians(180.0));
     public static Pose2d initFarBlue = null; //TODO
@@ -42,4 +40,6 @@ abstract public class PoseHelper {
     public static Pose2d boardTrussInsideBlue = null;
     public static Pose2d parkPoseBlueInside = null;
     public static Pose2d parkPoseBlueOutside = null;
+
+
 }

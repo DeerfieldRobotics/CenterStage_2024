@@ -132,6 +132,8 @@ public class AutoRegionals extends LinearOpMode {
 
         //INITIALIZE DETECTION PORTALS
         initPortals();
+
+        backCameraPortal.stopLiveView();
     }
 
     private void initLoop() {
@@ -169,6 +171,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::outtake)
                     .splineToLinearHeading(backboardPose, Math.toRadians(30))
                     .addTemporalMarker(() -> {
+                        aprilTagProcessorBack
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
                         if (path != Path.PLACEMENT)
@@ -190,6 +193,7 @@ public class AutoRegionals extends LinearOpMode {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
                     })
+                    .waitSeconds(.1)
                     .build();
             backboardToPark = drive.trajectorySequenceBuilder(backboardPose)
                     .setTangent(Math.toRadians(120.0))
@@ -236,9 +240,13 @@ public class AutoRegionals extends LinearOpMode {
         }
         else { //FAR AUTO
             init = drive.trajectorySequenceBuilder(initPose)
+                    .addTemporalMarker(() -> { intake.setServoPosition(Intake.IntakePositions.INTAKE); })
                     .splineToLinearHeading(spikePose, spikePose.getHeading())
+                    .addTemporalMarker(() -> {
+                        drive.followTrajectorySequenceAsync(spikeToWhite);
+                    })
                     .build();
-            spikeToWhite = drive.trajectorySequenceBuilder(backboardPose)
+            spikeToWhite = drive.trajectorySequenceBuilder(spikePose)
                     .addTemporalMarker(this::outtakePurple)
                     .back(4)
                     .addTemporalMarker(() -> {
@@ -266,27 +274,33 @@ public class AutoRegionals extends LinearOpMode {
     private void buildAuto() {
         switch(AllianceHelper.alliance) {
             case RED:
+                backboardPose = PoseHelper.backboardRed;
                 switch(path) {
                     case OUTSIDE:
                         parkPose = PoseHelper.parkPoseRedOutside;
                         wingTruss = PoseHelper.wingTrussOutsideRed;
                         boardTruss = PoseHelper.boardTrussOutsideRed;
+                        break;
                     case INSIDE:
                         parkPose = PoseHelper.parkPoseRedInside;
                         wingTruss = PoseHelper.wingTrussInsideRed;
                         boardTruss = PoseHelper.boardTrussInsideRed;
+                        break;
                 }
                 break;
             case BLUE:
+                backboardPose = PoseHelper.backboardBlue;
                 switch(path) {
                     case OUTSIDE:
                         parkPose = PoseHelper.parkPoseBlueOutside;
                         wingTruss = PoseHelper.wingTrussOutsideBlue;
                         boardTruss = PoseHelper.boardTrussOutsideBlue;
+                        break;
                     case INSIDE:
                         parkPose = PoseHelper.parkPoseBlueInside;
                         wingTruss = PoseHelper.wingTrussInsideBlue;
                         boardTruss = PoseHelper.boardTrussInsideBlue;
+                        break;
                 }
                 break;
         }
