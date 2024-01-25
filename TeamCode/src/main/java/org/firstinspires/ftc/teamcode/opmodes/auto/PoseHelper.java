@@ -15,8 +15,12 @@ abstract public class PoseHelper {
     public static Pose2d closeSpikeLeftRed = new Pose2d(10.5, -30, Math.toRadians(180));
     public static Pose2d apriltagStackRed = new Pose2d(-57.5, -35, Math.toRadians(180.0));
     public static Pose2d middleStackRed = new Pose2d(-57.5, -23, Math.toRadians(180.0));
-    public static Pose2d wingTrussRed = new Pose2d(-35, -59, Math.toRadians(180.0));
-    public static Pose2d boardTrussRed = new Pose2d(8, -59, Math.toRadians(180.0));
+    public static Pose2d wingTrussOutsideRed = new Pose2d(-35, -59, Math.toRadians(180.0));
+    public static Pose2d boardTrussOutsideRed = new Pose2d(8, -59, Math.toRadians(180.0));
+    public static Pose2d wingTrussInsideRed = null;
+    public static Pose2d boardTrussInsideRed = null;
+    public static Pose2d parkPoseRedInside = null;
+    public static Pose2d parkPoseRedOutside = null;
 
     // BLUE POSES
 
@@ -32,6 +36,10 @@ abstract public class PoseHelper {
     public static Pose2d closeSpikeLeftBlue = null; //TODO
     public static Pose2d apriltagStackBlue = new Pose2d(-57.5, 35, Math.toRadians(180.0));
     public static Pose2d middleStackBlue = new Pose2d(-57.5, 23, Math.toRadians(180.0));
-    public static Pose2d wingTrussBlue = new Pose2d(-35, 59, Math.toRadians(180.0));
-    public static Pose2d boardTrussBlue = new Pose2d(8, 59, Math.toRadians(180.0));
+    public static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 59, Math.toRadians(180.0));
+    public static Pose2d boardTrussOutsideBlue = new Pose2d(8, 59, Math.toRadians(180.0));
+    public static Pose2d wingTrussInsideBlue = null;
+    public static Pose2d boardTrussInsideBlue = null;
+    public static Pose2d parkPoseBlueInside = null;
+    public static Pose2d parkPoseBlueOutside = null;
 }
