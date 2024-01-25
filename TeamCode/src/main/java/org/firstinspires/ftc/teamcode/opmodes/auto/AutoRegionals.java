@@ -333,7 +333,7 @@ public class AutoRegionals extends LinearOpMode {
 
         frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
-                .setCameraResolution(new android.util.Size(320, 240))
+                .setCameraResolution(new android.util.Size(1280, 720))
                 .addProcessors(colorDetectionProcessor, aprilTagProcessorFront)
                 .setLiveViewContainerId(frontPortalId)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
@@ -445,6 +445,25 @@ public class AutoRegionals extends LinearOpMode {
             if (gamepad1.dpad_right || gamepad2.dpad_right) {
                 startPosition = StartPosition.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
+                break;
+            }
+            telemetry.update();
+        }
+        while (!isStopRequested()) {
+            telemetry.addLine("             [15118 AUTO INITIALIZED]");
+            telemetry.addLine("-------------------------------------------------");
+            telemetry.addLine(" Selected " + startPosition.toString() + " Starting Position.");
+            telemetry.addLine();
+            telemetry.addLine("Select Autonomous Path using DPAD Keys");
+            telemetry.addData("     Inside      ", "(^)");
+            telemetry.addData("     Outside     ", "(v)");
+
+            if (gamepad1.dpad_up || gamepad2.dpad_up) {
+                path = Path.INSIDE;
+                break;
+            }
+            if (gamepad1.dpad_down || gamepad2.dpad_down) {
+                path = Path.OUTSIDE;
                 break;
             }
             telemetry.update();

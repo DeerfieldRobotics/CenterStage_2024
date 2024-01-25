@@ -21,23 +21,18 @@ class AprilTagAlignmentProcessor(
     when(cameraType){ CameraType.FRONT -> 356.056; CameraType.BACK -> 368.362 },
     DistanceUnit.INCH,
     AngleUnit.DEGREES,
-    when(cameraType) {
-        CameraType.FRONT ->
-            AprilTagLibrary.Builder()
-                .addTag(7, "RedLarge", 5.0, DistanceUnit.INCH)
-                .addTag(8, "RedSmall", 2.0, DistanceUnit.INCH)
-                .addTag(9, "BlueSmall", 2.0, DistanceUnit.INCH)
-                .addTag(10, "BlueLarge", 5.0, DistanceUnit.INCH)
-                .build()
-        CameraType.BACK ->
-            AprilTagLibrary.Builder()
-                .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
-                .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
-                .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
-                .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
-                .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
-                .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
-                .build() },
+    AprilTagLibrary.Builder()
+        .addTag(1, "BlueLeft", 2.0, DistanceUnit.INCH)
+        .addTag(2, "BlueCenter", 2.0, DistanceUnit.INCH)
+        .addTag(3, "BlueRight", 2.0, DistanceUnit.INCH)
+        .addTag(4, "RedLeft", 2.0, DistanceUnit.INCH)
+        .addTag(5, "RedCenter", 2.0, DistanceUnit.INCH)
+        .addTag(6, "RedRight", 2.0, DistanceUnit.INCH)
+        .addTag(7, "RedLarge", 5.0, DistanceUnit.INCH)
+        .addTag(8, "RedSmall", 2.0, DistanceUnit.INCH)
+        .addTag(9, "BlueSmall", 2.0, DistanceUnit.INCH)
+        .addTag(10, "BlueLarge", 5.0, DistanceUnit.INCH)
+        .build(),
     true,
     true,
     true,
@@ -50,12 +45,12 @@ class AprilTagAlignmentProcessor(
         FRONT, BACK
     }
 
-    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -28.36, 0.0)
-    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -34.36, 0.0)
-    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -40.36, 0.0)
-    private val aprilTagPoseLeftBlue: Pose2d = Pose2d(61.87, 40.36, 0.0)
-    private val aprilTagPoseCenterBlue: Pose2d = Pose2d(61.87, 34.36, 0.0)
-    private val aprilTagPoseRightBlue: Pose2d = Pose2d(61.87, 28.36, 0.0)
+    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -29.6, 180.0)
+    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -35.6, 180.0)
+    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -41.6, 180.0)
+    private val aprilTagPoseLeftBlue: Pose2d = Pose2d(61.87, 41.6, 180.0)
+    private val aprilTagPoseCenterBlue: Pose2d = Pose2d(61.87, 35.6, 180.0)
+    private val aprilTagPoseRightBlue: Pose2d = Pose2d(61.87, 29.6, 180.0)
 
     private val aprilTagPoseSmallStackRed: Pose2d = Pose2d(-70.75, -35.47, 180.0)
     private val aprilTagPoseBigStackRed: Pose2d = Pose2d(-70.75, -40.97, 180.0)
@@ -107,7 +102,7 @@ class AprilTagAlignmentProcessor(
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
 
     private val frontCameraXOffset = 3.7823051181;
-    private val frontCameraYOffset = 8.3031496;
+    private val frontCameraYOffset = -8.3031496;
 
     var targetFound = false
         private set
@@ -164,7 +159,7 @@ class AprilTagAlignmentProcessor(
                 9 -> aprilTagPoseSmallStackBlue.y
                 10 -> aprilTagPoseBigStackBlue.y
                 else -> 0.0
-            } - detection.ftcPose.x) / detection.ftcPose.range.pow(2)
+            } + detection.ftcPose.x) / detection.ftcPose.range.pow(2)
 
             currentX += (when(detection.id) {
                 1 -> aprilTagPoseLeftBlue.x
@@ -178,7 +173,7 @@ class AprilTagAlignmentProcessor(
                 9 -> aprilTagPoseSmallStackBlue.x
                 10 -> aprilTagPoseBigStackBlue.x
                 else -> 0.0
-            } - detection.ftcPose.y) / detection.ftcPose.range.pow(2)
+            } - detection.ftcPose.y * if(detection.id>=7) -1 else 1) / detection.ftcPose.range.pow(2)
 
             currentHeading += (when(detection.id) {
                 1 -> aprilTagPoseLeftBlue.heading
@@ -192,7 +187,7 @@ class AprilTagAlignmentProcessor(
                 9 -> aprilTagPoseSmallStackBlue.heading
                 10 -> aprilTagPoseBigStackBlue.heading
                 else -> 0.0
-            } + detection.ftcPose.yaw) / detection.ftcPose.range.pow(2)
+            } - detection.ftcPose.yaw + if((cameraType == CameraType.FRONT && detection.id < 7) || (cameraType == CameraType.BACK && detection.id >= 7)) 180 else 0) / detection.ftcPose.range.pow(2)
 
             total += 1 / detection.ftcPose.range.pow(2)
         }
@@ -202,13 +197,13 @@ class AprilTagAlignmentProcessor(
         currentHeading /= total
 
         when(cameraType) {
-            CameraType.FRONT -> {
+            CameraType.BACK -> {
                 currentY += sin(Math.toRadians(currentHeading)) * backCameraOffset
                 currentX += cos(Math.toRadians(currentHeading)) * backCameraOffset
             }
-            CameraType.BACK -> {
-                currentY += sin(Math.toRadians(currentHeading)) * frontCameraXOffset + cos(Math.toRadians(currentHeading)) * frontCameraYOffset
-                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
+            CameraType.FRONT -> {
+                currentY += sin(Math.toRadians(currentHeading)) * frontCameraYOffset - cos(Math.toRadians(currentHeading)) * frontCameraXOffset
+                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset - sin(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
         poseEstimate = Pose2d(currentX, currentY, currentHeading)

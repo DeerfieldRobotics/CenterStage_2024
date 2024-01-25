@@ -33,7 +33,7 @@ public class AprilTagTester extends LinearOpMode {
 
         VisionPortal frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
-                .setCameraResolution(new android.util.Size(320, 240))
+                .setCameraResolution(new android.util.Size(1280, 720))
                 .addProcessors(aprilTagAlignmentProcessorFront)
                 .setLiveViewContainerId(frontPortalId)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
@@ -52,6 +52,9 @@ public class AprilTagTester extends LinearOpMode {
         drivetrain.setPoseEstimate(PoseHelper.initCloseRed);
 
         while(opModeIsActive() && !isStopRequested()) {
+            aprilTagAlignmentProcessorBack.update();
+            aprilTagAlignmentProcessorFront.update();
+
             if (gamepad1.left_bumper) {
                 aprilTagAlignmentProcessorBack.alignRobot(drivetrain);
                 drivetrain.setPoseEstimate(aprilTagAlignmentProcessorBack.getPoseEstimate());
@@ -62,15 +65,8 @@ public class AprilTagTester extends LinearOpMode {
             else
                 driveNormal();
 
-            telemetry.addData("Back Camera Estimated X", aprilTagAlignmentProcessorBack.getPoseEstimate().getX());
-            telemetry.addData("Back Camera Estimated Y", aprilTagAlignmentProcessorBack.getPoseEstimate().getY());
-            telemetry.addData("Back Camera Estimated Heading", aprilTagAlignmentProcessorBack.getPoseEstimate().getHeading());
-            telemetry.addData("Front Camera Estimated X", aprilTagAlignmentProcessorFront.getPoseEstimate().getX());
-            telemetry.addData("Front Camera Estimated Y", aprilTagAlignmentProcessorFront.getPoseEstimate().getY());
-            telemetry.addData("Front Camera Estimated Heading", aprilTagAlignmentProcessorFront.getPoseEstimate().getHeading());
-            telemetry.addData("Localizer Estimated X", drivetrain.getPoseEstimate().getX());
-            telemetry.addData("Localizer Estimated Y", drivetrain.getPoseEstimate().getY());
-            telemetry.addData("Localizer Estimated Heading", drivetrain.getPoseEstimate().getHeading());
+            telemetry.addData("Back Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorBack.getPoseEstimate().getX(),aprilTagAlignmentProcessorBack.getPoseEstimate().getY(),aprilTagAlignmentProcessorBack.getPoseEstimate().getHeading());
+            telemetry.addData("Front Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getPoseEstimate().getX(),aprilTagAlignmentProcessorFront.getPoseEstimate().getY(),aprilTagAlignmentProcessorFront.getPoseEstimate().getHeading());
 
             telemetry.update();
         }
