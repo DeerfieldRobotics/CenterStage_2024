@@ -25,21 +25,11 @@ import java.util.List;
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
     //ROBOT STARTING POSITIONS
-    private enum StartPosition {
-        RED_CLOSE,
-        RED_FAR,
-        BLUE_CLOSE,
-        BLUE_FAR
-    }
-    private enum Path {
-        PLACEMENT,
-        INSIDE,
-        OUTSIDE
-    }
 
-    private StartPosition startPosition = StartPosition.RED_CLOSE;
-    private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
-    private Path path;
+
+//    private StartPosition.StartPos startPosition = StartPosition.StartPos.RED_CLOSE;
+//    private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
+//    private Paths.Path path;
 
 //    private Datalog datalog; //TELEMETRY
 
@@ -68,16 +58,16 @@ public class AutoRegionals extends LinearOpMode {
     private TrajectorySequence spikeToBackboard; //SPIKE TO BACKBOARD
 
     //POSITIONS & TANGENTS
-    private Pose2d initPose; //INITIAL POSITION
-    private Pose2d spikePose; //SPIKE POSITION
-    private Pose2d wingTruss; //WING TRUSS POSITION
-    private Pose2d boardTruss; //BOARD TRUSS POSITION
-    private Pose2d parkPose; //Parking Position
-    private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
-    private Pose2d stackPose; //POSITION OF STACK
-    private double allianceAngleMultiplier = 1.0;
+//    private Pose2d initPose; //INITIAL POSITION
+//    private Pose2d spikePose; //SPIKE POSITION
+//    private Pose2d wingTruss; //WING TRUSS POSITION
+//    private Pose2d boardTruss; //BOARD TRUSS POSITION
+//    private Pose2d parkPose; //Parking Position
+//    private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
+//    private Pose2d stackPose; //POSITION OF STACK
+//    private double allianceAngleMultiplier = 1.0;
 
-
+    private PoseHelper poseHelper;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -128,8 +118,8 @@ public class AutoRegionals extends LinearOpMode {
 
     private void initLoop() {
         detectPurplePath();
-        telemetry.addData("Selected Auto: ", startPosition.toString());
-        telemetry.addData("Detected Path: ", purplePixelPath.toString());
+        telemetry.addData("Selected Auto: ", StartPosition.startPosition.toString());
+        telemetry.addData("Detected Path: ", ColorDetectionProcessor.position.toString());
         telemetry.update();
     }
 
@@ -138,11 +128,11 @@ public class AutoRegionals extends LinearOpMode {
         backCameraPortal.resumeStreaming();
         telemetry.clear();
         buildAuto();
-        drive.setPoseEstimate(initPose);
+        drive.setPoseEstimate(poseHelper.initPose);
 
         //CYCLE PATHS
-        if(path == Path.OUTSIDE) {
-            whiteToBackboard = drive.trajectorySequenceBuilder(spikePose)
+        if(Paths.path == Paths.Path.OUTSIDE) {
+            whiteToBackboard = drive.trajectorySequenceBuilder(poseHelper.spikePose)
                     .addTemporalMarker(this::intake)
                     .addTemporalMarker(this::outtakeTransfer)
                     .forward(2)
@@ -150,38 +140,38 @@ public class AutoRegionals extends LinearOpMode {
                     .setTangent(0)
                     .addTemporalMarker(this::stopIntake)
                     .addTemporalMarker(this::transfer)
-                    .splineToSplineHeading(wingTruss, Math.toRadians(0))
-                    .splineToLinearHeading(boardTruss, Math.toRadians(0))
+                    .splineToSplineHeading(poseHelper.wingTruss, Math.toRadians(0))
+                    .splineToLinearHeading(poseHelper.boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(30.0 * allianceAngleMultiplier))
+                    .splineToLinearHeading(poseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        if (path != Path.PLACEMENT)
+                        if (Paths.path != Paths.Path.PLACEMENT)
                             drive.followTrajectorySequenceAsync(backboardToWhite);
                         else
                             drive.followTrajectorySequenceAsync(backboardToPark);
                     })
                     .build();
-            backboardToWhite = drive.trajectorySequenceBuilder(backboardPose)
+            backboardToWhite = drive.trajectorySequenceBuilder(poseHelper.backboardPose)
                     .back(2)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.8)
                     .addTemporalMarker(this::outtakeIn)
                     .waitSeconds(0.4)
-                    .setTangent(Math.toRadians(210.0 * allianceAngleMultiplier))
-                    .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
-                    .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
-                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                    .setTangent(Math.toRadians(210.0 * poseHelper.allianceAngleMultiplier))
+                    .splineToLinearHeading(poseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.apriltagStackRed, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
                     })
                     .waitSeconds(.1)
                     .build();
-            backboardToPark = drive.trajectorySequenceBuilder(backboardPose)
-                    .setTangent(Math.toRadians(120.0 * allianceAngleMultiplier))
-                    .splineToLinearHeading(parkPose, Math.toRadians(180.0))
+            backboardToPark = drive.trajectorySequenceBuilder(poseHelper.backboardPose)
+                    .setTangent(Math.toRadians(120.0 * poseHelper.allianceAngleMultiplier))
+                    .splineToLinearHeading(poseHelper.parkPose, Math.toRadians(180.0))
                     .build();
         }
         else {
@@ -189,33 +179,33 @@ public class AutoRegionals extends LinearOpMode {
         }
 
         //INITIAL PATHS
-        if(startPosition == StartPosition.RED_CLOSE || startPosition == StartPosition.BLUE_CLOSE) {
-            init = drive.trajectorySequenceBuilder(initPose)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(0))
+        if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
+            init = drive.trajectorySequenceBuilder(poseHelper.initPose)
+                    .splineToLinearHeading(poseHelper.backboardPose, Math.toRadians(0))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
-            backboardToSpike = drive.trajectorySequenceBuilder(backboardPose)
+            backboardToSpike = drive.trajectorySequenceBuilder(poseHelper.backboardPose)
                     .setTangent(Math.toRadians(180.0))
-                    .splineToLinearHeading(spikePose, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.spikePose, Math.toRadians(180.0))
                     .addTemporalMarker(this::outtakePurple)
                     .addTemporalMarker(() -> {
-                        if(path != Path.PLACEMENT)
+                        if(Paths.path != Paths.Path.PLACEMENT)
                             drive.followTrajectorySequenceAsync(spikeToWhite);
                         else
                             drive.followTrajectorySequenceAsync(spikeToPark);
                     })
                     .build();
-            spikeToPark = drive.trajectorySequenceBuilder(spikePose)
+            spikeToPark = drive.trajectorySequenceBuilder(poseHelper.spikePose)
                     //TODO PARK
                     .build();
-            spikeToWhite = drive.trajectorySequenceBuilder(spikePose)
-                    .setTangent(Math.toRadians(270.0 * allianceAngleMultiplier)) //TODO CHANGE THIS DEPENDING ON INSIDE OR OUTSIDE PATH
-                    .splineToLinearHeading(boardTruss, Math.toRadians(180.0))
-                    .splineToLinearHeading(wingTruss, Math.toRadians(180.0))
-                    .splineToLinearHeading(stackPose, Math.toRadians(180.0))
+            spikeToWhite = drive.trajectorySequenceBuilder(poseHelper.spikePose)
+                    .setTangent(Math.toRadians(270.0 * poseHelper.allianceAngleMultiplier)) //TODO CHANGE THIS DEPENDING ON INSIDE OR OUTSIDE PATH
+                    .splineToLinearHeading(poseHelper.boardTruss, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.wingTruss, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.stackPose, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -223,21 +213,21 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
         }
         else { //FAR AUTO
-            init = drive.trajectorySequenceBuilder(initPose)
+            init = drive.trajectorySequenceBuilder(poseHelper.initPose)
                     .addTemporalMarker(() -> { intake.setServoPosition(Intake.IntakePositions.INTAKE); })
-                    .splineToLinearHeading(spikePose, spikePose.getHeading())
+                    .splineToLinearHeading(poseHelper.spikePose, poseHelper.spikePose.getHeading())
                     .addTemporalMarker(() -> {
                         drive.followTrajectorySequenceAsync(spikeToWhite);
                     })
                     .build();
-            spikeToWhite = drive.trajectorySequenceBuilder(spikePose)
+            spikeToWhite = drive.trajectorySequenceBuilder(poseHelper.spikePose)
                     .addTemporalMarker(this::outtakePurple)
                     .back(4)
                     .addTemporalMarker(() -> {
                         intake.setServoPosition(Intake.IntakePositions.FIVE);
                     })
                     .setTangent(Math.toRadians(180))
-                    .splineToLinearHeading(stackPose, Math.toRadians(180.0))
+                    .splineToLinearHeading(poseHelper.stackPose, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -256,120 +246,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildAuto() {
-        switch(AllianceHelper.alliance) {
-            case RED:
-                stackPose = PoseHelper.apriltagStackRed;
-                allianceAngleMultiplier = 1.0;
-                switch(path) {
-                    case OUTSIDE:
-                        parkPose = PoseHelper.parkPoseOutsideRed;
-                        wingTruss = PoseHelper.wingTrussOutsideRed;
-                        boardTruss = PoseHelper.boardTrussOutsideRed;
-                        break;
-                    case INSIDE:
-                        parkPose = PoseHelper.parkPoseInsideRed;
-                        wingTruss = PoseHelper.wingTrussInsideRed;
-                        boardTruss = PoseHelper.boardTrussInsideRed;
-                        break;
-                }
-                switch(purplePixelPath) {
-                    case LEFT:
-                        backboardPose = PoseHelper.backboardLeftRed;
-                        break;
-                    case CENTER:
-                        backboardPose = PoseHelper.backboardCenterRed;
-                        break;
-                    case RIGHT:
-                        backboardPose = PoseHelper.backboardRightRed;
-                        break;
-                }
-                break;
-            case BLUE:
-                stackPose = PoseHelper.apriltagStackBlue;
-                allianceAngleMultiplier = -1.0;
-                switch(path) {
-                    case OUTSIDE:
-                        parkPose = PoseHelper.parkPoseOutsideBlue;
-                        wingTruss = PoseHelper.wingTrussOutsideBlue;
-                        boardTruss = PoseHelper.boardTrussOutsideBlue;
-                        break;
-                    case INSIDE:
-                        parkPose = PoseHelper.parkPoseInsideBlue;
-                        wingTruss = PoseHelper.wingTrussInsideBlue;
-                        boardTruss = PoseHelper.boardTrussInsideBlue;
-                        break;
-                }
-                switch(purplePixelPath) {
-                    case LEFT:
-                        backboardPose = PoseHelper.backboardLeftBlue;
-                        break;
-                    case CENTER:
-                        backboardPose = PoseHelper.backboardCenterBlue;
-                        break;
-                    case RIGHT:
-                        backboardPose = PoseHelper.backboardRightBlue;
-                        break;
-                }
-                break;
-        }
-        switch(startPosition) {
-            case RED_CLOSE:
-                initPose = PoseHelper.initCloseRed;
-                switch(purplePixelPath) {
-                    case LEFT:
-                        spikePose = PoseHelper.closeSpikeLeftRed;
-                        break;
-                    case CENTER:
-                        spikePose = PoseHelper.closeSpikeCenterRed;
-                        break;
-                    case RIGHT:
-                        spikePose = PoseHelper.closeSpikeRightRed;
-                        break;
-                }
-                break;
-            case RED_FAR:
-                initPose = PoseHelper.initFarRed;
-                switch(purplePixelPath) {
-                    case LEFT:
-                        spikePose = PoseHelper.farSpikeLeftRed;
-                        break;
-                    case CENTER:
-                        spikePose = PoseHelper.farSpikeCenterRed;
-                        break;
-                    case RIGHT:
-                        spikePose = PoseHelper.farSpikeRightRed;
-                        break;
-                }
-                break;
-            case BLUE_CLOSE:
-                initPose = PoseHelper.initCloseBlue;
-                switch(purplePixelPath) {
-                    case LEFT:
-                        spikePose = PoseHelper.closeSpikeLeftBlue;
-                        break;
-                    case CENTER:
-                        spikePose = PoseHelper.closeSpikeCenterBlue;
-                        break;
-                    case RIGHT:
-                        spikePose = PoseHelper.closeSpikeRightBlue;
-                        break;
-                }
-                break;
-            case BLUE_FAR:
-                initPose = PoseHelper.initFarBlue;
-                switch(purplePixelPath) {
-                    case LEFT:
-                        spikePose = PoseHelper.farSpikeLeftBlue;
-                        break;
-                    case CENTER:
-                        spikePose = PoseHelper.farSpikeCenterBlue;
-                        break;
-                    case RIGHT:
-                        spikePose = PoseHelper.farSpikeRightBlue;
-                        break;
-                }
-                break;
-        }
+        poseHelper = new PoseHelper();
     }
 
     private void initPortals() {
@@ -403,10 +280,10 @@ public class AutoRegionals extends LinearOpMode {
         backCameraPortal.stopLiveView();
     }
 
-    private void detectPurplePath() { purplePixelPath = colorDetectionProcessor.getPosition(); }
+    private void detectPurplePath() { ColorDetectionProcessor.position = colorDetectionProcessor.getPosition(); }
 
     private void alignToApriltagBackboard() {
-        aprilTagProcessorBack.setTargetPose(backboardPose);
+        aprilTagProcessorBack.setTargetPose(PoseHelper.backboardPose);
         double currentTime = getRuntime();
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
@@ -483,22 +360,22 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("    Red Close    ", "(>)");
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
-                startPosition = StartPosition.BLUE_CLOSE;
+                StartPosition.startPosition = StartPosition.StartPos.BLUE_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                startPosition = StartPosition.BLUE_FAR;
+                StartPosition.startPosition = StartPosition.StartPos.BLUE_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
-                startPosition = StartPosition.RED_FAR;
+                StartPosition.startPosition = StartPosition.StartPos.RED_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 break;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_right) {
-                startPosition = StartPosition.RED_CLOSE;
+                StartPosition.startPosition = StartPosition.StartPos.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 break;
             }
@@ -507,18 +384,18 @@ public class AutoRegionals extends LinearOpMode {
         while (!isStopRequested()) {
             telemetry.addLine("             [15118 AUTO INITIALIZED]");
             telemetry.addLine("-------------------------------------------------");
-            telemetry.addLine(" Selected " + startPosition.toString() + " Starting Position.");
+            telemetry.addLine(" Selected " + StartPosition.startPosition.toString() + " Starting Position.");
             telemetry.addLine();
             telemetry.addLine("Select Autonomous Path using DPAD Keys");
             telemetry.addData("     Inside      ", "(^)");
             telemetry.addData("     Outside     ", "(v)");
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
-                path = Path.INSIDE;
+                Paths.path = Paths.Path.INSIDE;
                 break;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                path = Path.OUTSIDE;
+                Paths.path = Paths.Path.OUTSIDE;
                 break;
             }
             telemetry.update();
