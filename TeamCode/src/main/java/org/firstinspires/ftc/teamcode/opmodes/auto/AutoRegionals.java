@@ -23,13 +23,6 @@ import java.util.List;
 
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
-    //ROBOT STARTING POSITIONS
-
-
-//    private StartPosition.StartPos startPosition = StartPosition.StartPos.RED_CLOSE;
-//    private ColorDetectionProcessor.StartingPosition purplePixelPath = ColorDetectionProcessor.StartingPosition.CENTER;
-//    private Paths.Path path;
-
 //    private Datalog datalog; //TELEMETRY
 
     //DETECTION
@@ -54,19 +47,10 @@ public class AutoRegionals extends LinearOpMode {
     private TrajectorySequence spikeToPark; //SPIKE TO PARK
     private TrajectorySequence whiteToBackboard;// STACK BACK TO BACKBOARD
     private TrajectorySequence whiteToBackboardYellow; //STACK TO BACKBOARD WITH YELLOW
-    private TrajectorySequence dropYellowAndWhite; //DROP YELLOW AND WHITE
+    private TrajectorySequence dropYellow; //DROP YELLOW
+    private TrajectorySequence dropWhite; //DROP WHITE
     private TrajectorySequence backboardToPark; //PARK AFTER SCORING STACK
     private TrajectorySequence spikeToBackboard; //SPIKE TO BACKBOARD
-
-    //POSITIONS & TANGENTS
-//    private Pose2d initPose; //INITIAL POSITION
-//    private Pose2d spikePose; //SPIKE POSITION
-//    private Pose2d wingTruss; //WING TRUSS POSITION
-//    private Pose2d boardTruss; //BOARD TRUSS POSITION
-//    private Pose2d parkPose; //Parking Position
-//    private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
-//    private Pose2d stackPose; //POSITION OF STACK
-//    private double allianceAngleMultiplier = 1.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -130,52 +114,47 @@ public class AutoRegionals extends LinearOpMode {
         drive.setPoseEstimate(PoseHelper.initPose);
 
         //CYCLE PATHS
-        if(Paths.path == Paths.Path.OUTSIDE) {
-            whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                    .addTemporalMarker(this::intake)
-                    .addTemporalMarker(this::outtakeTransfer)
-                    .forward(2)
-                    .waitSeconds(1)
-                    .setTangent(0)
-                    .addTemporalMarker(this::stopIntake)
-                    .addTemporalMarker(this::transfer)
-                    .splineToSplineHeading(PoseHelper.wingTruss, Math.toRadians(0))
-                    .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
-                    .addTemporalMarker(this::outtake)
-                    .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
-                    .addTemporalMarker(() -> {
-                        alignToApriltagBackboard();
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        if (Paths.path != Paths.Path.PLACEMENT)
-                            drive.followTrajectorySequenceAsync(backboardToWhite);
-                        else
-                            drive.followTrajectorySequenceAsync(backboardToPark);
-                    })
-                    .build();
-            backboardToWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-                    .back(2)
-                    .addTemporalMarker(this::drop)
-                    .waitSeconds(0.8)
-                    .addTemporalMarker(this::outtakeIn)
-                    .waitSeconds(0.4)
-                    .setTangent(Math.toRadians(210.0 * PoseHelper.allianceAngleMultiplier))
-                    .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
-                    .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
-                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
-                    .addTemporalMarker(() -> {
-                        alignToApriltagStack();
-                        drive.followTrajectorySequenceAsync(whiteToBackboard);
-                    })
-                    .waitSeconds(.1)
-                    .build();
-            backboardToPark = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-                    .setTangent(Math.toRadians(120.0 * PoseHelper.allianceAngleMultiplier))
-                    .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
-                    .build();
-        }
-        else {
-            //TODO INSIDE PATH CODE
-        }
+        whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
+                .addTemporalMarker(this::intake)
+                .addTemporalMarker(this::outtakeTransfer)
+                .forward(2)
+                .waitSeconds(1)
+                .setTangent(0)
+                .addTemporalMarker(this::stopIntake)
+                .addTemporalMarker(this::transfer)
+                .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
+                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
+                .addTemporalMarker(this::outtake)
+                .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
+                .addTemporalMarker(() -> {
+                    alignToApriltagBackboard();
+                    drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                    if (Paths.path != Paths.Path.PLACEMENT)
+                        drive.followTrajectorySequenceAsync(backboardToWhite);
+                    else
+                        drive.followTrajectorySequenceAsync(backboardToPark);
+                })
+                .build();
+        backboardToWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+                .back(2)
+                .addTemporalMarker(this::drop)
+                .waitSeconds(0.8)
+                .addTemporalMarker(this::outtakeIn)
+                .waitSeconds(0.4)
+                .setTangent(Math.toRadians(210.0 * PoseHelper.allianceAngleMultiplier))
+                .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                .addTemporalMarker(() -> {
+                    alignToApriltagStack();
+                    drive.followTrajectorySequenceAsync(whiteToBackboard);
+                })
+                .waitSeconds(.1)
+                .build();
+        backboardToPark = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 150.0 : -150.0 * PoseHelper.allianceAngleMultiplier))
+                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
+                .build();
 
         //INITIAL PATHS
         if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
@@ -201,7 +180,7 @@ public class AutoRegionals extends LinearOpMode {
                     //TODO PARK
                     .build();
             spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                    .setTangent(Math.toRadians(270.0 * PoseHelper.allianceAngleMultiplier)) //TODO CHANGE THIS DEPENDING ON INSIDE OR OUTSIDE PATH
+                    .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0 : 90.0 * PoseHelper.allianceAngleMultiplier))
                     .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
@@ -241,19 +220,27 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        drive.followTrajectorySequenceAsync(dropYellowAndWhite);
+                        drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
-            dropYellowAndWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+            dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
                     .back(2)
                     .addTemporalMarker(this::drop)
-                    .waitSeconds(0.6)
+                    .forward(2)
                     .addTemporalMarker(this::outtakeTransfer)
                     .waitSeconds(0.8)
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.2)
                     .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
-                    .waitSeconds(0.4)
+                    .addTemporalMarker(() -> {
+                        PoseHelper.backboardPose = PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue ? PoseHelper.backboardCenterRed : PoseHelper.backboardRightRed;
+                        alignToApriltagBackboard();
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                        drive.followTrajectorySequenceAsync(dropWhite);
+                    })
+                    .build();
+            dropWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+                    .waitSeconds(1)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.6)
                     .addTemporalMarker(this::outtakeIn)
@@ -367,7 +354,7 @@ public class AutoRegionals extends LinearOpMode {
     //OUTTAKE METHODS
     private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -900) setSlideHeight(-900); }
     private void outtakeIn() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE); }
-    private void outtakeTransfer() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
+    private void outtakeTransfer() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
     private void drop() { outtake.setGateClosed(false); }
 
     private void setSlideHeight(int height) { slide.setTargetPosition(height); slide.setMode(DcMotor.RunMode.RUN_TO_POSITION); slide.setPower(1.0); }
