@@ -31,7 +31,7 @@ public class ColorDetectionProcessor implements VisionProcessor {
     private final int x1 = 200; // first x division
     private final int x2 = 440; // second x division
     private String color;
-    private StartingPosition position;
+    public static StartingPosition position;
 
     int targetIndex = 0;
     public enum StartingPosition {
