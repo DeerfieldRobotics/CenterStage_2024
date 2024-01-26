@@ -277,12 +277,12 @@ public class AutoRegionals extends LinearOpMode {
                 backboardPose = PoseHelper.backboardRed;
                 switch(path) {
                     case OUTSIDE:
-                        parkPose = PoseHelper.parkPoseRedOutside;
+                        parkPose = PoseHelper.parkPoseOutsideRed;
                         wingTruss = PoseHelper.wingTrussOutsideRed;
                         boardTruss = PoseHelper.boardTrussOutsideRed;
                         break;
                     case INSIDE:
-                        parkPose = PoseHelper.parkPoseRedInside;
+                        parkPose = PoseHelper.parkPoseInsideRed;
                         wingTruss = PoseHelper.wingTrussInsideRed;
                         boardTruss = PoseHelper.boardTrussInsideRed;
                         break;
@@ -292,12 +292,12 @@ public class AutoRegionals extends LinearOpMode {
                 backboardPose = PoseHelper.backboardBlue;
                 switch(path) {
                     case OUTSIDE:
-                        parkPose = PoseHelper.parkPoseBlueOutside;
+                        parkPose = PoseHelper.parkPoseOutsideBlue;
                         wingTruss = PoseHelper.wingTrussOutsideBlue;
                         boardTruss = PoseHelper.boardTrussOutsideBlue;
                         break;
                     case INSIDE:
-                        parkPose = PoseHelper.parkPoseBlueInside;
+                        parkPose = PoseHelper.parkPoseInsideBlue;
                         wingTruss = PoseHelper.wingTrussInsideBlue;
                         boardTruss = PoseHelper.boardTrussInsideBlue;
                         break;
