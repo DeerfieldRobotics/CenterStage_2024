@@ -101,7 +101,7 @@ class AprilTagAlignmentProcessor(
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
 
-    private val frontCameraXOffset = 3.7823051181;
+    private val frontCameraXOffset = -3.7823051181;
     private val frontCameraYOffset = -8.3031496;
 
     var targetFound = false
@@ -202,8 +202,8 @@ class AprilTagAlignmentProcessor(
                 currentX += cos(Math.toRadians(currentHeading)) * backCameraOffset
             }
             CameraType.FRONT -> {
-                currentY += sin(Math.toRadians(currentHeading)) * frontCameraYOffset - cos(Math.toRadians(currentHeading)) * frontCameraXOffset
-                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset - sin(Math.toRadians(currentHeading)) * frontCameraXOffset
+                currentY += sin(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
+                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + sin(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
         poseEstimate = Pose2d(currentX, currentY, currentHeading)
