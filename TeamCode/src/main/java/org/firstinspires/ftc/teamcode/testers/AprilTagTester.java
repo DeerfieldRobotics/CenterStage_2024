@@ -24,7 +24,7 @@ public class AprilTagTester extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        AprilTagAlignmentProcessor aprilTagAlignmentProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, PoseHelper.backboardRed);
+        AprilTagAlignmentProcessor aprilTagAlignmentProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, PoseHelper.backboardCenterRed);
         AprilTagAlignmentProcessor aprilTagAlignmentProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, PoseHelper.apriltagStackRed);
 
         List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));

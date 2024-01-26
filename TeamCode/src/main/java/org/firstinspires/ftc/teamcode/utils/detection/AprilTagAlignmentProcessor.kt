@@ -14,11 +14,11 @@ import kotlin.math.sin
 class AprilTagAlignmentProcessor(
     private var cameraType: CameraType,
     var targetPose: Pose2d,
-    ) : AprilTagProcessorImpl( //BOTH VALUES FOR 1280x720 RESOLUTION, FRONT C920, BACK ARDUCAM
-    when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
-    when(cameraType){ CameraType.FRONT -> 923.95; CameraType.BACK -> 902.125 },
-    when(cameraType){ CameraType.FRONT -> 634.655; CameraType.BACK -> 604.652 },
-    when(cameraType){ CameraType.FRONT -> 356.056; CameraType.BACK -> 368.362 },
+    ) : AprilTagProcessorImpl( //FRONT C920 640x480, BACK ARDUCAM 1280x720
+    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 902.125 },
+    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 902.125 },
+    when(cameraType){ CameraType.FRONT -> 319.803; CameraType.BACK -> 604.652 },
+    when(cameraType){ CameraType.FRONT -> 241.251; CameraType.BACK -> 368.362 },
     DistanceUnit.INCH,
     AngleUnit.DEGREES,
     AprilTagLibrary.Builder()
@@ -101,8 +101,8 @@ class AprilTagAlignmentProcessor(
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
 
-    private val frontCameraXOffset = -3.7823051181;
-    private val frontCameraYOffset = -8.3031496;
+    private val frontCameraXOffset = -3.7823051181
+    private val frontCameraYOffset = -8.3031496
 
     var targetFound = false
         private set
@@ -237,10 +237,10 @@ class AprilTagAlignmentProcessor(
                     Math.toRadians(currentHeading)
                 ))
             strafe =
-                strafeMultiplier * (yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(
+                -strafeMultiplier * (yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(
                     Math.toRadians(currentHeading)
                 ))
-            turn = turnMultiplier * headingPower
+            turn = -turnMultiplier * headingPower
         }
 
         drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn))

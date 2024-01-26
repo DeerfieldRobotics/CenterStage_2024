@@ -60,36 +60,39 @@ public class PathVisualizer
     private Pose2d postLowerWhitePose; //pose after
     private double preLowerWhiteTangent;
     public static void main(String[] args) {
-        initPose = PoseHelper.initFarRed;
-        spikePose = PoseHelper.farSpikeCenterRed;
+        initPose = PoseHelper.initCloseRed;
+        spikePose = PoseHelper.closeSpikeCenterRed;
         MeepMeep meepMeep = new MeepMeep(700);
         RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
                 .setDimensions(14.5,15.3)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(36, 36, Math.toRadians(180), Math.toRadians(180), 9)
+                .setConstraints(55, 45, Math.toRadians(180), Math.toRadians(180), 9)
                 .setStartPose(initPose)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(initPose)
-                                .splineToLinearHeading(spikePose, spikePose.getHeading())
+                                .splineToLinearHeading(PoseHelper.backboardRed, Math.toRadians(0.0))
+                                .waitSeconds(3)
                                 .setTangent(Math.toRadians(180))
-                                .back(4)
+                                .splineToLinearHeading(spikePose, spikePose.getHeading())
+                                .setTangent(Math.toRadians(270.0))
+                                .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
                                 .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
-                                .forward(2)
                                 .waitSeconds(1)
                                 .setTangent(0)
-                                .splineToLinearHeading(PoseHelper.wingTrussRed, Math.toRadians(0.0))
-                                .splineToSplineHeading(PoseHelper.boardTrussRed, Math.toRadians(0.0))
+                                .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(0.0))
+                                .splineToSplineHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(0.0))
                                 .splineToLinearHeading(PoseHelper.backboardRed, Math.toRadians(30.0))
                                 .waitSeconds(3)
                                 .setTangent(Math.toRadians(210))
-                                .splineToLinearHeading(PoseHelper.boardTrussRed, Math.toRadians(180.0))
-                                .splineToSplineHeading(PoseHelper.wingTrussRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
+                                .splineToSplineHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
                                 .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
                                 .forward(2)
                                 .waitSeconds(1)
                                 .setTangent(0)
-                                .splineToLinearHeading(PoseHelper.wingTrussRed, Math.toRadians(0.0))
-                                .splineToSplineHeading(PoseHelper.boardTrussRed, Math.toRadians(0.0))
+                                .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(0.0))
+                                .splineToSplineHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(0.0))
                                 .splineToLinearHeading(PoseHelper.backboardRed, Math.toRadians(0.0))
                                 .waitSeconds(3)
 

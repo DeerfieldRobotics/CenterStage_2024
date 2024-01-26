@@ -73,19 +73,9 @@ public class AutoRegionals extends LinearOpMode {
     private Pose2d wingTruss; //WING TRUSS POSITION
     private Pose2d boardTruss; //BOARD TRUSS POSITION
     private Pose2d parkPose; //Parking Position
-    private Pose2d aprilTagPose; // POSITION AFTER APRIL TAGS
-    private Pose2d aprilTagPose2;
     private Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
-    private double backboardApriltagX; // X VALUE OF LOCATION RELATIVE TO BACKBOARD IN INCHES
-    private double secondBackboardApriltagX; // X VALUE OF LOCATION RELATIVE TO BACKBOARD IN INCHES
-    private double initTangent; // INITIAL TANGENT 60 degrees
-    private double purpleTangent; // TANGENT TO SPIKE
-    private double centerBackup = 0; //BACKUP FROM SPIKE //TODO: WHY DO WE NEED THIS??????
-    private Pose2d beforeStackPose; //before we go to the stack,
-    private Pose2d preWhitePose;
-    private Pose2d whitePixelStackPose;
-    private Pose2d postLowerWhitePose; //pose after
-    private double preLowerWhiteTangent;
+    private Pose2d stackPose; //POSITION OF STACK
+    private double allianceAngleMultiplier = 1.0;
 
 
 
@@ -133,7 +123,7 @@ public class AutoRegionals extends LinearOpMode {
         //INITIALIZE DETECTION PORTALS
         initPortals();
 
-        backCameraPortal.stopLiveView();
+        backCameraPortal.stopStreaming();
     }
 
     private void initLoop() {
@@ -144,8 +134,8 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void startAuto() {
-        frontCameraPortal.stopStreaming();
-        backCameraPortal.resumeLiveView();
+        frontCameraPortal.stopLiveView();
+        backCameraPortal.resumeStreaming();
         telemetry.clear();
         buildAuto();
         drive.setPoseEstimate(initPose);
@@ -160,20 +150,13 @@ public class AutoRegionals extends LinearOpMode {
                     .setTangent(0)
                     .addTemporalMarker(this::stopIntake)
                     .addTemporalMarker(this::transfer)
-                    .addTemporalMarker(() -> {
-                        intake.intakePower(-1.0);
-                    })
                     .splineToSplineHeading(wingTruss, Math.toRadians(0))
-                    .addTemporalMarker(() -> {
-                        intake.intakePower(0.0);
-                    })
-                    .splineToSplineHeading(boardTruss, Math.toRadians(0))
+                    .splineToLinearHeading(boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(30))
+                    .splineToLinearHeading(backboardPose, Math.toRadians(30.0 * allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
-                        aprilTagProcessorBack.setTargetPose(backboardPose);
                         alignToApriltagBackboard();
-                        drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         if (path != Path.PLACEMENT)
                             drive.followTrajectorySequenceAsync(backboardToWhite);
                         else
@@ -183,9 +166,10 @@ public class AutoRegionals extends LinearOpMode {
             backboardToWhite = drive.trajectorySequenceBuilder(backboardPose)
                     .back(2)
                     .addTemporalMarker(this::drop)
+                    .waitSeconds(0.8)
                     .addTemporalMarker(this::outtakeIn)
-                    .waitSeconds(0.5)
-                    .setTangent(Math.toRadians(210.0))
+                    .waitSeconds(0.4)
+                    .setTangent(Math.toRadians(210.0 * allianceAngleMultiplier))
                     .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
@@ -196,7 +180,7 @@ public class AutoRegionals extends LinearOpMode {
                     .waitSeconds(.1)
                     .build();
             backboardToPark = drive.trajectorySequenceBuilder(backboardPose)
-                    .setTangent(Math.toRadians(120.0))
+                    .setTangent(Math.toRadians(120.0 * allianceAngleMultiplier))
                     .splineToLinearHeading(parkPose, Math.toRadians(180.0))
                     .build();
         }
@@ -207,10 +191,10 @@ public class AutoRegionals extends LinearOpMode {
         //INITIAL PATHS
         if(startPosition == StartPosition.RED_CLOSE || startPosition == StartPosition.BLUE_CLOSE) {
             init = drive.trajectorySequenceBuilder(initPose)
-                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+                    .splineToLinearHeading(backboardPose, Math.toRadians(0))
                     .addTemporalMarker(() -> {
-                        alignToApriltagBackboard(); //TODO add apriltag errors
-                        drive.setPoseEstimate(backboardPose);
+                        alignToApriltagBackboard();
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
             backboardToSpike = drive.trajectorySequenceBuilder(backboardPose)
@@ -228,10 +212,10 @@ public class AutoRegionals extends LinearOpMode {
                     //TODO PARK
                     .build();
             spikeToWhite = drive.trajectorySequenceBuilder(spikePose)
-                    .setTangent(Math.toRadians(270))
+                    .setTangent(Math.toRadians(270.0 * allianceAngleMultiplier)) //TODO CHANGE THIS DEPENDING ON INSIDE OR OUTSIDE PATH
                     .splineToLinearHeading(boardTruss, Math.toRadians(180.0))
                     .splineToLinearHeading(wingTruss, Math.toRadians(180.0))
-                    .splineToLinearHeading(aprilTagPose, Math.toRadians(180.0))
+                    .splineToLinearHeading(stackPose, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -253,7 +237,7 @@ public class AutoRegionals extends LinearOpMode {
                         intake.setServoPosition(Intake.IntakePositions.FIVE);
                     })
                     .setTangent(Math.toRadians(180))
-                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                    .splineToLinearHeading(stackPose, Math.toRadians(180.0))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -274,7 +258,8 @@ public class AutoRegionals extends LinearOpMode {
     private void buildAuto() {
         switch(AllianceHelper.alliance) {
             case RED:
-                backboardPose = PoseHelper.backboardRed;
+                stackPose = PoseHelper.apriltagStackRed;
+                allianceAngleMultiplier = 1.0;
                 switch(path) {
                     case OUTSIDE:
                         parkPose = PoseHelper.parkPoseOutsideRed;
@@ -287,9 +272,21 @@ public class AutoRegionals extends LinearOpMode {
                         boardTruss = PoseHelper.boardTrussInsideRed;
                         break;
                 }
+                switch(purplePixelPath) {
+                    case LEFT:
+                        backboardPose = PoseHelper.backboardLeftRed;
+                        break;
+                    case CENTER:
+                        backboardPose = PoseHelper.backboardCenterRed;
+                        break;
+                    case RIGHT:
+                        backboardPose = PoseHelper.backboardRightRed;
+                        break;
+                }
                 break;
             case BLUE:
-                backboardPose = PoseHelper.backboardBlue;
+                stackPose = PoseHelper.apriltagStackBlue;
+                allianceAngleMultiplier = -1.0;
                 switch(path) {
                     case OUTSIDE:
                         parkPose = PoseHelper.parkPoseOutsideBlue;
@@ -300,6 +297,17 @@ public class AutoRegionals extends LinearOpMode {
                         parkPose = PoseHelper.parkPoseInsideBlue;
                         wingTruss = PoseHelper.wingTrussInsideBlue;
                         boardTruss = PoseHelper.boardTrussInsideBlue;
+                        break;
+                }
+                switch(purplePixelPath) {
+                    case LEFT:
+                        backboardPose = PoseHelper.backboardLeftBlue;
+                        break;
+                    case CENTER:
+                        backboardPose = PoseHelper.backboardCenterBlue;
+                        break;
+                    case RIGHT:
+                        backboardPose = PoseHelper.backboardRightBlue;
                         break;
                 }
                 break;
@@ -368,7 +376,7 @@ public class AutoRegionals extends LinearOpMode {
         CameraName backCamera = hardwareMap.get(WebcamName.class, "Webcam 1");
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
-        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRed : PoseHelper.backboardBlue); // Used for managing the april tag detection process.
+        aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue); // Used for managing the april tag detection process.
         aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.apriltagStackRed : PoseHelper.apriltagStackBlue); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
 
@@ -378,7 +386,7 @@ public class AutoRegionals extends LinearOpMode {
 
         frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
-                .setCameraResolution(new android.util.Size(1280, 720))
+                .setCameraResolution(new android.util.Size(640, 480))
                 .addProcessors(colorDetectionProcessor, aprilTagProcessorFront)
                 .setLiveViewContainerId(frontPortalId)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
@@ -398,6 +406,7 @@ public class AutoRegionals extends LinearOpMode {
     private void detectPurplePath() { purplePixelPath = colorDetectionProcessor.getPosition(); }
 
     private void alignToApriltagBackboard() {
+        aprilTagProcessorBack.setTargetPose(backboardPose);
         double currentTime = getRuntime();
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
@@ -417,6 +426,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void alignToApriltagStack() {
+        frontCameraPortal.resumeLiveView();
         double currentTime = getRuntime();
         while(!isStopRequested()) {
             aprilTagProcessorFront.update();

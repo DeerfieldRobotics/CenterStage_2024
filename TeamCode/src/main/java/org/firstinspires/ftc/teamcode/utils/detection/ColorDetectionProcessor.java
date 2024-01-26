@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.detection;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -22,12 +23,13 @@ public class ColorDetectionProcessor implements VisionProcessor {
     private final ArrayList<Integer> leftCnt = new ArrayList<Integer>();
     private final ArrayList<Integer> centerCnt = new ArrayList<Integer>();
     private final ArrayList<Integer> rightCnt = new ArrayList<Integer>();
-    private final int startY = 120;
-    private final int endY = 240;
+
+    private final int startY = 240;
+    private final int endY = 480;
     private final int startX = 0;
-    private final int endX = 320;
-    private final int x1 = 100; // first x division
-    private final int x2 = 220; // second x division
+    private final int endX = 640;
+    private final int x1 = 200; // first x division
+    private final int x2 = 440; // second x division
     private String color;
     private StartingPosition position;
 
@@ -137,16 +139,14 @@ public class ColorDetectionProcessor implements VisionProcessor {
         // position = StartingPosition.RIGHT;
         // }
 
-        Imgproc.rectangle(frame, leftA, leftB, new Scalar(0, 0, 255), 1);
-        Imgproc.rectangle(frame, centerA, centerB, new Scalar(0, 0, 255), 1);
-        Imgproc.rectangle(frame, rightA, rightB, new Scalar(0, 0, 255), 1);
-
         return null;
     }
 
     public StartingPosition getPosition() { return position; }
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-
+        canvas.drawRect(startX, startY, x1, endY, new android.graphics.Paint());
+        canvas.drawRect(x1 + 1, startY, x2, endY, new android.graphics.Paint());
+        canvas.drawRect(x2 + 1, startY, endX, endY, new android.graphics.Paint());
     }
 }
