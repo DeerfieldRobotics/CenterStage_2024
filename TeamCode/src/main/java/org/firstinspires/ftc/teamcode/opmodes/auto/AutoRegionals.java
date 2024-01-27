@@ -249,7 +249,6 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
             dropWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
                     .back(4)
-                    .waitSeconds(1)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.6)
                     .addTemporalMarker(this::outtakeIn)
