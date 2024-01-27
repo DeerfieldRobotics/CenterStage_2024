@@ -41,7 +41,7 @@ class Intake(hardwareMap: HardwareMap){
     private val motorPowerMultiplier = 0.75
 
     enum class TransferStage {
-        INIT, TRANSFER, INTAKE, IDLE
+        INIT, TRANSFER, INTAKE, IDLE, UNJAM
     }
 
     private var transferStage = TransferStage.IDLE
@@ -102,6 +102,17 @@ class Intake(hardwareMap: HardwareMap){
                 }
                 servoPosition = IntakePositions.TRANSFER //move servo
                 if(System.currentTimeMillis() - timeDelayMillis > 600) { //wait for servo to move to advance
+                    transferStage = TransferStage.UNJAM
+                    timeDelayMillis = 0L
+                }
+            }
+            TransferStage.UNJAM -> {
+                if(timeDelayMillis == 0L) {
+                    timeDelayMillis = System.currentTimeMillis()
+                }
+                boosterServoPower = -1.0
+                if(System.currentTimeMillis() - timeDelayMillis > 200) {
+                    boosterServoPower = 0.0
                     transferStage = TransferStage.INTAKE
                     timeDelayMillis = 0L
                 }

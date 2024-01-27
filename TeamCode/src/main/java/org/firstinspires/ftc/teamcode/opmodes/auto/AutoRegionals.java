@@ -201,7 +201,7 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
             spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
                     .addTemporalMarker(this::outtakePurple)
-                    .back(4)
+                    .back(5)
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FIVE))
                     .setTangent(Math.toRadians(180))
                     .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
@@ -213,7 +213,6 @@ public class AutoRegionals extends LinearOpMode {
             whiteToBackboardYellow = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
                     .addTemporalMarker(this::intake)
                     .forward(2)
-                    .waitSeconds(0.5)
                     .back(2)
                     .addTemporalMarker(this::stopIntake)
                     .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
@@ -223,23 +222,22 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-//                        drive.setPoseEstimate(PoseHelper.backboardPose);
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
             dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose) //TODO CHANGE TO APRILTAG POSE ESTIMATE IF POSSIBLE
-                    .back(4)
+                    .back(6)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.2)
-                    .forward(4)
+                    .forward(6)
                     .addTemporalMarker(this::outtakeTransfer)
-                    .waitSeconds(1.6)
+                    .waitSeconds(0.8)
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.2)
                     .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
                     .addTemporalMarker(() -> {setSlideHeight(-1400);})
                     .addTemporalMarker(() -> {
-                        PoseHelper.backboardPose = PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue ? AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
+                        PoseHelper.backboardPose = (PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) ? (AllianceHelper.alliance == AllianceHelper.Alliance.RED) ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         datalog.opModeStatus.set(drive.getPoseEstimate().getX()+", "+drive.getPoseEstimate().getY()+", "+drive.getPoseEstimate().getHeading());
@@ -248,7 +246,7 @@ public class AutoRegionals extends LinearOpMode {
                     })
                     .build();
             dropWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-                    .back(4)
+//                    .back(4)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.6)
                     .addTemporalMarker(this::outtakeIn)
@@ -375,9 +373,9 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     //OUTTAKE METHODS
-    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -1000) setSlideHeight(-1000); }
-    private void outtakeIn() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE); }
-    private void outtakeTransfer() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
+    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -1050) setSlideHeight(-1050); }
+    private void outtakeIn() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1000); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE); }
+    private void outtakeTransfer() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1000); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
     private void drop() { outtake.setGateClosed(false); }
 
     private void setSlideHeight(int height) { slide.setTargetPosition(height); slide.setMode(DcMotor.RunMode.RUN_TO_POSITION); slide.setPower(1.0); }
