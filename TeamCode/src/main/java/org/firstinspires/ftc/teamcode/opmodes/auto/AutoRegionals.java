@@ -237,7 +237,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.2)
                     .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
-                    .addTemporalMarker()
+                    .addTemporalMarker(() -> {setSlideHeight(-1400);})
                     .addTemporalMarker(() -> {
                         PoseHelper.backboardPose = PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue ? AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
                         alignToApriltagBackboard();
@@ -248,6 +248,7 @@ public class AutoRegionals extends LinearOpMode {
                     })
                     .build();
             dropWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+                    .back(4)
                     .waitSeconds(1)
                     .addTemporalMarker(this::drop)
                     .waitSeconds(0.6)
