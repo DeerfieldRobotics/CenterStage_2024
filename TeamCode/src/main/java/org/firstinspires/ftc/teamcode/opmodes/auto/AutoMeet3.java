@@ -227,9 +227,6 @@ public class AutoMeet3 extends LinearOpMode {
             aprilTagProcessorBack.update();
             aprilTagProcessorBack.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
             intake.update();

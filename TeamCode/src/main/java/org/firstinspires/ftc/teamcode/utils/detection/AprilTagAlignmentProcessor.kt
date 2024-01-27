@@ -58,15 +58,15 @@ class AprilTagAlignmentProcessor(
     private val aprilTagPoseBigStackBlue: Pose2d = Pose2d(-70.75, 40.97, 180.0)
 
     //DEFAULT PID VALUES
-    var yP = 0.04
-    var yI = 0.04
-    var yD = 0.0006
-    var xP = 0.027
-    var xI = 0.017
-    var xD = 0.0009
-    var headingP = 0.026
-    var headingI = 0.035
-    var headingD = 0.001
+    var yP = 0.039
+    var yI = 0.022
+    var yD = 0.0001
+    var xP = 0.042
+    var xI = 0.038
+    var xD = 0.0
+    var headingP = 0.820
+    var headingI = 0.02
+    var headingD = 0.00
 
 
     //PID CONTROLLERS
@@ -101,19 +101,10 @@ class AprilTagAlignmentProcessor(
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
     private val backCameraOffset = 6.0787402
 
-    private val tagXOffset = 6.0 // Lateral offset of tag in inches
-
     private val frontCameraXOffset = -3.7823051181
     private val frontCameraYOffset = -8.3031496
 
     var targetFound = false
-        private set
-
-    var yError: Double = 0.0
-        private set
-    var xError: Double = 0.0
-        private set
-    var headingError: Double = 0.0
         private set
 
     private var forwardMultiplier = 1.0
@@ -121,12 +112,12 @@ class AprilTagAlignmentProcessor(
     private var turnMultiplier = 0.75
 
     fun setPIDCoefficients(xP: Double, xI: Double, xD: Double, yP: Double, yI: Double, yD: Double, headingP: Double, headingI: Double, headingD: Double) {
-        this.yP = xP
-        this.yI = xI
-        this.yD = xD
-        this.xP = yP
-        this.xI = yI
-        this.xD = yD
+        this.xP = xP
+        this.xI = xI
+        this.xD = xD
+        this.yP = yP
+        this.yI = yI
+        this.yD = yD
         this.headingP = headingP
         this.headingI = headingI
         this.headingD = headingD
@@ -138,10 +129,6 @@ class AprilTagAlignmentProcessor(
         currentY = 0.0
         currentX = 0.0
         currentHeading = 0.0
-
-        yError = 0.0
-        xError = 0.0
-        headingError = 0.0
 
         var total = 0.0
 
@@ -208,9 +195,9 @@ class AprilTagAlignmentProcessor(
                 currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + sin(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
-        poseEstimate = Pose2d(currentX, currentY, currentHeading)
+        poseEstimate = Pose2d(currentX, currentY, Math.toRadians(currentHeading))
 
-        poseError = restrictDomain(targetPose.minus(poseEstimate))
+        poseError = targetPose.minus(poseEstimate)
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {
@@ -246,7 +233,7 @@ class AprilTagAlignmentProcessor(
         drivetrain?.setWeightedDrivePower(Pose2d(forward, strafe, turn))
     }
 
-    fun robotAligned(): Boolean = yError < 0.5 && xError < 0.5 && headingError < 1.0
+    fun robotAligned(): Boolean = poseError.x < 0.5 && poseError.y < 0.5 && poseError.heading < 1.0
 
     private fun restrictDomain(pose: Pose2d): Pose2d{
         var heading = pose.heading-180*(pose.heading/180).toInt()

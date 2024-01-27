@@ -223,23 +223,27 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+//                        drive.setPoseEstimate(PoseHelper.backboardPose);
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
-            dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-                    .back(2)
+            dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose) //TODO CHANGE TO APRILTAG POSE ESTIMATE IF POSSIBLE
+                    .back(4)
                     .addTemporalMarker(this::drop)
-                    .forward(2)
+                    .waitSeconds(0.2)
+                    .forward(4)
                     .addTemporalMarker(this::outtakeTransfer)
                     .waitSeconds(1.6)
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.2)
                     .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
+                    .addTemporalMarker()
                     .addTemporalMarker(() -> {
-                        PoseHelper.backboardPose = PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue ? PoseHelper.backboardCenterRed : PoseHelper.backboardRightRed;
+                        PoseHelper.backboardPose = PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue ? AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                        datalog.opModeStatus.set(drive.getPoseEstimate().getX()+", "+drive.getPoseEstimate().getY()+", "+drive.getPoseEstimate().getHeading());
+                        datalog.writeLine();
                         drive.followTrajectorySequenceAsync(dropWhite);
                     })
                     .build();
@@ -301,7 +305,17 @@ public class AutoRegionals extends LinearOpMode {
         double currentTime = getRuntime();
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
+
+            datalog.xError.set(aprilTagProcessorBack.getPoseError().getX());
+            datalog.yError.set(aprilTagProcessorBack.getPoseError().getY());
+            datalog.headingError.set(aprilTagProcessorBack.getPoseError().getHeading());
+            datalog.xEstimate.set(aprilTagProcessorBack.getPoseEstimate().getX());
+            datalog.yEstimate.set(aprilTagProcessorBack.getPoseEstimate().getY());
+            datalog.headingEstimate.set(aprilTagProcessorBack.getPoseEstimate().getHeading());
+            datalog.writeLine();
+
             if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
+
             aprilTagProcessorBack.alignRobot(drive);
 
             telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getPoseError().getX());
@@ -309,16 +323,18 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getPoseError().getHeading());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
 
-            datalog.xError.set(aprilTagProcessorBack.getPoseError().getX());
-            datalog.yError.set(aprilTagProcessorBack.getPoseError().getY());
-            datalog.headingError.set(aprilTagProcessorBack.getPoseError().getHeading());
-            datalog.writeLine();
 
             telemetry.update();
             intake.update();
             slide.update();
             outtake.update();
         }
+        if(aprilTagProcessorBack.robotAligned())
+            datalog.opModeStatus.set("BROKE FROM ALIGN");
+        else
+            datalog.opModeStatus.set("BROKE FROM TIME");
+        datalog.writeLine();
+
         drive.setMotorPowers(0,0,0,0);
     }
 
@@ -329,9 +345,6 @@ public class AutoRegionals extends LinearOpMode {
             aprilTagProcessorFront.update();
             aprilTagProcessorFront.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
             telemetry.update();
             intake.update();
@@ -362,7 +375,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     //OUTTAKE METHODS
-    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -900) setSlideHeight(-900); }
+    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -1000) setSlideHeight(-1000); }
     private void outtakeIn() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE); }
     private void outtakeTransfer() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1200); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
     private void drop() { outtake.setGateClosed(false); }
@@ -429,12 +442,15 @@ public class AutoRegionals extends LinearOpMode {
         public Datalogger.GenericField xError       = new Datalogger.GenericField("X Error");
         public Datalogger.GenericField yError       = new Datalogger.GenericField("Y Error");
         public Datalogger.GenericField headingError = new Datalogger.GenericField("Heading Error");
+        public Datalogger.GenericField xEstimate       = new Datalogger.GenericField("X Error");
+        public Datalogger.GenericField yEstimate       = new Datalogger.GenericField("Y Error");
+        public Datalogger.GenericField headingEstimate = new Datalogger.GenericField("Heading Error");
         public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
         public Datalog(String name) {
             datalogger = new Datalogger.Builder()
                     .setFilename(name)
                     .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
-                    .setFields( opModeStatus, loopCounter, xError, yError, headingError, battery )
+                    .setFields( opModeStatus, loopCounter, xEstimate, yEstimate, headingEstimate, xError, yError, headingError, battery )
                     .build();
         }
         public void writeLine()

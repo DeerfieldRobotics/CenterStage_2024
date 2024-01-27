@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,8 +16,18 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import java.util.List;
 
 @TeleOp(name = "April Tag Tester")
+@Config
 public class AprilTagTester extends LinearOpMode {
     private CogchampDrive drivetrain;
+    public static double yP = 0.01;
+    public static double yI = 0.04;
+    public static double yD = 0.0006;
+    public static double xP = 0.027;
+    public static double xI = 0.017;
+    public static double xD = 0.0009;
+    public static double headingP = 0.026;
+    public static double headingI = 0.035;
+    public static double headingD = 0.001;
     @Override
     public void runOpMode() throws InterruptedException {
         drivetrain = new CogchampDrive(hardwareMap);
@@ -52,6 +63,9 @@ public class AprilTagTester extends LinearOpMode {
         drivetrain.setPoseEstimate(PoseHelper.initCloseRed);
 
         while(opModeIsActive() && !isStopRequested()) {
+
+            aprilTagAlignmentProcessorBack.setPIDCoefficients(xP, xI, xD, yP, yI, yD, headingP, headingI, headingD);
+
             aprilTagAlignmentProcessorBack.update();
             aprilTagAlignmentProcessorFront.update();
 
@@ -68,7 +82,7 @@ public class AprilTagTester extends LinearOpMode {
             telemetry.addData("Back Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorBack.getPoseEstimate().getX(),aprilTagAlignmentProcessorBack.getPoseEstimate().getY(),aprilTagAlignmentProcessorBack.getPoseEstimate().getHeading());
             telemetry.addData("Back Camera Error", "x: %3.2f in, y: %3.2f in, heading %3.2f°", aprilTagAlignmentProcessorBack.getPoseError().getX(), aprilTagAlignmentProcessorBack.getPoseError().getY(), aprilTagAlignmentProcessorBack.getPoseError().getHeading());
             telemetry.addData("Front Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getPoseEstimate().getX(),aprilTagAlignmentProcessorFront.getPoseEstimate().getY(),aprilTagAlignmentProcessorFront.getPoseEstimate().getHeading());
-            telemetry.addData("Front Camera Error", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getXError(),aprilTagAlignmentProcessorFront.getYError(),aprilTagAlignmentProcessorFront.getHeadingError());
+            telemetry.addData("Front Camera Error", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getPoseError().getX(),aprilTagAlignmentProcessorFront.getPoseError().getY(),aprilTagAlignmentProcessorFront.getPoseError().getHeading());
             telemetry.update();
         }
     }
