@@ -43,10 +43,10 @@ public final class PoseHelper {
     public final static Pose2d middleStackBlue = new Pose2d(-57.5, 23, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 59, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 59, Math.toRadians(180.0));
-    public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, -11, Math.toRadians(180.0));
-    public final static Pose2d boardTrussInsideBlue = new Pose2d(17, -11, Math.toRadians(180.0));
-    public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, -11, Math.toRadians(180.0));
-    public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, -59, Math.toRadians(180.0));;
+    public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 11, Math.toRadians(180.0));
+    public final static Pose2d boardTrussInsideBlue = new Pose2d(17, 11, Math.toRadians(180.0));
+    public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 11, Math.toRadians(180.0));
+    public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));;
 //
 //    public Enum alliance;
 //    public Enum startPos;

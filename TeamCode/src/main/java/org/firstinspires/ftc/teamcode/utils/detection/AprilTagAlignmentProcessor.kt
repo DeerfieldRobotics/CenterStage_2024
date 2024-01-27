@@ -58,20 +58,20 @@ class AprilTagAlignmentProcessor(
     private val aprilTagPoseBigStackBlue: Pose2d = Pose2d(-70.75, 40.97, 180.0)
 
     //DEFAULT PID VALUES
-    var xP = 0.04
-    var xI = 0.04
-    var xD = 0.0006
-    var yP = 0.027
-    var yI = 0.017
-    var yD = 0.0009
+    var yP = 0.04
+    var yI = 0.04
+    var yD = 0.0006
+    var xP = 0.027
+    var xI = 0.017
+    var xD = 0.0009
     var headingP = 0.026
     var headingI = 0.035
     var headingD = 0.001
 
 
     //PID CONTROLLERS
-    var xController = PIDController(xP, xI, xD)
     var yController = PIDController(yP, yI, yD)
+    var xController = PIDController(xP, xI, xD)
     var headingController = PIDController(headingP, headingI, headingD)
 
     //CURRENT POSITIONS
@@ -83,9 +83,9 @@ class AprilTagAlignmentProcessor(
         private set
 
     //PID OUTPUTS
-    var xPower = 0.0
-        private set
     var yPower = 0.0
+        private set
+    var xPower = 0.0
         private set
     var headingPower = 0.0
         private set
@@ -99,7 +99,7 @@ class AprilTagAlignmentProcessor(
         private set
 
     //OFFSET OF CAMERA FROM CENTER OF ROTATION
-    private val backCameraOffset = 6.0787402 //TODO FIGURE OUT PROPER CAMERA OFFSET, WITH X AN Y COMPONENTS FOR FRONT AND BACK
+    private val backCameraOffset = 6.0787402
 
     private val tagXOffset = 6.0 // Lateral offset of tag in inches
 
@@ -121,12 +121,12 @@ class AprilTagAlignmentProcessor(
     private var turnMultiplier = 0.75
 
     fun setPIDCoefficients(xP: Double, xI: Double, xD: Double, yP: Double, yI: Double, yD: Double, headingP: Double, headingI: Double, headingD: Double) {
-        this.xP = xP
-        this.xI = xI
-        this.xD = xD
-        this.yP = yP
-        this.yI = yI
-        this.yD = yD
+        this.yP = xP
+        this.yI = xI
+        this.yD = xD
+        this.xP = yP
+        this.xI = yI
+        this.xD = yD
         this.headingP = headingP
         this.headingI = headingI
         this.headingD = headingD
@@ -214,30 +214,30 @@ class AprilTagAlignmentProcessor(
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {
-        xPower = 0.0
         yPower = 0.0
+        xPower = 0.0
         headingPower = 0.0
 
         forward = 0.0
         strafe = 0.0
         turn = 0.0
 
-        xController.setPID(xP, xI, xD)
         yController.setPID(yP, yI, yD)
+        xController.setPID(xP, xI, xD)
         headingController.setPID(headingP, headingI, headingD)
 
         if(targetFound) {
 
-            xPower = xController.calculate(poseError.y)
-            yPower = yController.calculate(poseError.x)
+            yPower = yController.calculate(poseError.y)
+            xPower = xController.calculate(poseError.x)
             headingPower = headingController.calculate(poseError.heading)
 
             forward =
-                -forwardMultiplier * (yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(
+                -forwardMultiplier * (xPower * cos(Math.toRadians(currentHeading)) + yPower * sin(
                     Math.toRadians(currentHeading)
                 ))
             strafe =
-                -strafeMultiplier * (yPower * sin(Math.toRadians(currentHeading)) + xPower * cos(
+                -strafeMultiplier * (xPower * sin(Math.toRadians(currentHeading)) + yPower * cos(
                     Math.toRadians(currentHeading)
                 ))
             turn = -turnMultiplier * headingPower

@@ -300,9 +300,8 @@ public class AutoRegionals extends LinearOpMode {
         aprilTagProcessorBack.setTargetPose(PoseHelper.backboardPose);
         double currentTime = getRuntime();
         while(!isStopRequested()) {
-            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
-
             aprilTagProcessorBack.update();
+            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
             aprilTagProcessorBack.alignRobot(drive);
 
             telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getPoseError().getX());
