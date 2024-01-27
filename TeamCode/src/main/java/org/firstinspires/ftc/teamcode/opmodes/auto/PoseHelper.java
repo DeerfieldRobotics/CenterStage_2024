@@ -13,12 +13,12 @@ public final class PoseHelper {
     public final static Pose2d backboardCenterRed = new Pose2d(50, -35, Math.toRadians(180.0));
     public final static Pose2d backboardRightRed = new Pose2d(50, -41, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-29, -36, Math.toRadians(50.0));
-    public final static Pose2d farSpikeCenterRed = new Pose2d(-40.5,-34.5, Math.toRadians(90.0));
+    public final static Pose2d farSpikeCenterRed = new Pose2d(-40.5,-36.5, Math.toRadians(90.0));
     public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -39.5, Math.toRadians(80.0));
     public final static Pose2d closeSpikeRightRed = new Pose2d(32.5, -30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(10.5, -30, Math.toRadians(180));
-    public final static Pose2d apriltagStackRed = new Pose2d(-57.5, -35, Math.toRadians(180.0));
+    public final static Pose2d apriltagStackRed = new Pose2d(-54.5, -35, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-57.5, -23, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -59, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -59, Math.toRadians(180.0));
@@ -39,7 +39,7 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeRightBlue = new Pose2d(10.5, 30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftBlue = new Pose2d(32.5, 30, Math.toRadians(180));
-    public final static Pose2d apriltagStackBlue = new Pose2d(-57.5, 35, Math.toRadians(180.0));
+    public final static Pose2d apriltagStackBlue = new Pose2d(-54.5, 35, Math.toRadians(180.0));
     public final static Pose2d middleStackBlue = new Pose2d(-57.5, 23, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 59, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 59, Math.toRadians(180.0));

@@ -66,8 +66,9 @@ public class AprilTagTester extends LinearOpMode {
                 driveNormal();
 
             telemetry.addData("Back Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorBack.getPoseEstimate().getX(),aprilTagAlignmentProcessorBack.getPoseEstimate().getY(),aprilTagAlignmentProcessorBack.getPoseEstimate().getHeading());
+            telemetry.addData("Back Camera Error", "x: %3.2f in, y: %3.2f in, heading %3.2f°", aprilTagAlignmentProcessorBack.getPoseError().getX(), aprilTagAlignmentProcessorBack.getPoseError().getY(), aprilTagAlignmentProcessorBack.getPoseError().getHeading());
             telemetry.addData("Front Camera Pose", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getPoseEstimate().getX(),aprilTagAlignmentProcessorFront.getPoseEstimate().getY(),aprilTagAlignmentProcessorFront.getPoseEstimate().getHeading());
-
+            telemetry.addData("Front Camera Error", "x: %3.2f in, y: %3.2f in, heading %3.2f°",aprilTagAlignmentProcessorFront.getXError(),aprilTagAlignmentProcessorFront.getYError(),aprilTagAlignmentProcessorFront.getHeadingError());
             telemetry.update();
         }
     }

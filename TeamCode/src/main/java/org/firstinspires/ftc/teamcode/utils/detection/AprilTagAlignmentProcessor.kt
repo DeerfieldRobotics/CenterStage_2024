@@ -64,7 +64,7 @@ class AprilTagAlignmentProcessor(
     var yP = 0.027
     var yI = 0.017
     var yD = 0.0009
-    var headingP = 0.03
+    var headingP = 0.026
     var headingI = 0.035
     var headingD = 0.001
 
@@ -79,6 +79,8 @@ class AprilTagAlignmentProcessor(
     private var currentX = 0.0
     private var currentHeading = 0.0
     var poseEstimate = Pose2d(currentX, currentY, currentHeading)
+    var poseError = Pose2d(0.0, 0.0, 0.0)
+        private set
 
     //PID OUTPUTS
     var xPower = 0.0
@@ -208,9 +210,7 @@ class AprilTagAlignmentProcessor(
         }
         poseEstimate = Pose2d(currentX, currentY, currentHeading)
 
-        yError = targetPose.y - poseEstimate.y
-        xError = targetPose.x - poseEstimate.x
-        headingError = targetPose.heading - currentHeading
+        poseError = restrictDomain(targetPose.minus(poseEstimate))
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {
@@ -228,9 +228,9 @@ class AprilTagAlignmentProcessor(
 
         if(targetFound) {
 
-            xPower = xController.calculate(yError)
-            yPower = yController.calculate(xError)
-            headingPower = headingController.calculate(headingError)
+            xPower = xController.calculate(poseError.y)
+            yPower = yController.calculate(poseError.x)
+            headingPower = headingController.calculate(poseError.heading)
 
             forward =
                 -forwardMultiplier * (yPower * cos(Math.toRadians(currentHeading)) + xPower * sin(
@@ -247,4 +247,13 @@ class AprilTagAlignmentProcessor(
     }
 
     fun robotAligned(): Boolean = yError < 0.5 && xError < 0.5 && headingError < 1.0
+
+    private fun restrictDomain(pose: Pose2d): Pose2d{
+        var heading = pose.heading-180*(pose.heading/180).toInt()
+        if(heading > 90)
+            heading -= 180
+        if(heading < -90)
+            heading += 180
+        return Pose2d(pose.x, pose.y, heading)
+    }
 }

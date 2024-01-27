@@ -19,11 +19,13 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Outtake;
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide;
 import org.firstinspires.ftc.vision.VisionPortal;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
-//    private Datalog datalog; //TELEMETRY
+    private Datalog datalog; //TELEMETRY
 
     //DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
@@ -80,11 +82,11 @@ public class AutoRegionals extends LinearOpMode {
         outtake = new Outtake(hardwareMap, slide);
         battery = hardwareMap.voltageSensor.get("Control Hub");
 
-//        datalog = new Datalog("AutoDatalog"+ SimpleDateFormat.getDateTimeInstance().format(new Date()));
+        datalog = new Datalog("AutoDatalog");
 
-//        datalog.opModeStatus.set("INIT");
-//        datalog.battery.set(battery.getVoltage());
-//        datalog.writeLine();
+        datalog.opModeStatus.set("INIT");
+        datalog.battery.set(battery.getVoltage());
+        datalog.writeLine();
 
         //SET INITIAL HARDWARE STATES
         outtake.setGateClosed(true);
@@ -95,8 +97,6 @@ public class AutoRegionals extends LinearOpMode {
 
         //INITIALIZE DETECTION PORTALS
         initPortals();
-
-        backCameraPortal.stopStreaming();
     }
 
     private void initLoop() {
@@ -104,6 +104,10 @@ public class AutoRegionals extends LinearOpMode {
         telemetry.addData("Selected Auto: ", StartPosition.startPosition.toString());
         telemetry.addData("Detected Path: ", ColorDetectionProcessor.position.toString());
         telemetry.update();
+
+        if(backCameraPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+            backCameraPortal.stopStreaming();
+        }
     }
 
     private void startAuto() {
@@ -117,9 +121,8 @@ public class AutoRegionals extends LinearOpMode {
         whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
                 .addTemporalMarker(this::intake)
                 .addTemporalMarker(this::outtakeTransfer)
-                .forward(2)
-                .waitSeconds(1)
-                .setTangent(0)
+//                .forward(2)
+                .waitSeconds(0.5)
                 .addTemporalMarker(this::stopIntake)
                 .addTemporalMarker(this::transfer)
                 .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
@@ -210,10 +213,11 @@ public class AutoRegionals extends LinearOpMode {
             whiteToBackboardYellow = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
                     .addTemporalMarker(this::intake)
                     .forward(2)
-                    .waitSeconds(1)
-                    .setTangent(0)
+                    .waitSeconds(0.5)
+                    .back(2)
                     .addTemporalMarker(this::stopIntake)
-                    .splineToSplineHeading(PoseHelper.wingTruss, Math.toRadians(0))
+                    .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
+                    .addTemporalMarker(() -> { intake.setBoosterServoPower(0.0); })
                     .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
@@ -228,7 +232,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::drop)
                     .forward(2)
                     .addTemporalMarker(this::outtakeTransfer)
-                    .waitSeconds(0.8)
+                    .waitSeconds(1.6)
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.2)
                     .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
@@ -296,20 +300,27 @@ public class AutoRegionals extends LinearOpMode {
         aprilTagProcessorBack.setTargetPose(PoseHelper.backboardPose);
         double currentTime = getRuntime();
         while(!isStopRequested()) {
+            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
+
             aprilTagProcessorBack.update();
             aprilTagProcessorBack.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getYError());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getXError());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getHeadingError());
+            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getPoseError().getX());
+            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getPoseError().getY());
+            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getPoseError().getHeading());
             telemetry.addData("drivetrain power", drive.getPoseEstimate());
+
+            datalog.xError.set(aprilTagProcessorBack.getPoseError().getX());
+            datalog.yError.set(aprilTagProcessorBack.getPoseError().getY());
+            datalog.headingError.set(aprilTagProcessorBack.getPoseError().getHeading());
+            datalog.writeLine();
+
             telemetry.update();
             intake.update();
             slide.update();
             outtake.update();
-
-            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
         }
+        drive.setMotorPowers(0,0,0,0);
     }
 
     private void alignToApriltagStack() {
@@ -343,11 +354,11 @@ public class AutoRegionals extends LinearOpMode {
     private void outtakePurple() {
         intake.setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.update();
-        intake.setMotorTargetPosition(-400);
+        intake.setMotorTargetPosition(-450);
         intake.update();
         intake.setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.update();
-        intake.setMotorPower(0.4);
+        intake.setMotorPower(0.5);
         intake.update();
     }
 
