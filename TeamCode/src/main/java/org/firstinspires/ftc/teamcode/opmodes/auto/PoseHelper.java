@@ -9,7 +9,7 @@ public final class PoseHelper {
     // RED POSES
     public final static Pose2d initCloseRed = new Pose2d(10.5, -63, Math.toRadians(90.0));
     public final static Pose2d initFarRed = new Pose2d(-39.5, -63, Math.toRadians(90.0));
-    public final static Pose2d backboardLeftRed = new Pose2d(48, -29, Math.toRadians(180.0));
+    public final static Pose2d backboardLeftRed = new Pose2d(48, -28.5, Math.toRadians(180.0));
     public final static Pose2d backboardCenterRed = new Pose2d(48, -34, Math.toRadians(180.0));
     public final static Pose2d backboardRightRed = new Pose2d(48, -40, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-30.5, -39, Math.toRadians(50.0));
@@ -19,11 +19,12 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(10.5, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-54.5, -36, Math.toRadians(180.0));
-    public final static Pose2d middleStackRed = new Pose2d(-57.5, -23, Math.toRadians(180.0));
+    public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-54.5, -12, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -57, Math.toRadians(180.0));
-    public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -11, Math.toRadians(180.0));
-    public final static Pose2d boardTrussInsideRed = new Pose2d(17, -11, Math.toRadians(180.0));
+    public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -9, Math.toRadians(180.0));
+    public final static Pose2d boardTrussInsideRed = new Pose2d(17, -9, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideRed = new Pose2d(58.5, -11, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideRed = new Pose2d(58.5, -59, Math.toRadians(180.0));;
 
@@ -40,7 +41,8 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftBlue = new Pose2d(32.5, 30, Math.toRadians(180));
     public final static Pose2d apriltagStackBlue = new Pose2d(-54.5, 36, Math.toRadians(180.0));
-    public final static Pose2d middleStackBlue = new Pose2d(-57.5, 23, Math.toRadians(180.0));
+    public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
+    public final static Pose2d insideStackBlue = new Pose2d(-54.5, 12, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 57, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 57, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 11, Math.toRadians(180.0));
@@ -71,15 +73,16 @@ public final class PoseHelper {
 
         switch(AllianceHelper.alliance) {
             case RED:
-                stackPose = PoseHelper.apriltagStackRed;
                 allianceAngleMultiplier = 1.0;
                 switch(Paths.path) {
                     case OUTSIDE:
+                        stackPose = PoseHelper.apriltagStackRed;
                         parkPose = PoseHelper.parkPoseOutsideRed;
                         wingTruss = PoseHelper.wingTrussOutsideRed;
                         boardTruss = PoseHelper.boardTrussOutsideRed;
                         break;
                     case INSIDE:
+                        stackPose = PoseHelper.insideStackRed;
                         parkPose = PoseHelper.parkPoseInsideRed;
                         wingTruss = PoseHelper.wingTrussInsideRed;
                         boardTruss = PoseHelper.boardTrussInsideRed;
@@ -104,15 +107,16 @@ public final class PoseHelper {
                 }
                 break;
             case BLUE:
-                stackPose = PoseHelper.apriltagStackBlue;
                 allianceAngleMultiplier = -1.0;
                 switch(Paths.path) {
                     case OUTSIDE:
+                        stackPose = PoseHelper.apriltagStackBlue;
                         parkPose = PoseHelper.parkPoseOutsideBlue;
                         wingTruss = PoseHelper.wingTrussOutsideBlue;
                         boardTruss = PoseHelper.boardTrussOutsideBlue;
                         break;
                     case INSIDE:
+                        stackPose = PoseHelper.insideStackBlue;
                         parkPose = PoseHelper.parkPoseInsideBlue;
                         wingTruss = PoseHelper.wingTrussInsideBlue;
                         boardTruss = PoseHelper.boardTrussInsideBlue;
