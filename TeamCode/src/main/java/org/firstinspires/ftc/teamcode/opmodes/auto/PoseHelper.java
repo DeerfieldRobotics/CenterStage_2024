@@ -34,8 +34,8 @@ public final class PoseHelper {
     public final static Pose2d backboardLeftBlue = new Pose2d(48, 40, Math.toRadians(180.0));
     public final static Pose2d backboardCenterBlue = new Pose2d(48, 34, Math.toRadians(180.0));
     public final static Pose2d backboardRightBlue = new Pose2d(48, 28.5, Math.toRadians(180.0));
-    public final static Pose2d farSpikeRightBlue = new Pose2d(-46.5, 38.5, Math.toRadians(-90.0));
-    public final static Pose2d farSpikeCenterBlue = new Pose2d(-39.5,37, Math.toRadians(-90.0));
+    public final static Pose2d farSpikeRightBlue = new Pose2d(-47.5, 38.5, Math.toRadians(-90.0));
+    public final static Pose2d farSpikeCenterBlue = new Pose2d(-41.5,37, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-32, 40, Math.toRadians(-50.0));
     public final static Pose2d closeSpikeRightBlue = new Pose2d(10.5, 30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 24, Math.toRadians(180));
