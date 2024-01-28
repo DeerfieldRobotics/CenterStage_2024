@@ -145,9 +145,9 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(this::outtakeIn)
                 .waitSeconds(0.4)
                 .setTangent(Math.toRadians(210.0 * PoseHelper.allianceAngleMultiplier))
-                .splineToLinearHeading(PoseHelper.boardTrussOutsideRed, Math.toRadians(180.0))
-                .splineToLinearHeading(PoseHelper.wingTrussOutsideRed, Math.toRadians(180.0))
-                .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                 .addTemporalMarker(() -> {
                     alignToApriltagStack();
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -201,10 +201,10 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
             spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
                     .addTemporalMarker(this::outtakePurple)
-                    .back(5)
+                    .back(PoseHelper.purpleBackDistanceFar)
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FIVE))
-                    .setTangent(Math.toRadians(180))
-                    .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
+                    .setTangent(Math.toRadians(PoseHelper.toWhiteStackTangentFar))
+                    .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                     .addTemporalMarker(() -> {
                         alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboardYellow);

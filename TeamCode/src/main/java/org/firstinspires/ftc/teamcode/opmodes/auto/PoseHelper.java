@@ -14,7 +14,7 @@ public final class PoseHelper {
     public final static Pose2d backboardRightRed = new Pose2d(48, -40, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-30.5, -39, Math.toRadians(50.0));
     public final static Pose2d farSpikeCenterRed = new Pose2d(-39.5,-37, Math.toRadians(90.0));
-    public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -38.5, Math.toRadians(80.0));
+    public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -38.5, Math.toRadians(90.0));
     public final static Pose2d closeSpikeRightRed = new Pose2d(32.5, -30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(10.5, -30, Math.toRadians(180));
@@ -33,8 +33,8 @@ public final class PoseHelper {
     public final static Pose2d backboardLeftBlue = new Pose2d(50, 41, Math.toRadians(180.0));
     public final static Pose2d backboardCenterBlue = new Pose2d(50, 35, Math.toRadians(180.0));
     public final static Pose2d backboardRightBlue = new Pose2d(50, 29, Math.toRadians(180.0));
-    public final static Pose2d farSpikeRightBlue = new Pose2d(-48.5, 39.5, Math.toRadians(-80.0));
-    public final static Pose2d farSpikeCenterBlue = new Pose2d(-40.5,34.5, Math.toRadians(90.0));
+    public final static Pose2d farSpikeRightBlue = new Pose2d(-48.5, 39.5, Math.toRadians(-90.0));
+    public final static Pose2d farSpikeCenterBlue = new Pose2d(-40.5,34.5, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-29, 36, Math.toRadians(-50.0));
     public final static Pose2d closeSpikeRightBlue = new Pose2d(10.5, 30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 24, Math.toRadians(180));
@@ -58,6 +58,8 @@ public final class PoseHelper {
     public static Pose2d wingTruss;
     public static Pose2d boardTruss;
     public static Pose2d backboardPose;
+    public static double purpleBackDistanceFar;
+    public static double toWhiteStackTangentFar;
 
     public static Pose2d initPose;
     public static Pose2d spikePose;
@@ -85,13 +87,19 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        purpleBackDistanceFar = 8.0;
                         backboardPose = PoseHelper.backboardLeftRed;
+                        toWhiteStackTangentFar = 135;
                         break;
                     case CENTER:
+                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterRed;
+                        toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
+                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardRightRed;
+                        toWhiteStackTangentFar = 180;
                         break;
                 }
                 break;
@@ -112,19 +120,26 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardLeftBlue;
+                        toWhiteStackTangentFar = 180;
                         break;
                     case CENTER:
+                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterBlue;
+                        toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
+                        purpleBackDistanceFar = 8.0;
                         backboardPose = PoseHelper.backboardRightBlue;
+                        toWhiteStackTangentFar = -135;
                         break;
                 }
                 break;
         }
         switch(StartPosition.startPosition) {
             case RED_CLOSE:
+                toWhiteStackTangentFar = 180;
                 initPose = PoseHelper.initCloseRed;
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
@@ -153,6 +168,7 @@ public final class PoseHelper {
                 }
                 break;
             case BLUE_CLOSE:
+                toWhiteStackTangentFar = 180;
                 initPose = PoseHelper.initCloseBlue;
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
