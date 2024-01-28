@@ -249,7 +249,7 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> setSlideHeight(-1400))
                 .addTemporalMarker(() -> {
                     //DEFAULTS TO RIGHT SIDE IF POSSIBLE
-                    if(PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
+                    if(PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardLeftBlue) {
                         if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                             PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
                         else
@@ -259,7 +259,7 @@ public class AutoRegionals extends LinearOpMode {
                         if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                             PoseHelper.backboardPose = PoseHelper.backboardRightRed;
                         else
-                            PoseHelper.backboardPose = PoseHelper.backboardRightBlue;
+                            PoseHelper.backboardPose = PoseHelper.backboardLeftBlue;
                     }
                     datalog.opModeStatus.set("APRILTAG BACKBOARD 2");
                     datalog.writeLine();
@@ -407,7 +407,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     //OUTTAKE METHODS
-    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -900) setSlideHeight(-900); }
+    private void outtake() { outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.OUTSIDE); if(slide.getAvgPosition() >= -950) setSlideHeight(-950); }
     private void outtakeIn() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1000); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.INSIDE); }
     private void outtakeTransfer() { if(outtake.getOuttakePosition() == Outtake.OuttakePositions.OUTSIDE) setSlideHeight(-1000); outtake.setOuttakeProcedureTarget(Outtake.OuttakePositions.TRANSFER); outtake.update(); }
     private void drop() { outtake.setGateClosed(false); }
@@ -452,14 +452,14 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addLine(" Selected " + StartPosition.startPosition.toString() + " Starting Position.");
             telemetry.addLine();
             telemetry.addLine("Select Autonomous Path using DPAD Keys");
-            telemetry.addData("     Inside      ", "(^)");
-            telemetry.addData("     Outside     ", "(v)");
+            telemetry.addData("     Inside      ", "(Triangle)");
+            telemetry.addData("     Outside     ", "(Cross)");
 
-            if (gamepad1.dpad_up || gamepad2.dpad_up) {
+            if (gamepad1.triangle || gamepad2.triangle) {
                 Paths.path = Paths.Path.INSIDE;
                 break;
             }
-            if (gamepad1.dpad_down || gamepad2.dpad_down) {
+            if (gamepad1.cross || gamepad2.cross) {
                 Paths.path = Paths.Path.OUTSIDE;
                 break;
             }

@@ -44,7 +44,7 @@ public class AprilTagTester extends LinearOpMode {
 
         VisionPortal frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
-                .setCameraResolution(new android.util.Size(1280, 720))
+                .setCameraResolution(new android.util.Size(640, 480))
                 .addProcessors(aprilTagAlignmentProcessorFront)
                 .setLiveViewContainerId(frontPortalId)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)

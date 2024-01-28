@@ -102,7 +102,7 @@ class AprilTagAlignmentProcessor(
     private val backCameraOffset = 6.0787402
 
     private val frontCameraXOffset = -3.7823051181
-    private val frontCameraYOffset = -8.3031496
+    private val frontCameraYOffset = -7.625
 
     var targetFound = false
         private set
@@ -133,6 +133,8 @@ class AprilTagAlignmentProcessor(
         var total = 0.0
 
         for (detection in detections) {
+            if(detection.id == 8 || detection.id == 9)
+                break
             //Weighted average of valid detections weighted by inverse of range squared
             targetFound = true
 
@@ -191,8 +193,10 @@ class AprilTagAlignmentProcessor(
                 currentX += cos(Math.toRadians(currentHeading)) * backCameraOffset
             }
             CameraType.FRONT -> {
-                currentY += sin(Math.toRadians(currentHeading)) * frontCameraYOffset + cos(Math.toRadians(currentHeading)) * frontCameraXOffset
-                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset + sin(Math.toRadians(currentHeading)) * frontCameraXOffset
+                currentX += cos(Math.toRadians(currentHeading)) * frontCameraYOffset - sin(Math.toRadians(currentHeading)) * frontCameraXOffset
+                currentY += sin(Math.toRadians(currentHeading)) * frontCameraYOffset - cos(Math.toRadians(currentHeading)) * frontCameraXOffset
+//                currentY += -sin(Math.toRadians(currentHeading)) * frontCameraYOffset - cos(Math.toRadians(currentHeading)) * frontCameraXOffset
+//                currentX += -cos(Math.toRadians(currentHeading)) * frontCameraYOffset - sin(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
         poseEstimate = Pose2d(currentX, currentY, Math.toRadians(currentHeading))
