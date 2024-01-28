@@ -327,7 +327,7 @@ public class AutoRegionals extends LinearOpMode {
             datalog.headingEstimate.set(aprilTagProcessorBack.getPoseEstimate().getHeading());
             datalog.writeLine();
 
-            if(getRuntime()-currentTime > 1 || aprilTagProcessorBack.robotAligned()) break;
+            if(getRuntime()-currentTime > 1) break;
 
             aprilTagProcessorBack.alignRobot(drive);
 
