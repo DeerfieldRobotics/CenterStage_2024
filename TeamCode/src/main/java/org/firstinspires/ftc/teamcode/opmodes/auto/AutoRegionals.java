@@ -280,7 +280,6 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> setSlideHeight(-1400))
                 .waitSeconds(0.2)
                 .addTemporalMarker(this::outtakeIn)
-                .waitSeconds(0.2)
                 .setTangent(Math.toRadians(210.0 * PoseHelper.allianceAngleMultiplier))
                 .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
                 .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))

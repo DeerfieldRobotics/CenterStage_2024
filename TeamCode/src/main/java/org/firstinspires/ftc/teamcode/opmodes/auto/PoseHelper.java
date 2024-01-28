@@ -43,8 +43,8 @@ public final class PoseHelper {
     public final static Pose2d apriltagStackBlue = new Pose2d(-54.5, 36, Math.toRadians(180.0));
     public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
     public final static Pose2d insideStackBlue = new Pose2d(-54.5, 12, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 58, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 58, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 57, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 57, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 9, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(17, 9, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 11, Math.toRadians(180.0));
