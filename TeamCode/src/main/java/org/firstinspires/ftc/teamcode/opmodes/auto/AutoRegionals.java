@@ -118,6 +118,7 @@ public class AutoRegionals extends LinearOpMode {
         drive.setPoseEstimate(PoseHelper.initPose);
 
         //INITIAL PATHS
+        //CLOSE AUTO
         if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
             init = drive.trajectorySequenceBuilder(PoseHelper.initPose)
                     .addTemporalMarker(this::outtake)
@@ -138,6 +139,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.INTAKE))
                     .setTangent(Math.toRadians(180.0))
                     .splineToLinearHeading(PoseHelper.spikePose, Math.toRadians(180.0))
+                    .back(4)
                     .addTemporalMarker(this::outtakePurple)
                     .addTemporalMarker(() -> {
                         if(Paths.path != Paths.Path.PLACEMENT)
