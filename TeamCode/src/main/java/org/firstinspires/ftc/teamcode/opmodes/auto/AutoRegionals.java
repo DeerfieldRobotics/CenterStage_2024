@@ -221,6 +221,8 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::outtake)
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
+                        datalog.opModeStatus.set("APRILTAG BACKBOARD 1");
+                        datalog.writeLine();
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         drive.followTrajectorySequenceAsync(dropYellow);
@@ -229,6 +231,7 @@ public class AutoRegionals extends LinearOpMode {
             dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose) //TODO CHANGE TO APRILTAG POSE ESTIMATE IF POSSIBLE
                     .back(6)
                     .addTemporalMarker(this::drop)
+                    .waitSeconds(0.2)
                     .addTemporalMarker(()->setSlideHeight(-1400))
                     .waitSeconds(0.2)
                     .forward(6)
@@ -237,13 +240,23 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(this::transfer)
                     .waitSeconds(1.6)
                     .addTemporalMarker(this::outtake)
-                    .addTemporalMarker(() -> {setSlideHeight(-1400);})
+                    .addTemporalMarker(() -> setSlideHeight(-1400))
                     .addTemporalMarker(() -> {
-                        PoseHelper.backboardPose = (PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) ? (AllianceHelper.alliance == AllianceHelper.Alliance.RED) ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
-                        alignToApriltagBackboard();
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        datalog.opModeStatus.set(drive.getPoseEstimate().getX()+", "+drive.getPoseEstimate().getY()+", "+drive.getPoseEstimate().getHeading());
+                        if(ColorDetectionProcessor.position == ColorDetectionProcessor.StartingPosition.RIGHT) {
+                            if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
+                                PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
+                            else
+                                PoseHelper.backboardPose = PoseHelper.backboardCenterBlue;
+                        }
+                        else {
+                            if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
+                                PoseHelper.backboardPose = PoseHelper.backboardRightRed;
+                            else
+                                PoseHelper.backboardPose = PoseHelper.backboardRightBlue;
+                        }
+                        datalog.opModeStatus.set("APRILTAG BACKBOARD 2");
                         datalog.writeLine();
+                        alignToApriltagBackboard();
                         dropWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
                                 .back(6)
                                 .addTemporalMarker(this::drop)
