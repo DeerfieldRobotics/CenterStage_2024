@@ -145,9 +145,9 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(this::outtakeIn)
                 .waitSeconds(0.4)
                 .setTangent(Math.toRadians(210.0 * PoseHelper.allianceAngleMultiplier))
-                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                 .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
-                .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     alignToApriltagStack();
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
