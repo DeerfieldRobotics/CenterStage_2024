@@ -222,19 +222,21 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
             dropYellow = drive.trajectorySequenceBuilder(PoseHelper.backboardPose) //TODO CHANGE TO APRILTAG POSE ESTIMATE IF POSSIBLE
                     .back(6)
                     .addTemporalMarker(this::drop)
+                    .addTemporalMarker(()->setSlideHeight(-1400))
                     .waitSeconds(0.2)
                     .forward(6)
                     .addTemporalMarker(this::outtakeTransfer)
                     .waitSeconds(0.8)
                     .addTemporalMarker(this::transfer)
-                    .waitSeconds(1.2)
-                    .addTemporalMarker(this::outtake) //TODO add apriltag alignment to other tag here
+                    .waitSeconds(1.6)
+                    .addTemporalMarker(this::outtake)
                     .addTemporalMarker(() -> {setSlideHeight(-1400);})
                     .addTemporalMarker(() -> {
                         PoseHelper.backboardPose = (PoseHelper.backboardPose == PoseHelper.backboardRightRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) ? (AllianceHelper.alliance == AllianceHelper.Alliance.RED) ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue : AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardRightRed : PoseHelper.backboardRightBlue;
@@ -242,16 +244,16 @@ public class AutoRegionals extends LinearOpMode {
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         datalog.opModeStatus.set(drive.getPoseEstimate().getX()+", "+drive.getPoseEstimate().getY()+", "+drive.getPoseEstimate().getHeading());
                         datalog.writeLine();
+                        dropWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+                                .back(6)
+                                .addTemporalMarker(this::drop)
+                                .waitSeconds(0.6)
+                                .addTemporalMarker(this::outtakeIn)
+                                .waitSeconds(0.2)
+                                .addTemporalMarker(() -> drive.followTrajectorySequenceAsync(backboardToWhite))
+                                .build();
                         drive.followTrajectorySequenceAsync(dropWhite);
                     })
-                    .build();
-            dropWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-//                    .back(4)
-                    .addTemporalMarker(this::drop)
-                    .waitSeconds(0.6)
-                    .addTemporalMarker(this::outtakeIn)
-                    .waitSeconds(0.2)
-                    .addTemporalMarker(() -> drive.followTrajectorySequenceAsync(backboardToWhite))
                     .build();
         }
 
@@ -312,7 +314,7 @@ public class AutoRegionals extends LinearOpMode {
             datalog.headingEstimate.set(aprilTagProcessorBack.getPoseEstimate().getHeading());
             datalog.writeLine();
 
-            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
+            if(getRuntime()-currentTime > 1 || aprilTagProcessorBack.robotAligned()) break;
 
             aprilTagProcessorBack.alignRobot(drive);
 
