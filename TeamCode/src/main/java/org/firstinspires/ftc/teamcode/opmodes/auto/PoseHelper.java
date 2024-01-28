@@ -65,6 +65,7 @@ public final class PoseHelper {
 
     public static Pose2d initPose;
     public static Pose2d spikePose;
+    public static double initialFarTangent;
 
 
     public static void buildAuto(){
@@ -90,16 +91,19 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        initialFarTangent = 90;
                         purpleBackDistanceFar = 8.0;
                         backboardPose = PoseHelper.backboardLeftRed;
                         toWhiteStackTangentFar = 135;
                         break;
                     case CENTER:
+                        initialFarTangent = 90;
                         purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterRed;
                         toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
+                        initialFarTangent = 90;
                         purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardRightRed;
                         toWhiteStackTangentFar = 180;
@@ -124,16 +128,19 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        initialFarTangent = 250;
                         purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardLeftBlue;
                         toWhiteStackTangentFar = 180;
                         break;
                     case CENTER:
+                        initialFarTangent = 270;
                         purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterBlue;
                         toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
+                        initialFarTangent = 270;
                         purpleBackDistanceFar = 8.0;
                         backboardPose = PoseHelper.backboardRightBlue;
                         toWhiteStackTangentFar = -135;

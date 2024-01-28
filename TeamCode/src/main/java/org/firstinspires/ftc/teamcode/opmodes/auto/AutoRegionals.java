@@ -167,6 +167,7 @@ public class AutoRegionals extends LinearOpMode {
         }
         else { //FAR AUTO
             init = drive.trajectorySequenceBuilder(PoseHelper.initPose)
+                    .setTangent(PoseHelper.initialFarTangent)
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.INTAKE))
                     .splineToLinearHeading(PoseHelper.spikePose, PoseHelper.spikePose.getHeading())
                     .addTemporalMarker(() -> drive.followTrajectorySequenceAsync(spikeToWhite))
