@@ -17,7 +17,7 @@ class Intake(hardwareMap: HardwareMap){
     private var timeDelayMillis = 0L
 
     enum class IntakePositions {
-        INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH
+        INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH, THREE
     }
 
     private val intakePositionMap = mapOf( //TODO: find positions
@@ -27,7 +27,8 @@ class Intake(hardwareMap: HardwareMap){
         IntakePositions.FIVE to 0.518,
         IntakePositions.FOUR to 0.49,
         IntakePositions.DRIVE to 0.45,
-        IntakePositions.HIGH to 0.6
+        IntakePositions.HIGH to 0.6,
+        IntakePositions.THREE to 0.474
     )
 
     //Servo variables

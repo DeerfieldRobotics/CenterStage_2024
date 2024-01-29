@@ -33,18 +33,18 @@ public final class PoseHelper {
     public final static Pose2d initFarBlue = new Pose2d(-33, 63, Math.toRadians(270));
     public final static Pose2d backboardLeftBlue = new Pose2d(48, 40, Math.toRadians(180.0));
     public final static Pose2d backboardCenterBlue = new Pose2d(48, 34, Math.toRadians(180.0));
-    public final static Pose2d backboardRightBlue = new Pose2d(48, 28.5, Math.toRadians(180.0));
+    public final static Pose2d backboardRightBlue = new Pose2d(48, 28, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightBlue = new Pose2d(-47.5, 38.5, Math.toRadians(-90.0));
     public final static Pose2d farSpikeCenterBlue = new Pose2d(-41.5,37, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-32, 40, Math.toRadians(-50.0));
     public final static Pose2d closeSpikeRightBlue = new Pose2d(10.5, 30, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 24, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftBlue = new Pose2d(32.5, 30, Math.toRadians(180));
-    public final static Pose2d apriltagStackBlue = new Pose2d(-54.5, 36, Math.toRadians(180.0));
+    public final static Pose2d apriltagStackBlue = new Pose2d(-55.0, 36, Math.toRadians(180.0));
     public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
     public final static Pose2d insideStackBlue = new Pose2d(-54.5, 12, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 57, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 57, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 56, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 56, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 9, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(17, 9, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 11, Math.toRadians(180.0));
@@ -188,7 +188,7 @@ public final class PoseHelper {
                 initPose = PoseHelper.initFarBlue;
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
-                        initialFarTangent = 250;
+                        initialFarTangent = 60;
                         purpleBackDistanceFar = 5.0;
                         toWhiteStackTangentFar = 180;
                         spikePose = PoseHelper.farSpikeLeftBlue;
@@ -202,7 +202,7 @@ public final class PoseHelper {
                     case RIGHT:
                         initialFarTangent = 270;
                         purpleBackDistanceFar = 8.0;
-                        toWhiteStackTangentFar = -135;
+                        toWhiteStackTangentFar = 135;
                         spikePose = PoseHelper.farSpikeRightBlue;
                         break;
                 }
