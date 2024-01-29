@@ -91,22 +91,13 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
-                        initialFarTangent = 90;
-                        purpleBackDistanceFar = 8.0;
-                        backboardPose = PoseHelper.backboardLeftRed;
-                        toWhiteStackTangentFar = 135;
+                        backboardPose = PoseHelper.backboardLeftRed;;
                         break;
                     case CENTER:
-                        initialFarTangent = 90;
-                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterRed;
-                        toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
-                        initialFarTangent = 90;
-                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardRightRed;
-                        toWhiteStackTangentFar = 180;
                         break;
                 }
                 break;
@@ -128,22 +119,13 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
-                        initialFarTangent = 250;
-                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardLeftBlue;
-                        toWhiteStackTangentFar = 180;
                         break;
                     case CENTER:
-                        initialFarTangent = 270;
-                        purpleBackDistanceFar = 5.0;
                         backboardPose = PoseHelper.backboardCenterBlue;
-                        toWhiteStackTangentFar = 180;
                         break;
                     case RIGHT:
-                        initialFarTangent = 270;
-                        purpleBackDistanceFar = 8.0;
                         backboardPose = PoseHelper.backboardRightBlue;
-                        toWhiteStackTangentFar = -135;
                         break;
                 }
                 break;
@@ -168,12 +150,21 @@ public final class PoseHelper {
                 initPose = PoseHelper.initFarRed;
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        initialFarTangent = 90;
+                        purpleBackDistanceFar = 8.0;
+                        toWhiteStackTangentFar = 135;
                         spikePose = PoseHelper.farSpikeLeftRed;
                         break;
                     case CENTER:
+                        initialFarTangent = 90;
+                        purpleBackDistanceFar = 5.0;
+                        toWhiteStackTangentFar = 180;
                         spikePose = PoseHelper.farSpikeCenterRed;
                         break;
                     case RIGHT:
+                        initialFarTangent = 90;
+                        purpleBackDistanceFar = 5.0;
+                        toWhiteStackTangentFar = 180;
                         spikePose = PoseHelper.farSpikeRightRed;
                         break;
                 }
@@ -197,12 +188,21 @@ public final class PoseHelper {
                 initPose = PoseHelper.initFarBlue;
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
+                        initialFarTangent = 250;
+                        purpleBackDistanceFar = 5.0;
+                        toWhiteStackTangentFar = 180;
                         spikePose = PoseHelper.farSpikeLeftBlue;
                         break;
                     case CENTER:
+                        initialFarTangent = 270;
+                        purpleBackDistanceFar = 5.0;
+                        toWhiteStackTangentFar = 180;
                         spikePose = PoseHelper.farSpikeCenterBlue;
                         break;
                     case RIGHT:
+                        initialFarTangent = 270;
+                        purpleBackDistanceFar = 8.0;
+                        toWhiteStackTangentFar = -135;
                         spikePose = PoseHelper.farSpikeRightBlue;
                         break;
                 }
