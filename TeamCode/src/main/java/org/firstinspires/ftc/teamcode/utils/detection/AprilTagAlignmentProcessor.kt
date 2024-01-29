@@ -199,9 +199,15 @@ class AprilTagAlignmentProcessor(
 //                currentX += -cos(Math.toRadians(currentHeading)) * frontCameraYOffset - sin(Math.toRadians(currentHeading)) * frontCameraXOffset
             }
         }
-        poseEstimate = Pose2d(currentX, currentY, Math.toRadians(currentHeading))
 
-        poseError = targetPose.minus(poseEstimate)
+        if(targetFound) {
+            poseEstimate = Pose2d(currentX, currentY, Math.toRadians(currentHeading))
+            poseError = targetPose.minus(poseEstimate)
+        }
+        else {
+            poseEstimate = Pose2d(Double.NaN, Double.NaN, Double.NaN)
+            poseError = Pose2d(Double.NaN, Double.NaN, Double.NaN)
+        }
     }
 
     fun alignRobot(drivetrain: CogchampDrive?) {

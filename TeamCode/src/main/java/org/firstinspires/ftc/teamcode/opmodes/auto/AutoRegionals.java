@@ -275,7 +275,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToWhite() {
-        backboardToWhite = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
+        backboardToWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
                 .back(6)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.5)
