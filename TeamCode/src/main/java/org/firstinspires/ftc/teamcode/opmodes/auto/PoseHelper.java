@@ -21,8 +21,8 @@ public final class PoseHelper {
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
     public final static Pose2d insideStackRed = new Pose2d(-54.5, -7, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -57, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -58, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -9, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideRed = new Pose2d(17, -9, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideRed = new Pose2d(58.5, -11, Math.toRadians(180.0));

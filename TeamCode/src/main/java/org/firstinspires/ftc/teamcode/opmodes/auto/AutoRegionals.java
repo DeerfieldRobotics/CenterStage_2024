@@ -42,8 +42,6 @@ public class AutoRegionals extends LinearOpMode {
     private Slide slide;
     private VoltageSensor battery;
 
-    // TRAJECTORIES
-    private TrajectorySequence init; // INIT THEN GO TO BACKBOARD
     private TrajectorySequence backboardToSpike; // BACKBOARD TO SPIKE
     private TrajectorySequence backboardToWhite; //BACKBOARD TO STACK
     private TrajectorySequence spikeToWhite; //SPIKE TO STACK
@@ -131,8 +129,8 @@ public class AutoRegionals extends LinearOpMode {
         PoseHelper.buildAuto();
         drive.setPoseEstimate(PoseHelper.initPose);
 
-        //INITIAL PATHS
-        //CLOSE AUTO
+        TrajectorySequence init;
+
         if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
             init = drive.trajectorySequenceBuilder(PoseHelper.initPose)
                     .addTemporalMarker(this::outtake)
@@ -142,21 +140,6 @@ public class AutoRegionals extends LinearOpMode {
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildBackboardToSpike();
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
-                    .build();
-            spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                    .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
-                    .build();
-            spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                    .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0 : 90.0 * PoseHelper.allianceAngleMultiplier))
-                    .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
-                    .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FOUR))
-                    .setTangent(Math.toRadians(180))
-                    .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
-                    .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
-                    .addTemporalMarker(() -> {
-                        alignToApriltagStack();
-                        drive.followTrajectorySequenceAsync(whiteToBackboard);
-                    })
                     .build();
         }
         else { //FAR AUTO
@@ -173,7 +156,6 @@ public class AutoRegionals extends LinearOpMode {
                     .setTangent(Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                     .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                     .addTemporalMarker(() -> {
-//                        alignToApriltagStack();
                         drive.followTrajectorySequenceAsync(whiteToBackboardYellow);
                     })
                     .build();
@@ -199,34 +181,69 @@ public class AutoRegionals extends LinearOpMode {
                     .build();
         }
 
-        //CYCLE PATHS
-        backboardToPark = drive.trajectorySequenceBuilder(PoseHelper.backboardPose)
-                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 150.0 : -150.0 * PoseHelper.allianceAngleMultiplier))
-                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
-                .build();
-
         drive.followTrajectorySequenceAsync(init);
     }
 
     private void driveState() {
         switch (driveState) {
-            case BACKBOARD_TO_SPIKE:
-                break;
-            case SPIKE_TO_WHITE:
-                break;
-            case SPIKE_TO_PARK:
-                break;
             case BACKBOARD_TO_WHITE:
+                if(!drive.isBusy()) {
+                    buildWhiteToBackboard();
+                    driveState = DRIVE_STATES.WHITE_TO_BACKBOARD;
+                    drive.followTrajectorySequenceAsync(whiteToBackboard);
+                }
                 break;
             case WHITE_TO_BACKBOARD:
-                break;
-            case WHITE_TO_BACKBOARD_YELLOW:
-                break;
-            case DROP_YELLOW:
+                if(!drive.isBusy()) {
+                    alignToApriltagBackboard();
+                    drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                    buildBackboardToPark();
+                    driveState = DRIVE_STATES.BACKBOARD_TO_PARK;
+                    drive.followTrajectorySequenceAsync(backboardToPark);
+                }
                 break;
             case BACKBOARD_TO_PARK:
+                if(!drive.isBusy()) {
+                    outtakeTransfer(); //transfer just for fun
+                    transfer();
+                    datalog.opModeStatus.set("FINISHED");
+                    datalog.writeLine();
+                }
+                break;
+            case BACKBOARD_TO_SPIKE:
+                if(!drive.isBusy()) {
+                    if(Paths.path != Paths.Path.PLACEMENT) {
+                        buildSpikeToWhite();
+                        drive.followTrajectorySequenceAsync(spikeToWhite);
+                    }
+                    else {
+                        buildSpikeToPark();
+                        drive.followTrajectorySequenceAsync(spikeToPark);
+                    }
+                }
                 break;
         }
+    }
+
+    private void buildSpikeToPark() {
+        spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
+                .build();
+    }
+
+    private void buildSpikeToWhite() {
+        spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 310.0 : 60.0 * PoseHelper.allianceAngleMultiplier))
+                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
+                .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FOUR))
+                .setTangent(Math.toRadians(180))
+                .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
+                .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
+                .addTemporalMarker(() -> {
+                    buildWhiteToBackboard();
+                    drive.followTrajectorySequenceAsync(whiteToBackboard);
+                })
+                .build();
     }
 
     private void buildBackboardToSpike() {
@@ -244,16 +261,12 @@ public class AutoRegionals extends LinearOpMode {
                 .back(4)
                 .addTemporalMarker(this::outtakePurple)
                 .addTemporalMarker(() -> {
-                    if(Paths.path != Paths.Path.PLACEMENT)
-                        drive.followTrajectorySequenceAsync(spikeToWhite);
-                    else
-                        drive.followTrajectorySequenceAsync(spikeToPark);
                 })
                 .build();
     }
 
     private void buildDropYellow() {
-        dropYellow = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate()) //TODO CHANGE TO APRILTAG POSE ESTIMATE IF POSSIBLE
+        dropYellow = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
                 .back(5)
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(()->setSlideHeight(-1200))
@@ -283,8 +296,16 @@ public class AutoRegionals extends LinearOpMode {
                     aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .03, .02, 0, 0.82, 0.02, 0.0);
                     alignToApriltagBackboard();
                     drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    buildBackboardToWhite();
-                    drive.followTrajectorySequenceAsync(backboardToWhite);
+                    if(Paths.path != Paths.Path.PLACEMENT) {
+                        driveState = DRIVE_STATES.BACKBOARD_TO_WHITE;
+                        buildBackboardToWhite();
+                        drive.followTrajectorySequenceAsync(backboardToWhite);
+                    }
+                    else {
+                        driveState = DRIVE_STATES.BACKBOARD_TO_PARK;
+                        buildBackboardToPark();
+                        drive.followTrajectorySequenceAsync(backboardToPark);
+                    }
                 })
                 .build();
 
@@ -294,25 +315,21 @@ public class AutoRegionals extends LinearOpMode {
         backboardToWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
                 .waitSeconds(0.1)
                 .back(6)
-//                .splineToLinearHeading(drive.getPoseEstimate().plus(new Pose2d(6,0, Math.toRadians(0.0))), Math.toRadians(180.0)) //back 6 breaks idk
                 .addTemporalMarker(this::drop)
-                .waitSeconds(0.5)
                 .addTemporalMarker(() -> setSlideHeight(-1400))
                 .addTemporalMarker(this::outtakeIn)
                 .setTangent(Math.toRadians(215.0 * PoseHelper.allianceAngleMultiplier))
                 .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(180.0))
                 .setTangent(Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
-                    intake.setServoPosition(Intake.IntakePositions.THREE);
+                    if(Paths.path == Paths.Path.OUTSIDE)
+                        intake.setServoPosition(Intake.IntakePositions.THREE);
+                    else
+                        intake.setServoPosition(Intake.IntakePositions.FOUR);
                     intake.update();
                 })
                 .splineToSplineHeading(PoseHelper.wingTruss, Math.toRadians(180.0))
                 .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
-                .addTemporalMarker(() -> {
-//                    alignToApriltagStack();
-                    buildWhiteToBackboard();
-                    drive.followTrajectorySequenceAsync(whiteToBackboard);
-                })
                 .build();
     }
 
@@ -329,18 +346,18 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(() -> setSlideHeight(-1500))
                 .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
-                .addTemporalMarker(() -> {
-                    alignToApriltagBackboard();
-                    drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    if (Paths.path != Paths.Path.PLACEMENT)
-                        drive.followTrajectorySequenceAsync(backboardToWhite);
-                    else
-                        drive.followTrajectorySequenceAsync(backboardToPark);
-                })
+                .build();
+    }
+
+    private void buildBackboardToPark() {
+        backboardToPark = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? -150.0 : 150.0 * PoseHelper.allianceAngleMultiplier))
+                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
                 .build();
     }
 
     private void autoLoop() {
+        driveState();
         drive.update();
         intake.update();
         outtake.update();
@@ -499,9 +516,10 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addLine("-------------------------------------------------");
             telemetry.addLine(" Selected " + StartPosition.startPosition.toString() + " Starting Position.");
             telemetry.addLine();
-            telemetry.addLine("Select Autonomous Path using DPAD Keys");
+            telemetry.addLine("Select Autonomous Path using Shape Buttons");
             telemetry.addData("     Inside      ", "(Triangle)");
             telemetry.addData("     Outside     ", "(Cross)");
+            telemetry.addData("     Placement   ", "(Circle)");
 
             if (gamepad1.triangle || gamepad2.triangle) {
                 Paths.path = Paths.Path.INSIDE;
@@ -509,6 +527,10 @@ public class AutoRegionals extends LinearOpMode {
             }
             if (gamepad1.cross || gamepad2.cross) {
                 Paths.path = Paths.Path.OUTSIDE;
+                break;
+            }
+            if (gamepad1.circle || gamepad2.circle) {
+                Paths.path = Paths.Path.PLACEMENT;
                 break;
             }
             telemetry.update();
