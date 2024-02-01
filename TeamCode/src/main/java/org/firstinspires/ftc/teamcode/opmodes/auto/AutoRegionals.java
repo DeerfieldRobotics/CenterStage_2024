@@ -362,6 +362,10 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildBackboardToPark() {
         backboardToPark = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .addTemporalMarker(this::drop)
+                .addTemporalMarker(() -> setSlideHeight(-1100))
+                .waitSeconds(.4)
+                .forward(5)
                 .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? -150.0 : 150.0 * PoseHelper.allianceAngleMultiplier))
                 .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
