@@ -401,7 +401,7 @@ public class AutoRegionals extends LinearOpMode {
             Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
 
 
-            if(getRuntime()-currentTime > 1) break;
+            if(getRuntime()-currentTime > 1 || aprilTagProcessorBack.robotAligned()) break;
 
             aprilTagProcessorBack.alignRobot(drive);
 
