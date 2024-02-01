@@ -28,9 +28,6 @@ import java.util.List;
 
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
-    private Datalog datalog; //TELEMETRY
-    private String TAG = "AutoRegionals";
-
     //DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
     private AprilTagAlignmentProcessor aprilTagProcessorBack;
@@ -43,8 +40,8 @@ public class AutoRegionals extends LinearOpMode {
     private Intake intake;
     private Outtake outtake;
     private Slide slide;
-    private VoltageSensor battery;
 
+    //TRAJECTORIES
     private TrajectorySequence backboardToSpike; // BACKBOARD TO SPIKE
     private TrajectorySequence backboardToWhite; //BACKBOARD TO STACK
     private TrajectorySequence spikeToWhite; //SPIKE TO STACK
@@ -66,7 +63,9 @@ public class AutoRegionals extends LinearOpMode {
         BACKBOARD_TO_PARK
     }
     private CURRENT_TRAJECTORY currentTrajectory = CURRENT_TRAJECTORY.NONE;
+    //OTHER
     private int cycles = 0;
+    private final String TAG = "AutoRegionals";
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -94,14 +93,6 @@ public class AutoRegionals extends LinearOpMode {
         slide = new Slide(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap, slide);
-        battery = hardwareMap.voltageSensor.get("Control Hub");
-
-        Date currentTime = Calendar.getInstance().getTime();
-        datalog = new Datalog("AutoDatalog "+ currentTime.getTime());
-
-        datalog.opModeStatus.set("INIT");
-        datalog.battery.set(battery.getVoltage());
-        datalog.writeLine();
 
         //SET INITIAL HARDWARE STATES
         outtake.setGateClosed(true);
@@ -117,7 +108,8 @@ public class AutoRegionals extends LinearOpMode {
     private void initLoop() {
         detectPurplePath();
         telemetry.addData("Selected Auto: ", StartPosition.startPosition.toString());
-        telemetry.addData("Detected Path: ", ColorDetectionProcessor.position.toString());
+        telemetry.addData("Selected Path: ", Paths.path.toString());
+        telemetry.addData("Detected Position: ", ColorDetectionProcessor.position.toString());
         telemetry.update();
 
         if(backCameraPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
@@ -176,8 +168,6 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(() -> setSlideHeight(-1050))
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
-                        datalog.opModeStatus.set("APRILTAG BACKBOARD 1");
-                        datalog.writeLine();
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildDropYellow();
@@ -273,8 +263,6 @@ public class AutoRegionals extends LinearOpMode {
                         else
                             PoseHelper.backboardPose = PoseHelper.backboardLeftBlue;
                     }
-                    datalog.opModeStatus.set("APRILTAG BACKBOARD 2");
-                    datalog.writeLine();
                     aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .03, .02, 0, 0.82, 0.02, 0.0);
                     alignToApriltagBackboard();
                     drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
@@ -420,14 +408,6 @@ public class AutoRegionals extends LinearOpMode {
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
 
-            datalog.xError.set(aprilTagProcessorBack.getPoseError().getX());
-            datalog.yError.set(aprilTagProcessorBack.getPoseError().getY());
-            datalog.headingError.set(aprilTagProcessorBack.getPoseError().getHeading());
-            datalog.xEstimate.set(aprilTagProcessorBack.getPoseEstimate().getX());
-            datalog.yEstimate.set(aprilTagProcessorBack.getPoseEstimate().getY());
-            datalog.headingEstimate.set(aprilTagProcessorBack.getPoseEstimate().getHeading());
-            datalog.writeLine();
-
             Log.d(TAG, "apriltag error pose" + aprilTagProcessorBack.getPoseError());
             Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
 
@@ -447,11 +427,6 @@ public class AutoRegionals extends LinearOpMode {
             slide.update();
             outtake.update();
         }
-        if(aprilTagProcessorBack.robotAligned())
-            datalog.opModeStatus.set("BROKE FROM ALIGN");
-        else
-            datalog.opModeStatus.set("BROKE FROM TIME");
-        datalog.writeLine();
 
         drive.setMotorPowers(0,0,0,0);
     }
@@ -557,28 +532,5 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.update();
         }
         telemetry.clear();
-    }
-    public static class Datalog {
-        private final Datalogger datalogger;
-        public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
-        public Datalogger.GenericField loopCounter  = new Datalogger.GenericField("Loop Counter");
-        public Datalogger.GenericField xError       = new Datalogger.GenericField("X Error");
-        public Datalogger.GenericField yError       = new Datalogger.GenericField("Y Error");
-        public Datalogger.GenericField headingError = new Datalogger.GenericField("Heading Error");
-        public Datalogger.GenericField xEstimate       = new Datalogger.GenericField("X Error");
-        public Datalogger.GenericField yEstimate       = new Datalogger.GenericField("Y Error");
-        public Datalogger.GenericField headingEstimate = new Datalogger.GenericField("Heading Error");
-        public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
-        public Datalog(String name) {
-            datalogger = new Datalogger.Builder()
-                    .setFilename(name)
-                    .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
-                    .setFields( opModeStatus, loopCounter, xEstimate, yEstimate, headingEstimate, xError, yError, headingError, battery )
-                    .build();
-        }
-        public void writeLine()
-        {
-            datalogger.writeLine();
-        }
     }
 }
