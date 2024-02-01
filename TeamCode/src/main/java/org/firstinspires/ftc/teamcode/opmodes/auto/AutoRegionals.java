@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import android.util.Log;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,6 +29,8 @@ import java.util.List;
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
     private Datalog datalog; //TELEMETRY
+    private Log log;
+    private String TAG = "AutoRegionals";
 
     //DETECTION
     private ColorDetectionProcessor colorDetectionProcessor;
@@ -339,6 +343,12 @@ public class AutoRegionals extends LinearOpMode {
         intake.update();
         outtake.update();
         slide.update();
+        Log.d(TAG, "drivePose" + drive.getPoseEstimate());
+        Log.d(TAG, "intakePosition" + intake.getServoPosition());
+        Log.d(TAG, "outtakePosition" + outtake.getOuttakePosition());
+        Log.d(TAG, "outtakeTargetPosition" + outtake.getOuttakeProcedureTarget());
+        Log.d(TAG, "slidePosition" + slide.getAvgPosition());
+        Log.d(TAG, "slideTargetPosition" + slide.getTargetPosition());
     }
 
     private void initPortals() {
@@ -387,6 +397,10 @@ public class AutoRegionals extends LinearOpMode {
             datalog.yEstimate.set(aprilTagProcessorBack.getPoseEstimate().getY());
             datalog.headingEstimate.set(aprilTagProcessorBack.getPoseEstimate().getHeading());
             datalog.writeLine();
+
+            Log.d(TAG, "apriltag error pose" + aprilTagProcessorBack.getPoseError());
+            Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
+
 
             if(getRuntime()-currentTime > 1) break;
 
