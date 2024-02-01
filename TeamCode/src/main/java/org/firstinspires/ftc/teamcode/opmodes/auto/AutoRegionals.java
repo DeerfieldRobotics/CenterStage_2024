@@ -133,7 +133,8 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(0))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+                            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildBackboardToSpike();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE;
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
@@ -169,7 +170,8 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+                            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildDropYellow();
                         currentTrajectory = CURRENT_TRAJECTORY.DROP_YELLOW;
                         drive.followTrajectorySequenceAsync(dropYellow);
@@ -209,7 +211,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToSpike() {
-        backboardToSpike = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        backboardToSpike = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .back(6)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.2)
@@ -238,7 +240,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildDropYellow() {
-        dropYellow = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        dropYellow = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .waitSeconds(0.1)
                 .back(5)
                 .addTemporalMarker(this::drop)
@@ -266,7 +268,8 @@ public class AutoRegionals extends LinearOpMode {
                     }
                     aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .03, .02, 0, 0.82, 0.02, 0.0);
                     alignToApriltagBackboard();
-                    drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                    if(Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
@@ -283,7 +286,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToWhite() {
-        backboardToWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        backboardToWhite = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .waitSeconds(0.1)
                 .back(6)
                 .addTemporalMarker(this::drop)
@@ -341,7 +344,8 @@ public class AutoRegionals extends LinearOpMode {
                 .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                 .addTemporalMarker(() -> {
                     alignToApriltagBackboard();
-                    drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+                    if(Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     if(cycles == 0) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
@@ -357,7 +361,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToPark() {
-        backboardToPark = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        backboardToPark = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? -150.0 : 150.0 * PoseHelper.allianceAngleMultiplier))
                 .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
