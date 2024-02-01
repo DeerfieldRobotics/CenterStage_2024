@@ -29,7 +29,6 @@ import java.util.List;
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
     private Datalog datalog; //TELEMETRY
-    private Log log;
     private String TAG = "AutoRegionals";
 
     //DETECTION
