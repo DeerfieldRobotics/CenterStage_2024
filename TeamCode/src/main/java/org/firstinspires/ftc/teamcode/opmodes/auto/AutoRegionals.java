@@ -239,6 +239,7 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildDropYellow() {
         dropYellow = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+                .waitSeconds(0.1)
                 .back(5)
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(()->setSlideHeight(-1200))
@@ -295,8 +296,20 @@ public class AutoRegionals extends LinearOpMode {
                     if(Paths.path == Paths.Path.OUTSIDE)
                         intake.setServoPosition(Intake.IntakePositions.THREE);
                     else {
+                        if(PoseHelper.backboardPose == PoseHelper.backboardLeftRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
+                            if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
+                                PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
+                            else
+                                PoseHelper.backboardPose = PoseHelper.backboardCenterBlue;
+                        }
+                        else {
+                            if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
+                                PoseHelper.backboardPose = PoseHelper.backboardLeftRed;
+                            else
+                                PoseHelper.backboardPose = PoseHelper.backboardRightBlue;
+                        }
                         if (cycles == 0)
-                            intake.setServoPosition(Intake.IntakePositions.FOUR);
+                            intake.setServoPosition(Intake.IntakePositions.TWO);
                         else
                             intake.setServoPosition(Intake.IntakePositions.TWO);
                     }
@@ -329,12 +342,12 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     alignToApriltagBackboard();
                     drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    if(cycles == 1) {
+                    if(cycles == 0) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
-                    else if (cycles == 2) {
+                    else if (cycles == 1) {
                         buildBackboardToPark();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
                         drive.followTrajectorySequenceAsync(backboardToPark);
@@ -412,7 +425,7 @@ public class AutoRegionals extends LinearOpMode {
             Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
 
 
-            if(getRuntime()-currentTime > 1 || aprilTagProcessorBack.robotAligned()) break;
+            if(getRuntime()-currentTime > 1) break;
 
             aprilTagProcessorBack.alignRobot(drive);
 

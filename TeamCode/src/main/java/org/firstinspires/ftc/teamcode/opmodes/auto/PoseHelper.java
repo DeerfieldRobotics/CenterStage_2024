@@ -9,9 +9,9 @@ public final class PoseHelper {
     // RED POSES
     public final static Pose2d initCloseRed = new Pose2d(10.5, -63, Math.toRadians(90.0));
     public final static Pose2d initFarRed = new Pose2d(-39.5, -63, Math.toRadians(90.0));
-    public final static Pose2d backboardLeftRed = new Pose2d(48, -27.4, Math.toRadians(180.0));
-    public final static Pose2d backboardCenterRed = new Pose2d(48, -33.2, Math.toRadians(180.0));
-    public final static Pose2d backboardRightRed = new Pose2d(48, -38.9, Math.toRadians(180.0));
+    public final static Pose2d backboardLeftRed = new Pose2d(48, -26, Math.toRadians(180.0));
+    public final static Pose2d backboardCenterRed = new Pose2d(48, -32, Math.toRadians(180.0));
+    public final static Pose2d backboardRightRed = new Pose2d(48, -38, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-30.5, -39, Math.toRadians(50.0));
     public final static Pose2d farSpikeCenterRed = new Pose2d(-39.5,-37, Math.toRadians(90.0));
     public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -38.5, Math.toRadians(90.0));
