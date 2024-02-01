@@ -53,6 +53,19 @@ public class AutoRegionals extends LinearOpMode {
     private TrajectorySequence whiteToBackboardYellow; //STACK TO BACKBOARD WITH YELLOW
     private TrajectorySequence dropYellow; //DROP YELLOW
     private TrajectorySequence backboardToPark; //PARK AFTER SCORING STACK
+    private enum CURRENT_TRAJECTORY {
+        NONE,
+        INIT,
+        BACKBOARD_TO_SPIKE,
+        BACKBOARD_TO_WHITE,
+        SPIKE_TO_WHITE,
+        SPIKE_TO_PARK,
+        WHITE_TO_BACKBOARD,
+        WHITE_TO_BACKBOARD_YELLOW,
+        DROP_YELLOW,
+        BACKBOARD_TO_PARK
+    }
+    private CURRENT_TRAJECTORY currentTrajectory = CURRENT_TRAJECTORY.NONE;
     private int cycles = 0;
 
     @Override
@@ -130,6 +143,7 @@ public class AutoRegionals extends LinearOpMode {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildBackboardToSpike();
+                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE;
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
         }
@@ -138,6 +152,7 @@ public class AutoRegionals extends LinearOpMode {
                     .setTangent(PoseHelper.initialFarTangent * PoseHelper.allianceAngleMultiplier)
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.INTAKE))
                     .splineToLinearHeading(PoseHelper.spikePose, PoseHelper.spikePose.getHeading())
+                    .addTemporalMarker(() -> currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_WHITE)
                     .addTemporalMarker(() -> drive.followTrajectorySequenceAsync(spikeToWhite))
                     .build();
             spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
@@ -146,6 +161,7 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FIVE))
                     .setTangent(Math.toRadians(PoseHelper.toWhiteStackTangentFar))
                     .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(PoseHelper.toWhiteStackTangentFar))
+                    .addTemporalMarker(() -> currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD_YELLOW)
                     .addTemporalMarker(() -> drive.followTrajectorySequenceAsync(whiteToBackboardYellow))
                     .build();
             whiteToBackboardYellow = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
@@ -165,17 +181,24 @@ public class AutoRegionals extends LinearOpMode {
                         alignToApriltagBackboard();
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildDropYellow();
+                        currentTrajectory = CURRENT_TRAJECTORY.DROP_YELLOW;
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
         }
 
+        currentTrajectory = CURRENT_TRAJECTORY.INIT;
         drive.followTrajectorySequenceAsync(init);
     }
 
     private void buildSpikeToPark() {
         spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
                 .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
+                .addTemporalMarker(() -> {
+                    outtakeTransfer(); //transfer just for fun
+                    transfer();
+                    currentTrajectory = CURRENT_TRAJECTORY.NONE;
+                })
                 .build();
     }
 
@@ -189,6 +212,7 @@ public class AutoRegionals extends LinearOpMode {
                 .splineToLinearHeading(PoseHelper.stackPose, Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     buildWhiteToBackboard();
+                    currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -211,10 +235,12 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildSpikeToWhite();
+                        currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_WHITE;
                         drive.followTrajectorySequenceAsync(spikeToWhite);
                     }
                     else {
                         buildSpikeToPark();
+                        currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_PARK;
                         drive.followTrajectorySequenceAsync(spikeToPark);
                     }
                 })
@@ -254,10 +280,12 @@ public class AutoRegionals extends LinearOpMode {
                     drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildBackboardToWhite();
+                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else {
                         buildBackboardToPark();
+                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -291,6 +319,7 @@ public class AutoRegionals extends LinearOpMode {
                 .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     buildWhiteToBackboard();
+                    currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -314,10 +343,12 @@ public class AutoRegionals extends LinearOpMode {
                     drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     if(cycles == 1) {
                         buildBackboardToWhite();
+                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else if (cycles == 2) {
                         buildBackboardToPark();
+                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -331,8 +362,7 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
-                    datalog.opModeStatus.set("FINISHED");
-                    datalog.writeLine();
+                    currentTrajectory = CURRENT_TRAJECTORY.NONE;
                 })
                 .build();
     }
@@ -348,6 +378,7 @@ public class AutoRegionals extends LinearOpMode {
         Log.d(TAG, "outtakeTargetPosition" + outtake.getOuttakeProcedureTarget());
         Log.d(TAG, "slidePosition" + slide.getAvgPosition());
         Log.d(TAG, "slideTargetPosition" + slide.getTargetPosition());
+        Log.d(TAG, "currentTrajectory" + currentTrajectory);
     }
 
     private void initPortals() {
