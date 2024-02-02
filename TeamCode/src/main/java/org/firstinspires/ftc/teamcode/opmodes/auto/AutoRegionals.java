@@ -2,20 +2,15 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import android.util.Log;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.utils.Other.Datalogger;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
@@ -66,6 +61,7 @@ public class AutoRegionals extends LinearOpMode {
     //OTHER
     private int cycles = 0;
     private final String TAG = "AutoRegionals";
+    private boolean verbose = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -137,6 +133,9 @@ public class AutoRegionals extends LinearOpMode {
                             drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildBackboardToSpike();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
         }
@@ -174,12 +173,18 @@ public class AutoRegionals extends LinearOpMode {
                             drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                         buildDropYellow();
                         currentTrajectory = CURRENT_TRAJECTORY.DROP_YELLOW;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
         }
 
         currentTrajectory = CURRENT_TRAJECTORY.INIT;
+        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+        Log.d(TAG, "runtime " + getRuntime());
         drive.followTrajectorySequenceAsync(init);
     }
 
@@ -190,6 +195,9 @@ public class AutoRegionals extends LinearOpMode {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
                     currentTrajectory = CURRENT_TRAJECTORY.NONE;
+                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                    Log.d(TAG, "runtime " + getRuntime());
                 })
                 .build();
     }
@@ -205,6 +213,9 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     buildWhiteToBackboard();
                     currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
+                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                    Log.d(TAG, "runtime " + getRuntime());
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -228,11 +239,17 @@ public class AutoRegionals extends LinearOpMode {
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildSpikeToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_WHITE;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(spikeToWhite);
                     }
                     else {
                         buildSpikeToPark();
                         currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_PARK;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(spikeToPark);
                     }
                 })
@@ -273,11 +290,17 @@ public class AutoRegionals extends LinearOpMode {
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else {
                         buildBackboardToPark();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -324,6 +347,9 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     buildWhiteToBackboard();
                     currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
+                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                    Log.d(TAG, "runtime " + getRuntime());
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -349,11 +375,17 @@ public class AutoRegionals extends LinearOpMode {
                     if(cycles == 0) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else if (cycles == 1) {
                         buildBackboardToPark();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
+                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                        Log.d(TAG, "runtime " + getRuntime());
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -372,6 +404,9 @@ public class AutoRegionals extends LinearOpMode {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
                     currentTrajectory = CURRENT_TRAJECTORY.NONE;
+                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
+                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+                    Log.d(TAG, "runtime " + getRuntime());
                 })
                 .build();
     }
@@ -381,13 +416,15 @@ public class AutoRegionals extends LinearOpMode {
         intake.update();
         outtake.update();
         slide.update();
-        Log.d(TAG, "drivePose" + drive.getPoseEstimate());
-        Log.d(TAG, "intakePosition" + intake.getServoPosition());
-        Log.d(TAG, "outtakePosition" + outtake.getOuttakePosition());
-        Log.d(TAG, "outtakeTargetPosition" + outtake.getOuttakeProcedureTarget());
-        Log.d(TAG, "slidePosition" + slide.getAvgPosition());
-        Log.d(TAG, "slideTargetPosition" + slide.getTargetPosition());
-        Log.d(TAG, "currentTrajectory" + currentTrajectory);
+        if(verbose) {
+            Log.d(TAG, "drivePose" + drive.getPoseEstimate());
+            Log.d(TAG, "intakePosition" + intake.getServoPosition());
+            Log.d(TAG, "outtakePosition" + outtake.getOuttakePosition());
+            Log.d(TAG, "outtakeTargetPosition" + outtake.getOuttakeProcedureTarget());
+            Log.d(TAG, "slidePosition" + slide.getAvgPosition());
+            Log.d(TAG, "slideTargetPosition" + slide.getTargetPosition());
+            Log.d(TAG, "currentTrajectory" + currentTrajectory);
+        }
     }
 
     private void initPortals() {
@@ -537,6 +574,10 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("     Inside      ", "(Triangle)");
             telemetry.addData("     Outside     ", "(Cross)");
             telemetry.addData("     Placement   ", "(Circle)");
+            telemetry.addLine();
+            telemetry.addLine("Select Logging Level using Bumper Buttons");
+            telemetry.addData("     verbose     ", "(L1)");
+            telemetry.addData("     normal      ", "(L2)");
 
             if (gamepad1.triangle || gamepad2.triangle) {
                 Paths.path = Paths.Path.INSIDE;
@@ -550,6 +591,14 @@ public class AutoRegionals extends LinearOpMode {
                 Paths.path = Paths.Path.PLACEMENT;
                 break;
             }
+
+            if (gamepad1.left_bumper || gamepad2.left_bumper) {
+                verbose = true;
+            }
+            if (gamepad1.right_bumper || gamepad2.right_bumper) {
+                verbose = false;
+            }
+
             telemetry.update();
         }
         telemetry.clear();
