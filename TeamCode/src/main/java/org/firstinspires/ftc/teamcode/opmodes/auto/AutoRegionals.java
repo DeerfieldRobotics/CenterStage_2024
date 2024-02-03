@@ -419,12 +419,11 @@ public class AutoRegionals extends LinearOpMode {
         backboardToPark = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
                 .back(5)
                 .addTemporalMarker(this::drop)
-                .addTemporalMarker(() -> setSlideHeight(-1100))
+                .addTemporalMarker(() -> setSlideHeight(-1600))
                 .waitSeconds(.4)
                 .addTemporalMarker(this::outtakeIn)
                 .forward(5)
-                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? -150.0 : 150.0 * PoseHelper.allianceAngleMultiplier))
-                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
+                .strafeRight(8.0*PoseHelper.allianceAngleMultiplier*(Paths.path == Paths.Path.INSIDE ? -1.0 : 0.0))
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
@@ -500,13 +499,6 @@ public class AutoRegionals extends LinearOpMode {
 
             aprilTagProcessorBack.alignRobot(drive);
 
-            telemetry.addData("x error","%5.1f inches", aprilTagProcessorBack.getPoseError().getX());
-            telemetry.addData("y error","%5.1f inches", aprilTagProcessorBack.getPoseError().getY());
-            telemetry.addData("heading error","%3.0f degrees", aprilTagProcessorBack.getPoseError().getHeading());
-            telemetry.addData("drivetrain power", drive.getPoseEstimate());
-
-
-            telemetry.update();
             intake.update();
             slide.update();
             outtake.update();
@@ -522,8 +514,6 @@ public class AutoRegionals extends LinearOpMode {
             aprilTagProcessorFront.update();
             aprilTagProcessorFront.alignRobot(drive);
 
-            telemetry.addData("drivetrain power", drive.getPoseEstimate());
-            telemetry.update();
             intake.update();
             slide.update();
             outtake.update();
@@ -602,8 +592,8 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("     Placement   ", "(Circle)");
             telemetry.addLine();
             telemetry.addLine("Select Logging Level using Bumper Buttons");
-            telemetry.addData("     verbose     ", "(L1)");
-            telemetry.addData("     normal      ", "(L2)");
+            telemetry.addData(verbose ? "-----verbose-----" : "     verbose     " , "(L2)");
+            telemetry.addData(!verbose ? "-----normal------" : "     normal      " , "(R2)");
 
             if (gamepad1.triangle || gamepad2.triangle) {
                 Paths.path = Paths.Path.INSIDE;
