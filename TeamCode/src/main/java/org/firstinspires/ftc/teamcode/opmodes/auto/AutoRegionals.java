@@ -229,7 +229,7 @@ public class AutoRegionals extends LinearOpMode {
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
                 })
-                .setTangent(Math.toRadians(0))
+                .setTangent(Math.toRadians(180))
                 .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                 .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
@@ -447,7 +447,7 @@ public class AutoRegionals extends LinearOpMode {
                 .waitSeconds(.4)
                 .addTemporalMarker(this::outtakeIn)
                 .forward(5)
-                .strafeRight(8.0*PoseHelper.allianceAngleMultiplier*(Paths.path == Paths.Path.INSIDE ? -1.0 : 0.0))
+                .strafeRight(8.0 * PoseHelper.allianceAngleMultiplier * (Paths.path == Paths.Path.INSIDE ? 1.0 : -1.0))
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
                     transfer();

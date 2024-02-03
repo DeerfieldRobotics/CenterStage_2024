@@ -20,7 +20,7 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeLeftRed = new Pose2d(12.5, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-55.5, -5, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-54, -5, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -58, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -8, Math.toRadians(180.0));
