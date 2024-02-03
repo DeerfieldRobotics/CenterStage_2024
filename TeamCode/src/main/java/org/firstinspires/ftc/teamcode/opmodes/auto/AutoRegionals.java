@@ -62,6 +62,7 @@ public class AutoRegionals extends LinearOpMode {
     private int cycles = 0;
     private final String TAG = "AutoRegionals";
     private boolean verbose = false;
+    private double lastRunTime = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -114,9 +115,9 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void startAuto() {
+        resetRuntime();
         frontCameraPortal.stopLiveView();
         backCameraPortal.resumeStreaming();
-        telemetry.clear();
         PoseHelper.buildAuto();
         drive.setPoseEstimate(PoseHelper.initPose);
 
@@ -139,6 +140,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
         }
@@ -182,6 +185,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
@@ -204,6 +209,8 @@ public class AutoRegionals extends LinearOpMode {
                     Log.d(TAG, "currentTrajectory " + currentTrajectory);
                     Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                     Log.d(TAG, "runtime " + getRuntime());
+                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                    lastRunTime = getRuntime();
                 })
                 .build();
     }
@@ -232,6 +239,8 @@ public class AutoRegionals extends LinearOpMode {
                     Log.d(TAG, "currentTrajectory " + currentTrajectory);
                     Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                     Log.d(TAG, "runtime " + getRuntime());
+                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                    lastRunTime = getRuntime();
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -258,6 +267,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(spikeToWhite);
                     }
                     else {
@@ -266,6 +277,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(spikeToPark);
                     }
                 })
@@ -312,6 +325,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else {
@@ -320,6 +335,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -356,6 +373,8 @@ public class AutoRegionals extends LinearOpMode {
                     Log.d(TAG, "currentTrajectory " + currentTrajectory);
                     Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                     Log.d(TAG, "runtime " + getRuntime());
+                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                    lastRunTime = getRuntime();
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -375,7 +394,7 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> setSlideHeight(-1500))
                 .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                 .addTemporalMarker(() -> {
-                    if(Paths.path == Paths.Path.INSIDE) {
+                    if(Paths.path == Paths.Path.INSIDE && cycles == 0) {
                         if (PoseHelper.backboardPose == PoseHelper.backboardLeftRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
                             if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                                 PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
@@ -390,17 +409,21 @@ public class AutoRegionals extends LinearOpMode {
                     }
 
                     alignToApriltagBackboard();
+
                     Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
                     Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
                     if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+
                     if(cycles == 0) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else if (cycles == 1) {
@@ -409,6 +432,8 @@ public class AutoRegionals extends LinearOpMode {
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
                         Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                         Log.d(TAG, "runtime " + getRuntime());
+                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                        lastRunTime = getRuntime();
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -431,6 +456,8 @@ public class AutoRegionals extends LinearOpMode {
                     Log.d(TAG, "currentTrajectory " + currentTrajectory);
                     Log.d(TAG, "drivePose " + drive.getPoseEstimate());
                     Log.d(TAG, "runtime " + getRuntime());
+                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
+                    lastRunTime = getRuntime();
                 })
                 .build();
     }
