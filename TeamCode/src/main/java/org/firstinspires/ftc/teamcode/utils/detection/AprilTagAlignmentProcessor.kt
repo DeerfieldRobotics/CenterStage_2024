@@ -45,9 +45,9 @@ class AprilTagAlignmentProcessor(
         FRONT, BACK
     }
 
-    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -29.0, 180.0)
-    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -35.0, 180.0)
-    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -41.0, 180.0)
+    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -26.75, 180.0)
+    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -32.75, 180.0)
+    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -38.75, 180.0)
     private val aprilTagPoseLeftBlue: Pose2d = Pose2d(61.87, 40.0, 180.0)
     private val aprilTagPoseCenterBlue: Pose2d = Pose2d(61.87, 34.0, 180.0)
     private val aprilTagPoseRightBlue: Pose2d = Pose2d(61.87, 28.0, 180.0)

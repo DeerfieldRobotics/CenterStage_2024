@@ -19,15 +19,15 @@ import java.util.List;
 @Config
 public class AprilTagTester extends LinearOpMode {
     private CogchampDrive drivetrain;
-    public static double yP = 0.01;
-    public static double yI = 0.04;
-    public static double yD = 0.0006;
-    public static double xP = 0.027;
-    public static double xI = 0.017;
-    public static double xD = 0.0009;
-    public static double headingP = 0.026;
-    public static double headingI = 0.035;
-    public static double headingD = 0.001;
+    public static double yP = 0.039;
+    public static double yI = 0.022;
+    public static double yD = 0.0001;
+    public static double xP = 0.042;
+    public static double xI = 0.038;
+    public static double xD = 0.0;
+    public static double headingP = 0.82;
+    public static double headingI = 0.02;
+    public static double headingD = 0.0;
     @Override
     public void runOpMode() throws InterruptedException {
         drivetrain = new CogchampDrive(hardwareMap);

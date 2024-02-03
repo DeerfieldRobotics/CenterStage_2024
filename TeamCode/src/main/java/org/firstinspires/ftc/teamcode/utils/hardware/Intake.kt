@@ -24,12 +24,12 @@ class Intake(hardwareMap: HardwareMap){
         IntakePositions.INIT to 0.75,
         IntakePositions.INTAKE to 0.0,
         IntakePositions.TRANSFER to 0.65,
-        IntakePositions.FIVE to 0.518,
-        IntakePositions.FOUR to 0.49,
+        IntakePositions.FIVE to 0.515,
+        IntakePositions.FOUR to 0.48,
         IntakePositions.DRIVE to 0.45,
         IntakePositions.HIGH to 0.6,
-        IntakePositions.THREE to 0.474,
-        IntakePositions.TWO to 0.433
+        IntakePositions.THREE to 0.472,
+        IntakePositions.TWO to 0.425
     )
 
     //Servo variables
