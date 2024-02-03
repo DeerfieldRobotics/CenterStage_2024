@@ -217,7 +217,6 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildSpikeToWhite() {
         spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-//                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 315.0 : 45.0 * PoseHelper.allianceAngleMultiplier))
                 .back(4)
                 .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0: 90.0 * PoseHelper.allianceAngleMultiplier))
                 .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(180.0))
@@ -230,7 +229,7 @@ public class AutoRegionals extends LinearOpMode {
                         drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
                     Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
                 })
-                .setTangent(Math.toRadians(180))
+                .setTangent(Math.toRadians(0))
                 .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                 .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
