@@ -26,7 +26,7 @@ public final class PoseHelper {
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -8, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideRed = new Pose2d(17, -8, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideRed = new Pose2d(58.5, -11, Math.toRadians(180.0));
-    public final static Pose2d parkPoseOutsideRed = new Pose2d(58.5, -59, Math.toRadians(180.0));;
+    public final static Pose2d parkPoseOutsideRed = new Pose2d(58.5, -59, Math.toRadians(180.0));
 
     // BLUE POSES
     public final static Pose2d initCloseBlue = new Pose2d(16, 63, Math.toRadians(270));
@@ -48,11 +48,7 @@ public final class PoseHelper {
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 9, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(17, 9, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 11, Math.toRadians(180.0));
-    public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));;
-//
-//    public Enum alliance;
-//    public Enum startPos;
-//
+    public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));
 
     public static Pose2d stackPose;
     public static double allianceAngleMultiplier;
@@ -69,9 +65,6 @@ public final class PoseHelper {
 
 
     public static void buildAuto(){
-//        this.alliance = alliance;
-//        this.startPos = startPos;
-
         switch(AllianceHelper.alliance) {
             case RED:
                 allianceAngleMultiplier = 1.0;
@@ -91,7 +84,7 @@ public final class PoseHelper {
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
-                        backboardPose = PoseHelper.backboardLeftRed;;
+                        backboardPose = PoseHelper.backboardLeftRed;
                         break;
                     case CENTER:
                         backboardPose = PoseHelper.backboardCenterRed;
