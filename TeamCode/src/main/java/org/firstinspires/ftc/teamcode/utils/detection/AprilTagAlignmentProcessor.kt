@@ -15,10 +15,10 @@ class AprilTagAlignmentProcessor(
     private var cameraType: CameraType,
     var targetPose: Pose2d,
     ) : AprilTagProcessorImpl( //FRONT C920 640x480, BACK ARDUCAM 1280x720
-    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 902.125 },
-    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 902.125 },
-    when(cameraType){ CameraType.FRONT -> 319.803; CameraType.BACK -> 604.652 },
-    when(cameraType){ CameraType.FRONT -> 241.251; CameraType.BACK -> 368.362 },
+    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 903.79 },
+    when(cameraType){ CameraType.FRONT -> 622.001; CameraType.BACK -> 903.79 },
+    when(cameraType){ CameraType.FRONT -> 319.803; CameraType.BACK -> 620.002 },
+    when(cameraType){ CameraType.FRONT -> 241.251; CameraType.BACK -> 360.0 },
     DistanceUnit.INCH,
     AngleUnit.DEGREES,
     AprilTagLibrary.Builder()
@@ -45,12 +45,12 @@ class AprilTagAlignmentProcessor(
         FRONT, BACK
     }
 
-    private val aprilTagPoseLeftRed: Pose2d = Pose2d(61.87, -26.75, 180.0)
-    private val aprilTagPoseCenterRed: Pose2d = Pose2d(61.87, -32.75, 180.0)
-    private val aprilTagPoseRightRed: Pose2d = Pose2d(61.87, -38.75, 180.0)
-    private val aprilTagPoseLeftBlue: Pose2d = Pose2d(61.87, 40.0, 180.0)
-    private val aprilTagPoseCenterBlue: Pose2d = Pose2d(61.87, 34.0, 180.0)
-    private val aprilTagPoseRightBlue: Pose2d = Pose2d(61.87, 28.0, 180.0)
+    private val aprilTagPoseLeftRed: Pose2d = Pose2d(62.0, -29.5, 180.0)
+    private val aprilTagPoseCenterRed: Pose2d = Pose2d(62.0, -35.5, 180.0)
+    private val aprilTagPoseRightRed: Pose2d = Pose2d(62.0, -41.5, 180.0)
+    private val aprilTagPoseLeftBlue: Pose2d = Pose2d(62.0, 41.5, 180.0)
+    private val aprilTagPoseCenterBlue: Pose2d = Pose2d(62.0, 35.5, 180.0)
+    private val aprilTagPoseRightBlue: Pose2d = Pose2d(62.0, 29.5, 180.0)
 
     private val aprilTagPoseSmallStackRed: Pose2d = Pose2d(-70.75, -35.47, 180.0)
     private val aprilTagPoseBigStackRed: Pose2d = Pose2d(-70.75, -40.97, 180.0)

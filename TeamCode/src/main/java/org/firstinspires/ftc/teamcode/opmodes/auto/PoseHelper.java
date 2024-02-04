@@ -1,30 +1,43 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.TRACK_WIDTH;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
+
+import java.util.Arrays;
 
 public final class PoseHelper {
     // RED POSES
     public final static Pose2d initCloseRed = new Pose2d(10.5, -63, Math.toRadians(90.0));
     public final static Pose2d initFarRed = new Pose2d(-39.5, -63, Math.toRadians(90.0));
-    public final static Pose2d backboardLeftRed = new Pose2d(48, -26.5, Math.toRadians(180.0));
-    public final static Pose2d backboardCenterRed = new Pose2d(48, -31.5, Math.toRadians(180.0));
-    public final static Pose2d backboardRightRed = new Pose2d(48, -37.5, Math.toRadians(180.0));
+    public final static Pose2d backboardLeftRed = new Pose2d(48, -29.5, Math.toRadians(180.0));
+    public final static Pose2d backboardCenterRed = new Pose2d(48, -35.5, Math.toRadians(180.0));
+    public final static Pose2d backboardRightRed = new Pose2d(48, -41.5, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-30.5, -39, Math.toRadians(50.0));
     public final static Pose2d farSpikeCenterRed = new Pose2d(-39.5,-37, Math.toRadians(90.0));
     public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -38.5, Math.toRadians(90.0));
     public final static Pose2d closeSpikeRightRed = new Pose2d(34.5, -28, Math.toRadians(180));
-    public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -20, Math.toRadians(180));
+    public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -22.5, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(12.5, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-54, -5, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -58, Math.toRadians(180.0));
-    public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -8, Math.toRadians(180.0));
-    public final static Pose2d boardTrussInsideRed = new Pose2d(17, -8, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-55, -10.5, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58.25, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -58.25, Math.toRadians(180.0));
+    public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
+    public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -10, Math.toRadians(180.0));
+    public final static Pose2d boardTrussInsideRed = new Pose2d(20, -12, Math.toRadians(180.0));
+    public final static Pose2d aprilTrussInsideRed = new Pose2d(31, -19, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideRed = new Pose2d(58.5, -11, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideRed = new Pose2d(58.5, -59, Math.toRadians(180.0));
 
@@ -45,16 +58,30 @@ public final class PoseHelper {
     public final static Pose2d insideStackBlue = new Pose2d(-54.5, 12, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 56, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 56, Math.toRadians(180.0));
+    public final static Pose2d aprilTrussOutsideBlue = new Pose2d(30, 52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 9, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(17, 9, Math.toRadians(180.0));
+    public final static Pose2d aprilTrussInsideBlue = new Pose2d(31, 19, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 11, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));
+    public final static TrajectoryVelocityConstraint toBackboardVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(5),
+                new MecanumVelocityConstraint(45, TRACK_WIDTH)
+        ));
+
+    public final static TrajectoryVelocityConstraint toPurpleVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(5),
+            new MecanumVelocityConstraint(45, TRACK_WIDTH)
+    ));
+
+   public final static TrajectoryAccelerationConstraint toBackboardAccelerationConstraint = new ProfileAccelerationConstraint(45);
 
     public static Pose2d stackPose;
     public static double allianceAngleMultiplier;
     public static Pose2d parkPose;
     public static Pose2d wingTruss;
     public static Pose2d boardTruss;
+    public static Pose2d aprilTruss;
     public static Pose2d backboardPose;
     public static double purpleBackDistanceFar;
     public static double toWhiteStackTangentFar;
@@ -74,13 +101,17 @@ public final class PoseHelper {
                         parkPose = PoseHelper.parkPoseOutsideRed;
                         wingTruss = PoseHelper.wingTrussOutsideRed;
                         boardTruss = PoseHelper.boardTrussOutsideRed;
+                        aprilTruss = PoseHelper.aprilTrussOutsideRed;
                         break;
                     case INSIDE:
                         stackPose = PoseHelper.insideStackRed;
                         parkPose = PoseHelper.parkPoseInsideRed;
                         wingTruss = PoseHelper.wingTrussInsideRed;
                         boardTruss = PoseHelper.boardTrussInsideRed;
+                        aprilTruss = PoseHelper.aprilTrussInsideRed;
                         break;
+                    case PLACEMENT:
+                        parkPose = PoseHelper.parkPoseOutsideRed;
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:
@@ -102,13 +133,17 @@ public final class PoseHelper {
                         parkPose = PoseHelper.parkPoseOutsideBlue;
                         wingTruss = PoseHelper.wingTrussOutsideBlue;
                         boardTruss = PoseHelper.boardTrussOutsideBlue;
+                        aprilTruss = PoseHelper.aprilTrussOutsideBlue;
                         break;
                     case INSIDE:
                         stackPose = PoseHelper.insideStackBlue;
                         parkPose = PoseHelper.parkPoseInsideBlue;
                         wingTruss = PoseHelper.wingTrussInsideBlue;
                         boardTruss = PoseHelper.boardTrussInsideBlue;
+                        aprilTruss = PoseHelper.aprilTrussInsideBlue;
                         break;
+                    case PLACEMENT:
+                        parkPose = PoseHelper.parkPoseOutsideBlue;
                 }
                 switch(ColorDetectionProcessor.position) {
                     case LEFT:

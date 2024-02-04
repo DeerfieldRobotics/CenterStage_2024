@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import android.util.Log;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -107,6 +108,8 @@ public class AutoRegionals extends LinearOpMode {
         telemetry.addData("Selected Auto: ", StartPosition.startPosition.toString());
         telemetry.addData("Selected Path: ", Paths.path.toString());
         telemetry.addData("Detected Position: ", ColorDetectionProcessor.position.toString());
+        telemetry.addData("Front Camera State: ", frontCameraPortal.getCameraState().toString());
+        telemetry.addData("Back Camera State: ", backCameraPortal.getCameraState().toString());
         telemetry.update();
 
         if(backCameraPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
@@ -125,16 +128,13 @@ public class AutoRegionals extends LinearOpMode {
 
         if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
             init = drive.trajectorySequenceBuilder(PoseHelper.initPose)
+                    .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
                     .setTangent(Math.toRadians(45 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(this::outtake)
                     .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(0))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-                        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-                        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-                        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-                            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+                        apriltagToDrivePose();
                         buildBackboardToSpike();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE;
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
@@ -172,14 +172,10 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
                     .addTemporalMarker(() -> setSlideHeight(-1050))
-                    .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(30.0 * PoseHelper.allianceAngleMultiplier))
+                    .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         alignToApriltagBackboard();
-                        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-                        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-                        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-                            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+                        apriltagToDrivePose();
                         buildDropYellow();
                         currentTrajectory = CURRENT_TRAJECTORY.DROP_YELLOW;
                         Log.d(TAG, "currentTrajectory " + currentTrajectory);
@@ -201,6 +197,9 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildSpikeToPark() {
         spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .back(5)
+                .setTangent(0)
+                .strafeLeft(24*PoseHelper.allianceAngleMultiplier)
                 .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
@@ -217,18 +216,13 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildSpikeToWhite() {
         spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .waitSeconds(0.1)
                 .back(4)
-                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0: 90.0 * PoseHelper.allianceAngleMultiplier))
+//                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0: 90.0 * PoseHelper.allianceAngleMultiplier))
+                .setTangent(Math.toRadians(0))
                 .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FOUR))
-                .addTemporalMarker(() -> {
-                    aprilTagProcessorBack.update();
-                    Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-                    if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
-                })
+                .addTemporalMarker(this::aprilTagRelocalize)
                 .setTangent(Math.toRadians(180))
                 .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                 .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
@@ -246,13 +240,14 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToSpike() {
-        backboardToSpike = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
-                .back(6)
+        backboardToSpike = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
+                .back(5)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> setSlideHeight(-1100))
                 .waitSeconds(0.2)
-                .forward(6)
+                .forward(5)
                 .addTemporalMarker(this::outtakeIn)
                 .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.INTAKE))
                 .setTangent(Math.toRadians(180.0))
@@ -285,7 +280,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildDropYellow() {
-        dropYellow = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        dropYellow = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .waitSeconds(0.1)
                 .back(5)
                 .addTemporalMarker(this::drop)
@@ -311,13 +306,9 @@ public class AutoRegionals extends LinearOpMode {
                         else
                             PoseHelper.backboardPose = PoseHelper.backboardLeftBlue;
                     }
-                    aprilTagProcessorBack.setPIDCoefficients(.032, .034, 0.0, .02, .02, 0, 0.82, 0.02, 0.0);
+                    apriltagTuckerCarlson();
                     alignToApriltagBackboard();
-                    Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-                    if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+                    apriltagToDrivePose();
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildBackboardToWhite();
                         currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
@@ -343,14 +334,30 @@ public class AutoRegionals extends LinearOpMode {
 
     }
 
+    private void apriltagTuckerCarlson() {
+        aprilTagProcessorBack.setPIDCoefficients(.032, .034, 0.0, .032, .015, 0, 0.82, 0.02, 0.0);
+    }
+
+    private void apriltagToDrivePose() {
+        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
+        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
+        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+    }
+
     private void buildBackboardToWhite() {
-        backboardToWhite = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
-                .back(6)
+        backboardToWhite = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .waitSeconds(0.1)
+                .back(5)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.5)
                 .addTemporalMarker(this::outtakeIn)
                 .addTemporalMarker(() -> setSlideHeight(-1200))
 //                .setTangent(Math.toRadians(180.0))
+                .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
+                .waitSeconds(0.1)
+                .addTemporalMarker(this::aprilTagRelocalize)
                 .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     if(Paths.path == Paths.Path.OUTSIDE)
@@ -381,6 +388,8 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildWhiteToBackboard() {
         whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
+                .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
+                .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
                 .addTemporalMarker(this::intake)
                 .addTemporalMarker(this::outtakeTransfer)
                 .forward(2)
@@ -407,13 +416,11 @@ public class AutoRegionals extends LinearOpMode {
                         }
                     }
 
+                    apriltagTuckerCarlson();
+
                     alignToApriltagBackboard();
 
-                    Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-                    if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-                        drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-                    Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+                    apriltagToDrivePose();
 
                     if(cycles == 0) {
                         buildBackboardToWhite();
@@ -440,7 +447,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToPark() {
-        backboardToPark = drive.trajectorySequenceBuilder(aprilTagProcessorBack.getPoseEstimate())
+        backboardToPark = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .back(5)
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(() -> setSlideHeight(-1600))
@@ -510,6 +517,15 @@ public class AutoRegionals extends LinearOpMode {
 
     private void detectPurplePath() { ColorDetectionProcessor.position = colorDetectionProcessor.getPosition(); }
 
+    private void aprilTagRelocalize() {
+        aprilTagProcessorBack.update();
+        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
+        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
+        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+            drive.setPoseEstimate(new Pose2d(drive.getPoseEstimate().getX(), aprilTagProcessorBack.getPoseEstimate().getY(), aprilTagProcessorBack.getPoseEstimate().getHeading()));
+        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
+    }
+
     private void alignToApriltagBackboard() {
         aprilTagProcessorBack.setTargetPose(PoseHelper.backboardPose);
         double currentTime = getRuntime();
@@ -521,7 +537,7 @@ public class AutoRegionals extends LinearOpMode {
                 Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
             }
 
-            if(getRuntime()-currentTime > 1) break;
+            if(getRuntime()-currentTime > .75) break;
 
             aprilTagProcessorBack.alignRobot(drive);
 
@@ -552,7 +568,6 @@ public class AutoRegionals extends LinearOpMode {
     private void intake() { intake.intakePower(1.0); intake.update(); }
     private void stopIntake() {
         intake.intakePower(0.0);
-        intake.setBoosterServoPower(-1.0);
         intake.update();
     }
     private void transfer() { intake.transfer(); intake.update(); }
