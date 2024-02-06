@@ -136,12 +136,7 @@ public class AutoRegionals extends LinearOpMode {
                         alignToApriltagBackboard();
                         apriltagToDrivePose();
                         buildBackboardToSpike();
-                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_SPIKE);
                         drive.followTrajectorySequenceAsync(backboardToSpike); })
                     .build();
         }
@@ -174,73 +169,24 @@ public class AutoRegionals extends LinearOpMode {
                     .addTemporalMarker(() -> setSlideHeight(-1050))
                     .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
+                        if(ColorDetectionProcessor.position != ColorDetectionProcessor.StartingPosition.CENTER) {
+                            apriltagTuckerCarlson();
+                        }
                         alignToApriltagBackboard();
                         apriltagToDrivePose();
                         buildDropYellow();
-                        currentTrajectory = CURRENT_TRAJECTORY.DROP_YELLOW;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.DROP_YELLOW);
                         drive.followTrajectorySequenceAsync(dropYellow);
                     })
                     .build();
         }
 
-        currentTrajectory = CURRENT_TRAJECTORY.INIT;
-        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-        Log.d(TAG, "runtime " + getRuntime());
+        logTrajectory(CURRENT_TRAJECTORY.INIT);
         drive.followTrajectorySequenceAsync(init);
     }
 
-    private void buildSpikeToPark() {
-        spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                .back(5)
-                .setTangent(0)
-                .strafeLeft(24*PoseHelper.allianceAngleMultiplier)
-                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
-                .addTemporalMarker(() -> {
-                    outtakeTransfer(); //transfer just for fun
-                    transfer();
-                    currentTrajectory = CURRENT_TRAJECTORY.NONE;
-                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                    Log.d(TAG, "runtime " + getRuntime());
-                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                    lastRunTime = getRuntime();
-                })
-                .build();
-    }
-
-    private void buildSpikeToWhite() {
-        spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
-                .waitSeconds(0.1)
-                .back(4)
-//                .setTangent(Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 270.0: 90.0 * PoseHelper.allianceAngleMultiplier))
-                .setTangent(Math.toRadians(0))
-                .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(180.0))
-                .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FOUR))
-                .addTemporalMarker(this::aprilTagRelocalize)
-                .setTangent(Math.toRadians(180))
-                .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
-                .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
-                .addTemporalMarker(() -> {
-                    buildWhiteToBackboard();
-                    currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
-                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                    Log.d(TAG, "runtime " + getRuntime());
-                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                    lastRunTime = getRuntime();
-                    drive.followTrajectorySequenceAsync(whiteToBackboard);
-                })
-                .build();
-    }
-
     private void buildBackboardToSpike() {
-        backboardToSpike = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+        backboardToSpike = drive.trajectorySequenceBuilder(PoseHelper.currentPose)
                 .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
                 .back(5)
                 .addTemporalMarker(this::drop)
@@ -257,39 +203,61 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildSpikeToWhite();
-                        currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_WHITE;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.SPIKE_TO_WHITE);
                         drive.followTrajectorySequenceAsync(spikeToWhite);
                     }
                     else {
                         buildSpikeToPark();
-                        currentTrajectory = CURRENT_TRAJECTORY.SPIKE_TO_PARK;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.SPIKE_TO_PARK);
                         drive.followTrajectorySequenceAsync(spikeToPark);
                     }
                 })
                 .build();
     }
 
+    private void buildSpikeToWhite() {
+        spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .back(4)
+                .setTangent(Math.toRadians(0))
+                .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(0.0))
+                .addTemporalMarker(() -> intake.setServoPosition(Intake.IntakePositions.FOUR))
+                .waitSeconds(0.3)
+                .addTemporalMarker(this::aprilTagRelocalize)
+                .waitSeconds(0.3)
+                .setTangent(Math.toRadians(140*PoseHelper.allianceAngleMultiplier))
+                .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
+                .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
+                .addTemporalMarker(() -> {
+                    buildWhiteToBackboard();
+                    logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
+                    drive.followTrajectorySequenceAsync(whiteToBackboard);
+                })
+                .build();
+    }
+
+    private void buildSpikeToPark() {
+        spikeToPark = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .back(5)
+                .setTangent(0)
+                .strafeLeft(24*PoseHelper.allianceAngleMultiplier)
+                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
+                .addTemporalMarker(() -> {
+                    outtakeTransfer(); //transfer just for fun
+                    transfer();
+                    logTrajectory(CURRENT_TRAJECTORY.NONE);
+                })
+                .build();
+    }
+
     private void buildDropYellow() {
-        dropYellow = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .waitSeconds(0.1)
+        dropYellow = drive.trajectorySequenceBuilder(PoseHelper.currentPose)
                 .back(5)
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(()->setSlideHeight(-1200))
+                .addTemporalMarker(0.6, this::outtakeTransfer)
+                .addTemporalMarker(1.2, this::transfer)
                 .forward(5)
-                .addTemporalMarker(this::outtakeTransfer)
-                .waitSeconds(0.8)
-                .addTemporalMarker(this::transfer)
-                .waitSeconds(1.3)
+                .waitSeconds(0.5)
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(() -> setSlideHeight(-1400))
                 .addTemporalMarker(() -> {
@@ -311,54 +279,28 @@ public class AutoRegionals extends LinearOpMode {
                     apriltagToDrivePose();
                     if(Paths.path != Paths.Path.PLACEMENT) {
                         buildBackboardToWhite();
-                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE);
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else {
                         buildBackboardToPark();
-                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_PARK);
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
                 .build();
-
-    }
-
-    private void apriltagTuckerCarlson() {
-        aprilTagProcessorBack.setPIDCoefficients(.032, .034, 0.0, .032, .015, 0, 0.82, 0.02, 0.0);
-    }
-
-    private void apriltagToDrivePose() {
-        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
-        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
-            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
-        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
     }
 
     private void buildBackboardToWhite() {
-        backboardToWhite = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .waitSeconds(0.1)
+        backboardToWhite = drive.trajectorySequenceBuilder(PoseHelper.currentPose)
                 .back(5)
                 .addTemporalMarker(this::drop)
                 .waitSeconds(0.5)
                 .addTemporalMarker(this::outtakeIn)
                 .addTemporalMarker(() -> setSlideHeight(-1200))
-//                .setTangent(Math.toRadians(180.0))
                 .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
                 .waitSeconds(0.1)
                 .addTemporalMarker(this::aprilTagRelocalize)
-                .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     if(Paths.path == Paths.Path.OUTSIDE)
                         intake.setServoPosition(Intake.IntakePositions.THREE);
@@ -371,16 +313,12 @@ public class AutoRegionals extends LinearOpMode {
                     cycles++;
                     intake.update();
                 })
+                .setTangent(Math.toRadians(140*PoseHelper.allianceAngleMultiplier))
                 .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                 .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
                 .addTemporalMarker(() -> {
                     buildWhiteToBackboard();
-                    currentTrajectory = CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD;
-                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                    Log.d(TAG, "runtime " + getRuntime());
-                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                    lastRunTime = getRuntime();
+                    logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
                     drive.followTrajectorySequenceAsync(whiteToBackboard);
                 })
                 .build();
@@ -424,22 +362,15 @@ public class AutoRegionals extends LinearOpMode {
 
                     if(cycles == 0) {
                         buildBackboardToWhite();
-                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE);
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
                     else if (cycles == 1) {
+                        backCameraPortal.close();
+                        frontCameraPortal.close();
+
                         buildBackboardToPark();
-                        currentTrajectory = CURRENT_TRAJECTORY.BACKBOARD_TO_PARK;
-                        Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                        Log.d(TAG, "runtime " + getRuntime());
-                        Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                        lastRunTime = getRuntime();
+                        logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_PARK);
                         drive.followTrajectorySequenceAsync(backboardToPark);
                     }
                 })
@@ -447,8 +378,8 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void buildBackboardToPark() {
-        backboardToPark = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .back(5)
+        backboardToPark = drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+                .back(5.5)
                 .addTemporalMarker(this::drop)
                 .addTemporalMarker(() -> setSlideHeight(-1600))
                 .waitSeconds(.4)
@@ -458,12 +389,7 @@ public class AutoRegionals extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
-                    currentTrajectory = CURRENT_TRAJECTORY.NONE;
-                    Log.d(TAG, "currentTrajectory " + currentTrajectory);
-                    Log.d(TAG, "drivePose " + drive.getPoseEstimate());
-                    Log.d(TAG, "runtime " + getRuntime());
-                    Log.d(TAG, "trajectory time " + (getRuntime()-lastRunTime));
-                    lastRunTime = getRuntime();
+                    logTrajectory(CURRENT_TRAJECTORY.NONE);
                 })
                 .build();
     }
@@ -482,6 +408,15 @@ public class AutoRegionals extends LinearOpMode {
             Log.d(TAG, "slideTargetPosition" + slide.getTargetPosition());
             Log.d(TAG, "currentTrajectory" + currentTrajectory);
         }
+    }
+
+    private void logTrajectory(CURRENT_TRAJECTORY trajectory) {
+        currentTrajectory = trajectory;
+        Log.d(TAG, "last trajectory time " + (getRuntime() - lastRunTime));
+        Log.d(TAG, "currentTrajectory " + currentTrajectory);
+        Log.d(TAG, "drivePose " + drive.getPoseEstimate());
+        Log.d(TAG, "runtime " + getRuntime());
+        lastRunTime = getRuntime();
     }
 
     private void initPortals() {
@@ -521,8 +456,10 @@ public class AutoRegionals extends LinearOpMode {
         aprilTagProcessorBack.update();
         Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
         Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
-        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX()))
+        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX())) {
             drive.setPoseEstimate(new Pose2d(drive.getPoseEstimate().getX(), aprilTagProcessorBack.getPoseEstimate().getY(), aprilTagProcessorBack.getPoseEstimate().getHeading()));
+            drive.update();
+        }
         Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
     }
 
@@ -562,6 +499,20 @@ public class AutoRegionals extends LinearOpMode {
 
             if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
         }
+    }
+
+    private void apriltagTuckerCarlson() {
+        aprilTagProcessorBack.setPIDCoefficients(.032, .034, 0.0, .032, .015, 0, 0.82, 0.02, 0.0);
+    }
+
+    private void apriltagToDrivePose() {
+        Log.d("POSE", "AprilTag Pose: " + aprilTagProcessorBack.getPoseEstimate());
+        Log.d("POSE", "Drive Pose" + drive.getPoseEstimate());
+        if(!Double.isNaN(aprilTagProcessorBack.getPoseEstimate().getX())) {
+            drive.setPoseEstimate(aprilTagProcessorBack.getPoseEstimate());
+        }
+        PoseHelper.currentPose = drive.getPoseEstimate();
+        Log.d("POSE", "Set Pose" + drive.getPoseEstimate());
     }
 
     //INTAKE METHODS

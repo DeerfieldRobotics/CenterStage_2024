@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class Intake(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
-    private var boosterServo: CRServoImplEx = hardwareMap.get("bs") as CRServoImplEx //expansion hub: TODO
+    private var boosterServo: CRServoImplEx = hardwareMap.get("bs") as CRServoImplEx //expansion hub: 4
     private var intakeMotor: DcMotorEx = hardwareMap.get("im") as DcMotorEx  //expansion hub: 2
 
     var boosterServoPower = 0.0
@@ -20,7 +20,7 @@ class Intake(hardwareMap: HardwareMap){
         INIT, INTAKE, TRANSFER, FIVE, DRIVE, MANUAL, FOUR, HIGH, THREE, TWO
     }
 
-    private val intakePositionMap = mapOf( //TODO: find positions
+    private val intakePositionMap = mapOf(
         IntakePositions.INIT to 0.75,
         IntakePositions.INTAKE to 0.0,
         IntakePositions.TRANSFER to 0.65,
@@ -113,7 +113,7 @@ class Intake(hardwareMap: HardwareMap){
                     timeDelayMillis = System.currentTimeMillis()
                 }
                 boosterServoPower = -1.0
-                if(System.currentTimeMillis() - timeDelayMillis > 200) {
+                if(System.currentTimeMillis() - timeDelayMillis > 150) {
                     boosterServoPower = 0.0
                     transferStage = TransferStage.INTAKE
                     timeDelayMillis = 0L
