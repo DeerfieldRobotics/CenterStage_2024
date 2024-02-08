@@ -260,11 +260,13 @@ public class AutoRegionals extends LinearOpMode {
         dropYellow = drive.trajectorySequenceBuilder(PoseHelper.currentPose)
                 .back(PoseHelper.backboardBackup)
                 .addTemporalMarker(this::drop)
+                .waitSeconds(0.4)
                 .addTemporalMarker(()->setSlideHeight(-1200))
-                .addTemporalMarker(0.6, this::outtakeTransfer)
-                .addTemporalMarker(1.2, this::transfer)
                 .forward(PoseHelper.backboardBackup)
-                .waitSeconds(0.5)
+                .addTemporalMarker(this::outtakeTransfer)
+                .waitSeconds(0.8)
+                .addTemporalMarker(this::transfer)
+                .waitSeconds(1.6)
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(() -> setSlideHeight(-1400))
                 .addTemporalMarker(() -> {
@@ -308,7 +310,6 @@ public class AutoRegionals extends LinearOpMode {
                         .addTemporalMarker(this::outtakeIn)
                         .addTemporalMarker(() -> setSlideHeight(-1200))
                         .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
-                        .waitSeconds(0.1)
                         .addTemporalMarker(this::aprilTagRelocalize)
                         .addTemporalMarker(() -> {
                             if (Paths.path == Paths.Path.OUTSIDE)
@@ -322,12 +323,12 @@ public class AutoRegionals extends LinearOpMode {
                             cycles++;
                             intake.update();
                         })
-                        .setTangent(Math.toRadians(140 * PoseHelper.allianceAngleMultiplier))
+                        .setTangent(Math.toRadians(140 * PoseHelper.allianceAngleMultiplier * (Paths.path == Paths.Path.INSIDE ? 1.0 : -1.0)))
                         .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                         .addTemporalMarker(this::intake)
-                        .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
+                        .splineToConstantHeading(PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(), Math.toRadians(Paths.path == Paths.Path.INSIDE ? 180 : 120 * PoseHelper.allianceAngleMultiplier))
                         .addTemporalMarker(() -> {
-                            if(cycles == 0) {
+                            if((cycles == 0 && Paths.path == Paths.Path.INSIDE) || ((cycles == 0 || cycles == 1) && Paths.path == Paths.Path.OUTSIDE)) {
                                 buildWhiteToBackboard();
                                 logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
                                 drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -350,11 +351,11 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildWhiteToBackboard() {
         whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
-                .setVelConstraint(cycles == 1 ? PoseHelper.blastVelocityConstraint : PoseHelper.toBackboardVelocityConstraint)
-                .setAccelConstraint(cycles == 1 ? PoseHelper.blastAccelerationConstraint : PoseHelper.toBackboardAccelerationConstraint)
+                .setVelConstraint(cycles == 1 && Paths.path == Paths.Path.INSIDE || cycles == 2 && Paths.path == Paths.Path.OUTSIDE ? PoseHelper.blastVelocityConstraint : PoseHelper.toBackboardVelocityConstraint)
+                .setAccelConstraint(cycles == 1 && Paths.path == Paths.Path.INSIDE || cycles == 2 && Paths.path == Paths.Path.OUTSIDE ? PoseHelper.blastAccelerationConstraint : PoseHelper.toBackboardAccelerationConstraint)
                 .addTemporalMarker(this::outtakeTransfer)
                 .forward(1.5)
-                .back(1.5)
+                .back(3)
                 .addTemporalMarker(this::stopIntake)
                 .addTemporalMarker(this::transfer)
                 .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
@@ -383,12 +384,12 @@ public class AutoRegionals extends LinearOpMode {
 
                     apriltagToDrivePose();
 
-                    if(cycles == 0) {
+                    if((cycles == 0 && Paths.path == Paths.Path.INSIDE) || (cycles == 0 || cycles == 1) && Paths.path == Paths.Path.OUTSIDE) {
                         buildBackboardToWhite();
                         logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE);
                         drive.followTrajectorySequenceAsync(backboardToWhite);
                     }
-                    else if (cycles == 1) {
+                    else {
                         backCameraPortal.close();
                         frontCameraPortal.close();
 
@@ -544,7 +545,7 @@ public class AutoRegionals extends LinearOpMode {
     }
 
     private void apriltagTuckerCarlson() {
-        aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .032, .015, 0, 0.82, 0.02, 0.0);
+        aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .030, .012, 0, 0.82, 0.02, 0.0);
     }
 
     private void apriltagToDrivePose() {

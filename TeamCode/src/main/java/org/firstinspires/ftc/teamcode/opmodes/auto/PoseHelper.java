@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.TRACK_WIDTH;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinAccelerationConstraint;
@@ -31,9 +32,9 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeLeftRed = new Pose2d(12, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-55, -6.5, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58.25, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideRed = new Pose2d(8, -58.25, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-55, -8.0, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57.5, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57.5, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -7.5, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideRed = new Pose2d(12, -7.5, Math.toRadians(180.0));
@@ -67,6 +68,7 @@ public final class PoseHelper {
 
 
     public final static double backboardBackup = 5.25;
+    public final static Pose2d stackOffset = new Pose2d(3, 1.5, 0);
     public final static TrajectoryVelocityConstraint toBackboardVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
                 new AngularVelocityConstraint(5),
                 new MecanumVelocityConstraint(45, TRACK_WIDTH)
