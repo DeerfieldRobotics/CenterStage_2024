@@ -56,7 +56,8 @@ public class AutoRegionals extends LinearOpMode {
         WHITE_TO_BACKBOARD,
         WHITE_TO_BACKBOARD_YELLOW,
         DROP_YELLOW,
-        BACKBOARD_TO_PARK
+        BACKBOARD_TO_PARK,
+        WHITE_TO_PARK,
     }
     private CURRENT_TRAJECTORY currentTrajectory = CURRENT_TRAJECTORY.NONE;
 
@@ -326,9 +327,16 @@ public class AutoRegionals extends LinearOpMode {
                         .addTemporalMarker(this::intake)
                         .splineToConstantHeading(PoseHelper.stackPose.vec(), Math.toRadians(180.0))
                         .addTemporalMarker(() -> {
-                            buildWhiteToBackboard();
-                            logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
-                            drive.followTrajectorySequenceAsync(whiteToBackboard);
+                            if(cycles == 0) {
+                                buildWhiteToBackboard();
+                                logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
+                                drive.followTrajectorySequenceAsync(whiteToBackboard);
+                            }
+                            else {
+                                buildWhiteToPark();
+                                logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_PARK);
+                                drive.followTrajectorySequenceAsync(whiteToBackboard);
+                            }
                         })
                         .build();
                 break;
@@ -390,6 +398,26 @@ public class AutoRegionals extends LinearOpMode {
                     }
                 })
                 .build();
+    }
+
+    public void buildWhiteToPark() {
+        whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
+                .setVelConstraint(PoseHelper.blastVelocityConstraint)
+                .setAccelConstraint(PoseHelper.blastAccelerationConstraint)
+                .addTemporalMarker(() -> {
+                    backCameraPortal.close();
+                    frontCameraPortal.close();
+                })
+                .addTemporalMarker(this::outtakeTransfer)
+                .forward(1.5)
+                .back(1.5)
+                .addTemporalMarker(this::stopIntake)
+                .addTemporalMarker(this::transfer)
+                .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0))
+                .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
+                .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(0))
+                .build();
+
     }
 
     private void buildBackboardToPark() {
