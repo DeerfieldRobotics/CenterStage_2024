@@ -218,6 +218,7 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildSpikeToWhite() {
         spikeToWhite = drive.trajectorySequenceBuilder(PoseHelper.spikePose)
+                .waitSeconds(0.1)
                 .back(4)
                 .setTangent(Math.toRadians(
                         ((ColorDetectionProcessor.position == ColorDetectionProcessor.StartingPosition.RIGHT && AllianceHelper.alliance == AllianceHelper.Alliance.RED) ||
