@@ -51,19 +51,19 @@ public final class PoseHelper {
     public final static Pose2d farSpikeRightBlue = new Pose2d(-46.5, 38.5, Math.toRadians(-90.0));
     public final static Pose2d farSpikeCenterBlue = new Pose2d(-39.5,37, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-30.5, 38.5, Math.toRadians(-50.0));
-    public final static Pose2d closeSpikeRightBlue = new Pose2d(12.5, 30, Math.toRadians(180));
-    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 25.5, Math.toRadians(180));
-    public final static Pose2d closeSpikeLeftBlue = new Pose2d(34.5, 33, Math.toRadians(180));
+    public final static Pose2d closeSpikeRightBlue = new Pose2d(12, 33, Math.toRadians(180));
+    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 26, Math.toRadians(180));
+    public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 33, Math.toRadians(180));
     public final static Pose2d apriltagStackBlue = new Pose2d(-55.25, 36, Math.toRadians(180.0));
     public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
-    public final static Pose2d insideStackBlue = new Pose2d(-55.5, 11.25, Math.toRadians(180.0));
+    public final static Pose2d insideStackBlue = new Pose2d(-56, 16, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 58.25, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 58.25, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideBlue = new Pose2d(30, 52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 10, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(20, 12, Math.toRadians(180.0));
     public final static Pose2d aprilTrussInsideBlue = new Pose2d(31, 19, Math.toRadians(180.0));
-    public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 4, Math.toRadians(180.0));
+    public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 6, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));
 
 
