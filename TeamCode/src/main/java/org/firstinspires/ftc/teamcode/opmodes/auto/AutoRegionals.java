@@ -323,7 +323,7 @@ public class AutoRegionals extends LinearOpMode {
                             cycles++;
                             intake.update();
                         })
-                        .setTangent(Math.toRadians(140 * PoseHelper.allianceAngleMultiplier * (Paths.path == Paths.Path.INSIDE ? 1.0 : -1.0)))
+                        .setTangent(Math.toRadians(Paths.path == Paths.Path.INSIDE ? 140 : -150 ) * PoseHelper.allianceAngleMultiplier)
                         .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                         .addTemporalMarker(this::intake)
                         .splineToConstantHeading(PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(), Math.toRadians(Paths.path == Paths.Path.INSIDE ? 180 : 120 * PoseHelper.allianceAngleMultiplier))

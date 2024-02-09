@@ -33,8 +33,8 @@ public final class PoseHelper {
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
     public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
     public final static Pose2d insideStackRed = new Pose2d(-55, -8.0, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57.5, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57.5, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -7.5, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideRed = new Pose2d(12, -7.5, Math.toRadians(180.0));
@@ -57,8 +57,8 @@ public final class PoseHelper {
     public final static Pose2d apriltagStackBlue = new Pose2d(-55.25, 36, Math.toRadians(180.0));
     public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
     public final static Pose2d insideStackBlue = new Pose2d(-56, 16, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 58.25, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 58.25, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 56.75, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 56.75, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideBlue = new Pose2d(30, 52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 10, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(20, 12, Math.toRadians(180.0));
