@@ -21,15 +21,15 @@ class Intake(hardwareMap: HardwareMap){
     }
 
     private val intakePositionMap = mapOf(
-        IntakePositions.INIT to 0.44,
+        IntakePositions.INIT to 0.391,
         IntakePositions.INTAKE to 0.0,
-        IntakePositions.TRANSFER to 0.321,
+        IntakePositions.TRANSFER to 0.293,
         IntakePositions.DRIVE to 0.264,
         IntakePositions.HIGH to 0.352,
-        IntakePositions.FIVE to 0.205,
-        IntakePositions.FOUR to 0.166,
-        IntakePositions.THREE to 0.111,
-        IntakePositions.TWO to 0.010
+        IntakePositions.FIVE to 0.151,
+        IntakePositions.FOUR to 0.128,
+        IntakePositions.THREE to 0.103,
+        IntakePositions.TWO to 0.077
     )
 
     //Servo variables

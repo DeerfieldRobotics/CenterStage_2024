@@ -244,13 +244,4 @@ class AprilTagAlignmentProcessor(
     }
 
     fun robotAligned(): Boolean = poseError.x < 0.5 && poseError.y < 0.5 && poseError.heading < 1.0
-
-    private fun restrictDomain(pose: Pose2d): Pose2d{
-        var heading = pose.heading-180*(pose.heading/180).toInt()
-        if(heading > 90)
-            heading -= 180
-        if(heading < -90)
-            heading += 180
-        return Pose2d(pose.x, pose.y, heading)
-    }
 }

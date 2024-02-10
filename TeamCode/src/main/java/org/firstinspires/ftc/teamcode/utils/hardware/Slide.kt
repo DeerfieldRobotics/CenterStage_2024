@@ -37,8 +37,8 @@ class Slide (hardwareMap: HardwareMap){
         slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
         slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-        slide1.setCurrentAlert(6.0, CurrentUnit.AMPS)
-        slide2.setCurrentAlert(6.0, CurrentUnit.AMPS)
+        slide1.setCurrentAlert(8.0, CurrentUnit.AMPS)
+        slide2.setCurrentAlert(8.0, CurrentUnit.AMPS)
     }
 
     fun setMode (mode: DcMotor.RunMode) {

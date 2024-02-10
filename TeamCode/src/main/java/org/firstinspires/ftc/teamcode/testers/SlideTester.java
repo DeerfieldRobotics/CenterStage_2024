@@ -21,6 +21,7 @@ public class SlideTester extends LinearOpMode {
             slide.setPower(gamepad2.left_stick_y);
 
             telemetry.addData("ticks", slide.getPosition()[0]);
+            telemetry.addData("ticks 2", slide.getPosition()[1]);
             telemetry.update();
         }
     }

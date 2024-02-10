@@ -315,10 +315,7 @@ public class AutoRegionals extends LinearOpMode {
                             if (Paths.path == Paths.Path.OUTSIDE)
                                 intake.setServoPosition(Intake.IntakePositions.THREE);
                             else {
-                                if (cycles == 0)
-                                    intake.setServoPosition(Intake.IntakePositions.TWO);
-                                else
-                                    intake.setServoPosition(Intake.IntakePositions.TWO);
+                                intake.setServoPosition(Intake.IntakePositions.TWO);
                             }
                             cycles++;
                             intake.update();
@@ -384,7 +381,7 @@ public class AutoRegionals extends LinearOpMode {
 
                     apriltagToDrivePose();
 
-                    if((cycles == 0 && Paths.path == Paths.Path.INSIDE) || (cycles == 0 || cycles == 1) && Paths.path == Paths.Path.OUTSIDE) {
+                    if(cycles < 1) {
                         buildBackboardToWhite();
                         logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE);
                         drive.followTrajectorySequenceAsync(backboardToWhite);
