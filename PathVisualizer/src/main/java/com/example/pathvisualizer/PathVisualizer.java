@@ -1,11 +1,10 @@
 package com.example.pathvisualizer;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
+import com.noahbres.meepmeep.roadrunner.trajectorysequence.TrajectorySequence;
 
 import java.awt.Image;
 import java.io.File;
@@ -13,62 +12,154 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class PathVisualizer {
+public class PathVisualizer
+{
+    private enum StartPosition {
+        RED_CLOSE,
+        RED_FAR,
+        BLUE_CLOSE,
+        BLUE_FAR
+    }
+    private enum Path {
+        PLACEMENT,
+        INSIDE,
+        OUTSIDE
+    }
+
+    private static StartPosition startPosition = StartPosition.RED_CLOSE;
+    private static Path path;
+
+//    private Datalog datalog; //TELEMETRY
+
+
+    // TRAJECTORIES
+    private static TrajectorySequence init; // INIT THEN GO TO BACKBOARD
+    private TrajectorySequence backboardToSpike; // BACKBOARD TO SPIKE
+    private TrajectorySequence backboardToWhite; //BACKBOARD TO STACK
+    private TrajectorySequence spikeToStack; //SPIKE TO STACK
+    private TrajectorySequence whiteToBackboard;// STACK BACK TO BACKBOARD
+    private TrajectorySequence backboardToPark; //PARK AFTER SCORING STACK
+    private TrajectorySequence spikeToBackboard; //SPIKE TO BACKBOARD
+
+    //POSITIONS & TANGENTS
+    private static Pose2d initPose; //INITIAL POSITION
+    private static Pose2d spikePose; //SPIKE POSITION
+    private static Pose2d wingTruss; //WING TRUSS POSITION
+    private static Pose2d boardTruss; //BOARD TRUSS POSITION
+    private static Pose2d aprilTagPose; // POSITION AFTER APRIL TAGS
+    private static Pose2d aprilTagPose2;
+    private static Pose2d backboardPose; // POSITION WHERE BACKBOARD SHOULD BE, STARTING POSITION TO STACK
+    private double backboardApriltagX; // X VALUE OF LOCATION RELATIVE TO BACKBOARD IN INCHES
+    private double secondBackboardApriltagX; // X VALUE OF LOCATION RELATIVE TO BACKBOARD IN INCHES
+    private double initTangent; // INITIAL TANGENT 60 degrees
+    private double purpleTangent; // TANGENT TO SPIKE
+    private double centerBackup = 0; //BACKUP FROM SPIKE //TODO: WHY DO WE NEED THIS??????
+    private Pose2d beforeStackPose; //before we go to the stack,
+    private Pose2d preWhitePose;
+    private Pose2d whitePixelStackPose;
+    private Pose2d postLowerWhitePose; //pose after
+    private double preLowerWhiteTangent;
     public static void main(String[] args) {
+        initPose = PoseHelper.initCloseRed;
+        spikePose = PoseHelper.closeSpikeCenterRed;
         MeepMeep meepMeep = new MeepMeep(700);
-
-        double mult = 0.0;
-        double righty = 0.0;
-        double lefty = 0.0;
-        double centery = 0.0;
-        double rightBackboard = 0.0;
-        double centerBackboard = 0.0;
-        double leftConst = 0.0;
-        double centerx = 5;
-
-        //Trajectory strafeRight = new Trajectory()
-        RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
-                .setDimensions(14.25,17.75).setConstraints(30, 30, Math.toRadians(180), Math.toRadians(180), 13.5)
+        RoadRunnerBotEntity bot = new DefaultBotBuilder(meepMeep)
+                .setDimensions(14.5,15.3)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(55, 45, Math.toRadians(180), Math.toRadians(180), 9)
+                .setStartPose(initPose)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(16.5,63, Math.toRadians(270)))
-                                .strafeRight(5)
-                                .waitSeconds(0.05)
-                                .setTangent(-45)
-                                .splineToSplineHeading(new Pose2d(11.5-4.5*mult+centerx,36-(4-4*Math.abs(mult)),Math.toRadians(270+53*mult)), Math.toRadians(270+53*mult)) //drop off purple
-                                .back(3)
+                        drive.trajectorySequenceBuilder(initPose)
                                 .setTangent(Math.toRadians(45))
-                                .splineToLinearHeading(new Pose2d(55+leftConst,33+rightBackboard+centerBackboard+7*mult,Math.toRadians(180)), Math.toRadians(-45))
-                                .waitSeconds(0.3)
-                                .waitSeconds(0.4)
-                                .waitSeconds(0.5)
-                                .waitSeconds(0.4)
-                                //TODO: OUTTAKE YELLOW HERE, BRING SLIDE UP AND OUTTAKE
+                                .splineToLinearHeading(PoseHelper.backboardCenterRed, Math.toRadians(0.0))
+                                .waitSeconds(3)
+                                .setTangent(Math.toRadians(180))
+                                .splineToLinearHeading(spikePose, spikePose.getHeading())
+                                .setTangent(Math.toRadians(270.0))
+                                .splineToLinearHeading(PoseHelper.boardTrussInsideRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.wingTrussInsideRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.insideStackRed, Math.toRadians(180.0))
+                                .waitSeconds(1)
+                                .setTangent(0)
+                                .splineToLinearHeading(PoseHelper.wingTrussInsideRed, Math.toRadians(0.0))
+                                .splineToSplineHeading(PoseHelper.boardTrussInsideRed, Math.toRadians(0.0))
+                                .splineToLinearHeading(PoseHelper.backboardCenterRed, Math.toRadians(30.0))
+                                .waitSeconds(3)
+                                .setTangent(Math.toRadians(210))
+                                .splineToLinearHeading(PoseHelper.boardTrussInsideRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.wingTrussInsideRed, Math.toRadians(180.0))
+                                .splineToLinearHeading(PoseHelper.insideStackRed, Math.toRadians(180.0))
+                                .forward(2)
+                                .waitSeconds(1)
+                                .setTangent(0)
+                                .splineToLinearHeading(PoseHelper.wingTrussInsideRed, Math.toRadians(0.0))
+                                .splineToSplineHeading(PoseHelper.boardTrussInsideRed, Math.toRadians(0.0))
+                                .splineToLinearHeading(PoseHelper.backboardCenterRed, Math.toRadians(30.0))
+                                .waitSeconds(3)
 
-                                .setTangent(135)
-                                .splineToConstantHeading(new Vector2d(24,10.5), Math.toRadians(180))
-                                .splineToConstantHeading(new Vector2d(-61,11.6-0.4*mult+righty+lefty+centery), Math.toRadians(180))
-                                //INTAKE
-                                .waitSeconds(0.8)
-                                .back(6)
-                                .waitSeconds(0.5)
-                                .waitSeconds(1.5)
-                                .waitSeconds(0.2)
-                                .lineToLinearHeading(new Pose2d(28, 10.5, Math.toRadians(180)))
-                                .splineToConstantHeading(new Vector2d(55,36), Math.toRadians(45))
-                                //OUTTAKE 2
-                                .waitSeconds(0.4)
-                                .waitSeconds(0.2)
-                                .waitSeconds(0.4)
-                                .waitSeconds(0.4)
-                                //PARK
-                                .forward(5)
-                                .strafeLeft(27)
-                                .back(10)
-                                .waitSeconds(10)
+
                                 .build()
 
-
                 );
+
+        buildAuto();
+//        if(startPosition == StartPosition.RED_CLOSE || startPosition == StartPosition.BLUE_CLOSE) {
+//            init = drive.trajectorySequenceBuilder(initPose)
+//                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+//                    .addTemporalMarker(() -> {
+//                        drive.setPoseEstimate(backboardPose);
+//                        drive.followTrajectorySequenceAsync(backboardToSpike); })
+//                    .build();
+//            backboardToSpike = drive.trajectorySequenceBuilder(backboardPose)
+//                    .splineToLinearHeading(spikePose, spikePose.getHeading())
+//                    .addTemporalMarker(this::outtakePurple)
+//                    .addTemporalMarker(() -> {
+//                        if(path != Path.PLACEMENT)
+//                            drive.followTrajectorySequenceAsync(backboardToWhite);
+//                        else
+//                            drive.followTrajectorySequenceAsync(backboardToPark);
+//                    })
+//                    .build();
+//            //TODO PARK
+//        }
+//        else { //FAR AUTO
+//            init = drive.trajectorySequenceBuilder(initPose)
+//                    .splineToLinearHeading(spikePose, spikePose.getHeading())
+//                    .build();
+//            spikeToStack = drive.trajectorySequenceBuilder(backboardPose)
+//                    .addTemporalMarker(this::outtakePurple)
+//                    .addTemporalMarker(() -> {
+//                        intake.setServoPosition(Intake.IntakePositions.FIVE);
+//                    })
+//                    .setTangent(Math.toRadians(240))
+//                    .splineToLinearHeading(PoseHelper.apriltagStackRed, Math.toRadians(180.0))
+//                    .addTemporalMarker(() -> {
+//                        alignToApriltagStack();
+//                        drive.followTrajectorySequenceAsync(spikeToBackboard);
+//                    })
+//                    .build();
+//            spikeToBackboard = drive.trajectorySequenceBuilder(spikePose)
+//                    .addTemporalMarker(this::intake)
+//                    .forward(4)
+//                    .waitSeconds(1)
+//                    .addTemporalMarker(this::stopIntake)
+//                    .splineToSplineHeading(wingTruss, Math.toRadians(180.0))
+//                    .splineToSplineHeading(boardTruss, Math.toRadians(180.0))
+//                    .addTemporalMarker(this::outtake)
+//                    .splineToLinearHeading(backboardPose, Math.toRadians(180.0))
+//                    .addTemporalMarker(() -> {
+//                        alignToApriltagBackboard();
+//                        drive.setPoseEstimate(backboardPose); //TODO add apriltag errors
+//                        if(path != Path.PLACEMENT)
+//                            drive.followTrajectorySequenceAsync(backboardToWhite);
+//                        else
+//                            drive.followTrajectorySequenceAsync(backboardToPark);
+//                    })
+//                    .build();
+//            //TODO PARK
+//        }
+
+
         Image img = null;
         try { img = ImageIO.read(new File("./PathVisualizer/src/main/java/com/example/pathvisualizer/centerstage_bg.png")); }
         catch (IOException e) {}
@@ -76,7 +167,97 @@ public class PathVisualizer {
         meepMeep.setBackground(img)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(myBot)
+                .addEntity(bot)
                 .start();
     }
+
+    private static void buildAuto() {
+//        switch(startPosition) {
+//            case RED_CLOSE:
+//                initPose = PoseHelper.initCloseRed;
+//                switch(path) {
+//                    case OUTSIDE:
+//                        wingTruss = PoseHelper.wingTrussRed;
+//                        boardTruss = PoseHelper.boardTrussRed;
+//                    case INSIDE:
+//
+//                }
+//                switch(purplePixelPath) {
+//                    case LEFT:
+//                        spikePose = PoseHelper.closeSpikeLeftRed;
+//                        break;
+//                    case CENTER:
+//                        spikePose = PoseHelper.closeSpikeCenterRed;
+//                        break;
+//                    case RIGHT:
+//                        spikePose = PoseHelper.closeSpikeRightRed;
+//                        break;
+//                }
+//                break;
+//            case RED_FAR:
+//                initPose = PoseHelper.initFarRed;
+//                switch(path) {
+//                    case OUTSIDE:
+//                        wingTruss = PoseHelper.wingTrussRed;
+//                        boardTruss = PoseHelper.boardTrussRed;
+//                    case INSIDE:
+//
+//                }
+//                switch(purplePixelPath) {
+//                    case LEFT:
+//                        spikePose = PoseHelper.farSpikeLeftRed;
+//                        break;
+//                    case CENTER:
+//                        spikePose = PoseHelper.farSpikeCenterRed;
+//                        break;
+//                    case RIGHT:
+//                        spikePose = PoseHelper.farSpikeRightRed;
+//                        break;
+//                }
+//                break;
+//            case BLUE_CLOSE:
+//                initPose = PoseHelper.initCloseBlue;
+//                switch(path) {
+//                    case OUTSIDE:
+//                        wingTruss = PoseHelper.wingTrussBlue;
+//                        boardTruss = PoseHelper.boardTrussBlue;
+//                    case INSIDE:
+//
+//                }
+//                switch(purplePixelPath) {
+//                    case LEFT:
+//                        spikePose = PoseHelper.closeSpikeLeftBlue;
+//                        break;
+//                    case CENTER:
+//                        spikePose = PoseHelper.closeSpikeCenterBlue;
+//                        break;
+//                    case RIGHT:
+//                        spikePose = PoseHelper.closeSpikeRightBlue;
+//                        break;
+//                }
+//                break;
+//            case BLUE_FAR:
+//                initPose = PoseHelper.initFarBlue;
+//                switch(path) {
+//                    case OUTSIDE:
+//                        wingTruss = PoseHelper.wingTrussBlue;
+//                        boardTruss = PoseHelper.boardTrussBlue;
+//                    case INSIDE:
+//
+//                }
+//                switch(purplePixelPath) {
+//                    case LEFT:
+//                        spikePose = PoseHelper.farSpikeLeftBlue;
+//                        break;
+//                    case CENTER:
+//                        spikePose = PoseHelper.farSpikeCenterBlue;
+//                        break;
+//                    case RIGHT:
+//                        spikePose = PoseHelper.farSpikeRightBlue;
+//                        break;
+//                }
+//                break;
+//        }
+    }
 }
+

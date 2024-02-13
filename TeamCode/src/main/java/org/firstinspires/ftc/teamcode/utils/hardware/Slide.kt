@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils
+package org.firstinspires.ftc.teamcode.utils.hardware
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -6,13 +6,25 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
-class SlideKotlin (hardwareMap: HardwareMap){
+class Slide (hardwareMap: HardwareMap){
     private var slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
-    var minSlideHeight = -1000
-    var slideTolerance = 100
+
+    var minSlideHeight = -800
+        private set
     var bottomOut = false
-    private var t: Thread? = null
+        private set
+    var bottomOutProcedure = false
+
+    var power = 0.0
+        set(value) {
+            field = value
+            if (value != 0.0) {
+                bottomOut = false
+            }
+        }
+
+    private var overCurrent = false
 
     init {
         slide1.direction = DcMotorSimple.Direction.FORWARD
@@ -25,61 +37,58 @@ class SlideKotlin (hardwareMap: HardwareMap){
         slide1.mode = DcMotor.RunMode.RUN_USING_ENCODER
         slide2.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-        slide1.setCurrentAlert(6.0, CurrentUnit.AMPS)
-        slide2.setCurrentAlert(6.0, CurrentUnit.AMPS)
+        slide1.setCurrentAlert(8.0, CurrentUnit.AMPS)
+        slide2.setCurrentAlert(8.0, CurrentUnit.AMPS)
     }
 
-    fun setPower (s: Double) {
-        if(s !=0.0)
-            bottomOut = false
-        slide1.power = s
-        slide2.power = s
-    }
     fun setMode (mode: DcMotor.RunMode) {
         slide1.mode = mode
         slide2.mode = mode
     }
+
     fun setTargetPosition (position: Int) {
         slide1.targetPosition = position
         slide2.targetPosition = position
     }
-    fun bottomOut () {
+
+    private fun bottomOut () {
+        if (overCurrent) {
+            bottomOut = true
+            bottomOutProcedure = false
+            power = 0.0
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER)
+        }
         if(!bottomOut) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
-            setPower(1.0)
-        }
-        if (slide1.isOverCurrent || slide2.isOverCurrent) {
-            bottomOut = true
-            setPower(0.0)
-            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
+            power = 1.0
         }
     }
-    fun checkBottomOut () {
-        if (slide1.isOverCurrent || slide2.isOverCurrent && (getPosition()[0] > -100 || getPosition()[1] > -100)) {
+
+    private fun checkBottomOut () {
+        if ((overCurrent) && (getPosition()[0] > -200 || getPosition()[1] > -200)) {
             bottomOut = true
-            setPower(0.0)
+            bottomOutProcedure = false
+            power = 0.0
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER)
         }
     }
 
-    fun bottomOutProcedure(){
-        t?.interrupt() //stop any existing threads
-        t = Thread { //remake thread but how we want this time
-            while (!bottomOut) {
-                bottomOut()
-            }
-            t?.interrupt()
-        }
-        t!!.start()
+    fun update() {
+        overCurrent = slide1.isOverCurrent || slide2.isOverCurrent
+        if(bottomOutProcedure && !bottomOut)
+            bottomOut()
+        else if (bottomOutProcedure)
+            bottomOutProcedure = false
+        checkBottomOut()
+        slide1.power = power
+        slide2.power = power
     }
 
-    fun getMotors(): Array<DcMotorEx> = arrayOf(slide1, slide2)
     fun getPosition(): Array<Int> = arrayOf(slide1.currentPosition, slide2.currentPosition)
-    fun getTargetPosition(): Array<Int> = arrayOf(slide1.targetPosition, slide2.targetPosition)
-    fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))
+    fun getAvgPosition(): Int = getPosition().average().toInt()
+    fun getTargetPosition(): Int = slide1.targetPosition
+    private fun getCurrent(): Array<Double> = arrayOf(slide1.getCurrent(CurrentUnit.AMPS), slide2.getCurrent(CurrentUnit.AMPS))
     fun getAvgCurrent(): Double = getCurrent().average()
-    fun getPower(): Array<Double> = arrayOf(slide1.power, slide2.power)
-    fun getMode(): Array<DcMotor.RunMode> = arrayOf(slide1.mode, slide2.mode)
-    fun isBusy(): Boolean = slide1.isBusy || slide2.isBusy
 }

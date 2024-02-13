@@ -1,59 +1,45 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.utils.detection;
 
-import androidx.annotation.NonNull;
-import java.util.ArrayList;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
 
-public class ColorDetectionPipeline extends OpenCvPipeline {
+import java.util.ArrayList;
+
+public class ColorDetectionProcessor implements VisionProcessor {
+
     private final int threshold = 25;
     // private int blue[] = new int[3]; //array with blue pixels, 0 is left, 1 is
     // center, 2 is right
     // private int red[] = new int [3]; //array with red pixels, 0 is left, 1 is
     // center, 2 is right
-    private int color_counts[] = new int[3];
-    private ArrayList<Integer> leftCnt = new ArrayList<Integer>(), centerCnt = new ArrayList<Integer>(),
-            rightCnt = new ArrayList<Integer>();
-    private int startY = 120;
-    private int endY = 240;
-    private int startX = 0;
-    private int endX = 320;
-    private int x1 = 100; // first x division
-    private int x2 = 220; // second x division
+    private int[] color_counts = new int[3];
+    private final ArrayList<Integer> leftCnt = new ArrayList<Integer>();
+    private final ArrayList<Integer> centerCnt = new ArrayList<Integer>();
+    private final ArrayList<Integer> rightCnt = new ArrayList<Integer>();
+
+    private final int startY = 240;
+    private final int endY = 480;
+    private final int startX = 0;
+    private final int endX = 640;
+    private final int x1 = 200; // first x division
+    private final int x2 = 440; // second x division
     private String color;
-    private StartingPosition position;
+    public static StartingPosition position;
 
     int targetIndex = 0;
-
-    public ColorDetectionPipeline() {
-        color = "NONE";
-        position = StartingPosition.NONE;
-    }
-
-    public ColorDetectionPipeline(String color1) {
-        //default
-        position = StartingPosition.CENTER;
-        color = color1;
-        targetIndex = (color.equals("RED")? 0 : 2);
-    }
-
     public enum StartingPosition {
         LEFT,
         CENTER,
         RIGHT,
         NONE
     }
-
-    // public enum Color
-    // {
-    // RED,
-    // BLUE,
-    // NONE
-    // }
-
     Point leftA = new Point(
             startX,
             startY);
@@ -73,16 +59,25 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
             endX,
             endY);
 
-
+    public ColorDetectionProcessor(AllianceHelper.Alliance alliance) {
+        //default
+        position = StartingPosition.CENTER;
+        targetIndex = (alliance == AllianceHelper.Alliance.RED? 0 : 2);
+    }
 
     @Override
-    public Mat processFrame(Mat input) {
+    public void init(int width, int height, CameraCalibration calibration) {
+
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long captureTimeNanos) {
         color_counts = new int[]{0, 0, 0};
 
         for (int i = startY; i < endY; i++) {
             for (int j = startX; j < endX; j++) {
-                if (input.get(i, j)[targetIndex] > (input.get(i, j)[1] + threshold)
-                        && input.get(i, j)[targetIndex] > (input.get(i, j)[2 - targetIndex] + threshold)) {
+                if (frame.get(i, j)[targetIndex] > (frame.get(i, j)[1] + threshold)
+                        && frame.get(i, j)[targetIndex] > (frame.get(i, j)[2 - targetIndex] + threshold)) {
                     if (j < x1)
                         color_counts[0]++;
                     else if (j < x2)
@@ -144,27 +139,14 @@ public class ColorDetectionPipeline extends OpenCvPipeline {
         // position = StartingPosition.RIGHT;
         // }
 
-        Imgproc.rectangle(input, leftA, leftB, new Scalar(0, 0, 255), 1);
-        Imgproc.rectangle(input, centerA, centerB, new Scalar(0, 0, 255), 1);
-        Imgproc.rectangle(input, rightA, rightB, new Scalar(0, 0, 255), 1);
-
-
-        return input;
+        return null;
     }
 
-    public StartingPosition getPosition() {
-        return position;
-    }
-
-    // public Color getColor() {
-    // return color;
-    // }
-    @NonNull
-    public String toString() {
-        return "Position: "
-                + (position == StartingPosition.LEFT ? "LEFT"
-                        : (position == StartingPosition.RIGHT ? "RIGHT"
-                                : (position == StartingPosition.CENTER ? "CENTER" : "NONE")))
-                + " Color: " + color;
+    public StartingPosition getPosition() { return position; }
+    @Override
+    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
+        canvas.drawRect(startX, startY, x1, endY, new android.graphics.Paint());
+        canvas.drawRect(x1 + 1, startY, x2, endY, new android.graphics.Paint());
+        canvas.drawRect(x2 + 1, startY, endX, endY, new android.graphics.Paint());
     }
 }

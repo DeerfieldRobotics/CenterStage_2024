@@ -3,15 +3,16 @@ package org.firstinspires.ftc.teamcode.testers;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
-@TeleOp(name = "Servo Tester", group = "a")
+@TeleOp(name = "Servo Tester", group = "c")
 public class ServoTester extends LinearOpMode {
-    private Servo s;
-    private double maxSpeed = 0.01; // Adjust this value to change the maximum speed
+    private Servo s, ws;
+    private final double maxSpeed = 0.001; // Adjust this value to change the maximum speed
     private double servoPosition = 0.5; // Initial position of the servo
 
     @Override
     public void runOpMode() throws InterruptedException {
-        s = hardwareMap.get(Servo.class, "as");
+        s = hardwareMap.get(Servo.class, "is");
+
 
         waitForStart();
 
