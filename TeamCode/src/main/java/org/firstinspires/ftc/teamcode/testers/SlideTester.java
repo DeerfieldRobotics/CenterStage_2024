@@ -22,6 +22,7 @@ public class SlideTester extends LinearOpMode {
 
             telemetry.addData("ticks", slide.getPosition()[0]);
             telemetry.addData("ticks 2", slide.getPosition()[1]);
+            telemetry.addData("Slide Current", slide.getAvgCurrent());
             telemetry.update();
         }
     }

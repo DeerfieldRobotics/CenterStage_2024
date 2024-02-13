@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor;
@@ -107,8 +108,8 @@ public class AutoRegionals extends LinearOpMode {
 
     private void initLoop() {
         detectPurplePath();
-        telemetry.addData("Selected Auto: ", StartPosition.startPosition.toString());
-        telemetry.addData("Selected Path: ", Paths.path.toString());
+        telemetry.addData("Selected Auto: ", PoseHelper.startPosition.toString());
+        telemetry.addData("Selected Path: ", PoseHelper.path.toString());
         telemetry.addData("Detected Position: ", ColorDetectionProcessor.position.toString());
         telemetry.addData("Front Camera State: ", frontCameraPortal.getCameraState().toString());
         telemetry.addData("Back Camera State: ", backCameraPortal.getCameraState().toString());
@@ -128,7 +129,7 @@ public class AutoRegionals extends LinearOpMode {
 
         TrajectorySequence init;
 
-        if(StartPosition.startPosition == StartPosition.StartPos.RED_CLOSE || StartPosition.startPosition == StartPosition.StartPos.BLUE_CLOSE) {
+        if(PoseHelper.startPosition == PoseHelper.StartPosition.RED_CLOSE || PoseHelper.startPosition == PoseHelper.StartPosition.BLUE_CLOSE) {
             init = drive.trajectorySequenceBuilder(PoseHelper.initPose)
                     .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
                     .setTangent(Math.toRadians(45 * PoseHelper.allianceAngleMultiplier))
@@ -169,7 +170,7 @@ public class AutoRegionals extends LinearOpMode {
                     .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
                     .addTemporalMarker(this::outtake)
                     .addTemporalMarker(() -> setSlideHeight(-1050))
-                    .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
+                    .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(PoseHelper.path == PoseHelper.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                     .addTemporalMarker(() -> {
                         if(ColorDetectionProcessor.position != ColorDetectionProcessor.StartingPosition.CENTER) {
                             apriltagTuckerCarlson();
@@ -203,7 +204,7 @@ public class AutoRegionals extends LinearOpMode {
                 .back(4)
                 .addTemporalMarker(this::outtakePurple)
                 .addTemporalMarker(() -> {
-                    if(Paths.path != Paths.Path.PLACEMENT) {
+                    if(PoseHelper.path != PoseHelper.Path.PLACEMENT) {
                         buildSpikeToWhite();
                         logTrajectory(CURRENT_TRAJECTORY.SPIKE_TO_WHITE);
                         drive.followTrajectorySequenceAsync(spikeToWhite);
@@ -286,7 +287,7 @@ public class AutoRegionals extends LinearOpMode {
                     apriltagTuckerCarlson();
                     alignToApriltagBackboard();
                     apriltagToDrivePose();
-                    if(Paths.path != Paths.Path.PLACEMENT) {
+                    if(PoseHelper.path != PoseHelper.Path.PLACEMENT) {
                         buildBackboardToWhite();
                         logTrajectory(CURRENT_TRAJECTORY.BACKBOARD_TO_WHITE);
                         drive.followTrajectorySequenceAsync(backboardToWhite);
@@ -312,7 +313,7 @@ public class AutoRegionals extends LinearOpMode {
                         .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
                         .addTemporalMarker(this::aprilTagRelocalize)
                         .addTemporalMarker(() -> {
-                            if (Paths.path == Paths.Path.OUTSIDE)
+                            if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
                                 intake.setServoPosition(Intake.IntakePositions.THREE);
                             else {
                                 intake.setServoPosition(Intake.IntakePositions.TWO);
@@ -320,12 +321,12 @@ public class AutoRegionals extends LinearOpMode {
                             cycles++;
                             intake.update();
                         })
-                        .setTangent(Math.toRadians(Paths.path == Paths.Path.INSIDE ? 140 : -150 ) * PoseHelper.allianceAngleMultiplier)
+                        .setTangent(Math.toRadians(PoseHelper.path == PoseHelper.Path.INSIDE ? 140 : -145 ) * PoseHelper.allianceAngleMultiplier)
                         .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
                         .addTemporalMarker(this::intake)
-                        .splineToConstantHeading(PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(), Math.toRadians(Paths.path == Paths.Path.INSIDE ? 180 : 120 * PoseHelper.allianceAngleMultiplier))
+                        .splineToConstantHeading(PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(), Math.toRadians(PoseHelper.path == PoseHelper.Path.INSIDE ? 180 : 120 * PoseHelper.allianceAngleMultiplier))
                         .addTemporalMarker(() -> {
-                            if((cycles == 0 && Paths.path == Paths.Path.INSIDE) || ((cycles == 0 || cycles == 1) && Paths.path == Paths.Path.OUTSIDE)) {
+                            if((cycles == 0 && PoseHelper.path == PoseHelper.Path.INSIDE) || ((cycles == 0 || cycles == 1) && PoseHelper.path == PoseHelper.Path.OUTSIDE)) {
                                 buildWhiteToBackboard();
                                 logTrajectory(CURRENT_TRAJECTORY.WHITE_TO_BACKBOARD);
                                 drive.followTrajectorySequenceAsync(whiteToBackboard);
@@ -348,8 +349,8 @@ public class AutoRegionals extends LinearOpMode {
 
     private void buildWhiteToBackboard() {
         whiteToBackboard = drive.trajectorySequenceBuilder(PoseHelper.stackPose)
-                .setVelConstraint(cycles == 1 && Paths.path == Paths.Path.INSIDE || cycles == 2 && Paths.path == Paths.Path.OUTSIDE ? PoseHelper.blastVelocityConstraint : PoseHelper.toBackboardVelocityConstraint)
-                .setAccelConstraint(cycles == 1 && Paths.path == Paths.Path.INSIDE || cycles == 2 && Paths.path == Paths.Path.OUTSIDE ? PoseHelper.blastAccelerationConstraint : PoseHelper.toBackboardAccelerationConstraint)
+                .setVelConstraint(cycles == 1 && PoseHelper.path == PoseHelper.Path.INSIDE || cycles == 2 && PoseHelper.path == PoseHelper.Path.OUTSIDE ? PoseHelper.blastVelocityConstraint : PoseHelper.toBackboardVelocityConstraint)
+                .setAccelConstraint(cycles == 1 && PoseHelper.path == PoseHelper.Path.INSIDE || cycles == 2 && PoseHelper.path == PoseHelper.Path.OUTSIDE ? PoseHelper.blastAccelerationConstraint : PoseHelper.toBackboardAccelerationConstraint)
                 .addTemporalMarker(this::outtakeTransfer)
                 .forward(1.5)
                 .back(3)
@@ -359,9 +360,9 @@ public class AutoRegionals extends LinearOpMode {
                 .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0))
                 .addTemporalMarker(this::outtake)
                 .addTemporalMarker(() -> setSlideHeight(-1500))
-                .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(Paths.path == Paths.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
+                .splineToLinearHeading(AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue, Math.toRadians(PoseHelper.path == PoseHelper.Path.OUTSIDE ? 30.0 : -30.0 * PoseHelper.allianceAngleMultiplier))
                 .addTemporalMarker(() -> {
-                    if(Paths.path == Paths.Path.INSIDE && cycles == 0) {
+                    if(PoseHelper.path == PoseHelper.Path.INSIDE && cycles == 0) {
                         if (PoseHelper.backboardPose == PoseHelper.backboardLeftRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
                             if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                                 PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
@@ -426,7 +427,7 @@ public class AutoRegionals extends LinearOpMode {
                 .waitSeconds(.4)
                 .addTemporalMarker(this::outtakeIn)
                 .forward(5)
-                .strafeRight(8.0 * PoseHelper.allianceAngleMultiplier * (Paths.path == Paths.Path.INSIDE ? 1.0 : -1.0))
+                .strafeRight(8.0 * PoseHelper.allianceAngleMultiplier * (PoseHelper.path == PoseHelper.Path.INSIDE ? 1.0 : -1.0))
                 .addTemporalMarker(() -> {
                     outtakeTransfer(); //transfer just for fun
                     transfer();
@@ -526,21 +527,6 @@ public class AutoRegionals extends LinearOpMode {
         drive.setMotorPowers(0,0,0,0);
     }
 
-    private void alignToApriltagStack() {
-        frontCameraPortal.resumeLiveView();
-        double currentTime = getRuntime();
-        while(!isStopRequested()) {
-            aprilTagProcessorFront.update();
-            aprilTagProcessorFront.alignRobot(drive);
-
-            intake.update();
-            slide.update();
-            outtake.update();
-
-            if(getRuntime()-currentTime > 2 || aprilTagProcessorBack.robotAligned()) break;
-        }
-    }
-
     private void apriltagTuckerCarlson() {
         aprilTagProcessorBack.setPIDCoefficients(.042, .038, 0.0, .030, .012, 0, 0.82, 0.02, 0.0);
     }
@@ -592,22 +578,22 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("    Red Close    ", "(>)");
 
             if (gamepad1.dpad_up || gamepad2.dpad_up) {
-                StartPosition.startPosition = StartPosition.StartPos.BLUE_CLOSE;
+                PoseHelper.startPosition = PoseHelper.StartPosition.BLUE_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                StartPosition.startPosition = StartPosition.StartPos.BLUE_FAR;
+                PoseHelper.startPosition = PoseHelper.StartPosition.BLUE_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.BLUE;
                 break;
             }
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
-                StartPosition.startPosition = StartPosition.StartPos.RED_FAR;
+                PoseHelper.startPosition = PoseHelper.StartPosition.RED_FAR;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 break;
             }
             if (gamepad1.dpad_right || gamepad2.dpad_right) {
-                StartPosition.startPosition = StartPosition.StartPos.RED_CLOSE;
+                PoseHelper.startPosition = PoseHelper.StartPosition.RED_CLOSE;
                 AllianceHelper.alliance = AllianceHelper.Alliance.RED;
                 break;
             }
@@ -616,7 +602,7 @@ public class AutoRegionals extends LinearOpMode {
         while (!isStopRequested()) {
             telemetry.addLine("             [15118 AUTO INITIALIZED]");
             telemetry.addLine("-------------------------------------------------");
-            telemetry.addLine(" Selected " + StartPosition.startPosition.toString() + " Starting Position.");
+            telemetry.addLine(" Selected " + PoseHelper.startPosition.toString() + " Starting Position.");
             telemetry.addLine();
             telemetry.addLine("Select Autonomous Path using Shape Buttons");
             telemetry.addData("     Inside      ", "(Triangle)");
@@ -628,15 +614,15 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData(!verbose ? "-----normal------" : "     normal      " , "(R2)");
 
             if (gamepad1.triangle || gamepad2.triangle) {
-                Paths.path = Paths.Path.INSIDE;
+                PoseHelper.path = PoseHelper.Path.INSIDE;
                 break;
             }
             if (gamepad1.cross || gamepad2.cross) {
-                Paths.path = Paths.Path.OUTSIDE;
+                PoseHelper.path = PoseHelper.Path.OUTSIDE;
                 break;
             }
             if (gamepad1.circle || gamepad2.circle) {
-                Paths.path = Paths.Path.PLACEMENT;
+                PoseHelper.path = PoseHelper.Path.PLACEMENT;
                 break;
             }
 

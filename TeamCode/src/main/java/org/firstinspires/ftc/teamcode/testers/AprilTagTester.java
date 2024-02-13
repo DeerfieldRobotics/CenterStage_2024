@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.opmodes.auto.PoseHelper;
+import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;

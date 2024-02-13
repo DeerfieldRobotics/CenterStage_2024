@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.opmodes.auto;
+package org.firstinspires.ftc.teamcode.utils.auto;
 
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.TRACK_WIDTH;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.MinAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
@@ -31,8 +29,7 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -22.5, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(12, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
-    public final static Pose2d middleStackRed = new Pose2d(-54.5, -24, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-55, -8.0, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-55, -9.0, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
@@ -48,14 +45,13 @@ public final class PoseHelper {
     public final static Pose2d backboardLeftBlue = new Pose2d(48.25, 41.5, Math.toRadians(180.0));
     public final static Pose2d backboardCenterBlue = new Pose2d(48.25, 35.5, Math.toRadians(180.0));
     public final static Pose2d backboardRightBlue = new Pose2d(48.25, 29.5, Math.toRadians(180.0));
-    public final static Pose2d farSpikeRightBlue = new Pose2d(-46.5, 38.5, Math.toRadians(-90.0));
+    public final static Pose2d farSpikeRightBlue = new Pose2d(-47.5, 35.5, Math.toRadians(-90.0));
     public final static Pose2d farSpikeCenterBlue = new Pose2d(-39.5,37, Math.toRadians(-90.0));
-    public final static Pose2d farSpikeLeftBlue = new Pose2d(-30.5, 38.5, Math.toRadians(-50.0));
+    public final static Pose2d farSpikeLeftBlue = new Pose2d(-33, 38.5, Math.toRadians(-50.0));
     public final static Pose2d closeSpikeRightBlue = new Pose2d(12, 33, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 26, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 33, Math.toRadians(180));
     public final static Pose2d apriltagStackBlue = new Pose2d(-55.25, 36, Math.toRadians(180.0));
-    public final static Pose2d middleStackBlue = new Pose2d(-54.5, 24, Math.toRadians(180.0));
     public final static Pose2d insideStackBlue = new Pose2d(-56, 16, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 56.75, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 56.75, Math.toRadians(180.0));
@@ -69,6 +65,7 @@ public final class PoseHelper {
 
     public final static double backboardBackup = 5.25;
     public final static Pose2d stackOffset = new Pose2d(3, 1.5, 0);
+//    public final static Pose2d stackOffset = new Pose2d(0, 0, 0);
     public final static TrajectoryVelocityConstraint toBackboardVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
                 new AngularVelocityConstraint(5),
                 new MecanumVelocityConstraint(45, TRACK_WIDTH)
@@ -102,13 +99,27 @@ public final class PoseHelper {
     public static double initialFarTangent;
 
     public static Pose2d currentPose;
+    public static Path path;
+    public static StartPosition startPosition;
 
+    public enum Path {
+        PLACEMENT,
+        INSIDE,
+        OUTSIDE
+    }
+
+    public enum StartPosition {
+        RED_CLOSE,
+        RED_FAR,
+        BLUE_CLOSE,
+        BLUE_FAR
+    }
 
     public static void buildAuto(){
         switch(AllianceHelper.alliance) {
             case RED:
                 allianceAngleMultiplier = 1.0;
-                switch(Paths.path) {
+                switch(path) {
                     case OUTSIDE:
                         stackPose = PoseHelper.apriltagStackRed;
                         parkPose = PoseHelper.parkPoseOutsideRed;
@@ -140,7 +151,7 @@ public final class PoseHelper {
                 break;
             case BLUE:
                 allianceAngleMultiplier = -1.0;
-                switch(Paths.path) {
+                switch(path) {
                     case OUTSIDE:
                         stackPose = PoseHelper.apriltagStackBlue;
                         parkPose = PoseHelper.parkPoseOutsideBlue;
@@ -171,7 +182,7 @@ public final class PoseHelper {
                 }
                 break;
         }
-        switch(StartPosition.startPosition) {
+        switch(startPosition) {
             case RED_CLOSE:
                 toWhiteStackTangentFar = 180;
                 initPose = PoseHelper.initCloseRed;
