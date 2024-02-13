@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper;
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper;
 import org.firstinspires.ftc.teamcode.utils.detection.AprilTagAlignmentProcessor;
@@ -25,10 +26,9 @@ import java.util.List;
 
 @Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
 public class AutoRegionals extends LinearOpMode {
-    //DETECTION
+    //detection
     private ColorDetectionProcessor colorDetectionProcessor;
     private AprilTagAlignmentProcessor aprilTagProcessorBack;
-    private AprilTagAlignmentProcessor aprilTagProcessorFront;
     private VisionPortal frontCameraPortal;
     private VisionPortal backCameraPortal;
 
@@ -65,7 +65,6 @@ public class AutoRegionals extends LinearOpMode {
     //OTHER
     private int cycles = 0;
     private final String TAG = "AutoRegionals";
-    private boolean verbose = false;
     private double lastRunTime = 0.0;
 
     @Override
@@ -441,7 +440,7 @@ public class AutoRegionals extends LinearOpMode {
         intake.update();
         outtake.update();
         slide.update();
-        if(verbose) {
+        if(LogcatHelper.verbose) {
             Log.d(TAG, "drivePose" + drive.getPoseEstimate());
             Log.d(TAG, "intakePosition" + intake.getServoPosition());
             Log.d(TAG, "outtakePosition" + outtake.getOuttakePosition());
@@ -466,7 +465,6 @@ public class AutoRegionals extends LinearOpMode {
         CameraName frontCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
 
         aprilTagProcessorBack = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.BACK, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.backboardCenterRed : PoseHelper.backboardCenterBlue); // Used for managing the april tag detection process.
-        aprilTagProcessorFront = new AprilTagAlignmentProcessor(AprilTagAlignmentProcessor.CameraType.FRONT, AllianceHelper.alliance == AllianceHelper.Alliance.RED ? PoseHelper.apriltagStackRed : PoseHelper.apriltagStackBlue); // Used for managing the april tag detection process.
         colorDetectionProcessor = new ColorDetectionProcessor(AllianceHelper.alliance); // Used for managing the color detection process.
 
         List<Integer> portalList = JavaUtil.makeIntegerList(VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL));
@@ -476,7 +474,7 @@ public class AutoRegionals extends LinearOpMode {
         frontCameraPortal = new VisionPortal.Builder()
                 .setCamera(frontCamera)
                 .setCameraResolution(new android.util.Size(640, 480))
-                .addProcessors(colorDetectionProcessor, aprilTagProcessorFront)
+                .addProcessor(colorDetectionProcessor)
                 .setLiveViewContainerId(frontPortalId)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
@@ -510,7 +508,7 @@ public class AutoRegionals extends LinearOpMode {
         while(!isStopRequested()) {
             aprilTagProcessorBack.update();
 
-            if(verbose) {
+            if(LogcatHelper.verbose) {
                 Log.d(TAG, "apriltag error pose" + aprilTagProcessorBack.getPoseError());
                 Log.d(TAG, "apriltag pose" + aprilTagProcessorBack.getPoseEstimate());
             }
@@ -610,8 +608,8 @@ public class AutoRegionals extends LinearOpMode {
             telemetry.addData("     Placement   ", "(Circle)");
             telemetry.addLine();
             telemetry.addLine("Select Logging Level using Bumper Buttons");
-            telemetry.addData(verbose ? "-----verbose-----" : "     verbose     " , "(L2)");
-            telemetry.addData(!verbose ? "-----normal------" : "     normal      " , "(R2)");
+            telemetry.addData(LogcatHelper.verbose ? "-----verbose-----" : "     verbose     " , "(L2)");
+            telemetry.addData(!LogcatHelper.verbose ? "-----normal------" : "     normal      " , "(R2)");
 
             if (gamepad1.triangle || gamepad2.triangle) {
                 PoseHelper.path = PoseHelper.Path.INSIDE;
@@ -627,10 +625,10 @@ public class AutoRegionals extends LinearOpMode {
             }
 
             if (gamepad1.left_bumper || gamepad2.left_bumper) {
-                verbose = true;
+                LogcatHelper.verbose = true;
             }
             if (gamepad1.right_bumper || gamepad2.right_bumper) {
-                verbose = false;
+                LogcatHelper.verbose = false;
             }
 
             telemetry.update();
