@@ -12,11 +12,11 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Slide
 class DropYellowPathSegment(
     override val robot: Robot
 ) : RoadrunnerPathSegment(robot) {
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder.back(PoseHelper.backboardBackup)
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+            .back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
             .waitSeconds(0.4)
             .addTemporalMarker { setSlideHeight(-1200) }

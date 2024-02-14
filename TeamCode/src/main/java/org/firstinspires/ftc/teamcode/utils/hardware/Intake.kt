@@ -113,7 +113,7 @@ class Intake(hardwareMap: HardwareMap){
                     timeDelayMillis = System.currentTimeMillis()
                 }
                 boosterServoPower = -1.0
-                if(System.currentTimeMillis() - timeDelayMillis > 120) {
+                if(System.currentTimeMillis() - timeDelayMillis > 180) {
                     boosterServoPower = 0.0
                     transferStage = TransferStage.INTAKE
                     timeDelayMillis = 0L

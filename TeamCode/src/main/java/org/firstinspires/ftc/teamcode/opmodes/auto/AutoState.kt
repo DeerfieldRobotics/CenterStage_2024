@@ -3,20 +3,19 @@ package org.firstinspires.ftc.teamcode.opmodes.auto
 import android.util.Log
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.AutoConfigurator
 import org.firstinspires.ftc.teamcode.utils.auto.AutoProfile
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
-import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
 import org.firstinspires.ftc.vision.VisionPortal
 
-@Autonomous(name = "AutoRegionals", preselectTeleOp = "Main Teleop", group = "a")
-class AutoState: OpMode() {
+@Autonomous(name = "AutoState", preselectTeleOp = "Main Teleop", group = "a")
+class AutoState: LinearOpMode() {
     //ROBOT
     private lateinit var robot: Robot
 
@@ -24,17 +23,17 @@ class AutoState: OpMode() {
     private lateinit var autoConfigurator: AutoConfigurator
     private lateinit var autoProfile: AutoProfile
 
-    override fun init() {
-        //SELECT STARTING POSITION
-        autoConfigurator = AutoConfigurator(telemetry, gamepad1, gamepad2, robot)
-        autoProfile = autoConfigurator.configureAuto()
-
+    private fun initAuto() {
         //BULK READS
         val allHubs = hardwareMap.getAll(LynxModule::class.java)
         for (hub in allHubs) hub.bulkCachingMode = LynxModule.BulkCachingMode.AUTO
 
         //DEFINE HARDWARE
         robot = Robot(hardwareMap)
+
+        //SELECT STARTING POSITION
+        autoConfigurator = AutoConfigurator(telemetry, gamepad1, gamepad2, robot)
+        autoProfile = autoConfigurator.configureAuto()
 
         //SET INITIAL HARDWARE STATES
         robot.outtake.gateClosed = true
@@ -47,8 +46,9 @@ class AutoState: OpMode() {
         robot.autoInit()
     }
 
-    override fun init_loop() {
+    private fun initLoop() {
         detectPurplePath()
+
         telemetry.addData("Selected Auto: ", PoseHelper.startPosition.toString())
         telemetry.addData("Selected Path: ", PoseHelper.path.toString())
         telemetry.addData("Detected Position: ", ColorDetectionProcessor.position.toString())
@@ -59,7 +59,14 @@ class AutoState: OpMode() {
             robot.backCameraPortal?.stopStreaming()
     }
 
-    override fun start() {
+    override fun runOpMode() {
+        initAuto()
+
+        while(!isStarted && !isStopRequested) initLoop()
+        waitForStart()
+
+        PoseHelper.buildAuto()
+
         resetRuntime()
         robot.frontCameraPortal?.stopLiveView()
         robot.backCameraPortal?.resumeStreaming()
@@ -68,26 +75,23 @@ class AutoState: OpMode() {
 
         for (segment in autoProfile.path) {
             segment.followPathSegment()
-            while (segment.running) {
+            Log.d(LogcatHelper.TAG, "Following Path Segment: $segment")
+            while (segment.running)
                 autoLoop()
-            }
         }
     }
 
-    override fun loop() {
-        autoLoop()
-    }
     private fun autoLoop() {
         robot.update()
         Log.v(LogcatHelper.TAG, "robot.drivePose" + robot.drive.poseEstimate)
         Log.v(LogcatHelper.TAG, "robot.intakePosition" + robot.intake.servoPosition)
         Log.v(LogcatHelper.TAG, "robot.outtakePosition" + robot.outtake.outtakePosition)
-        Log.v(LogcatHelper.TAG, "robot.outtakeTargetPosition" + robot.outtake.outtakeProcedureTarget)
         Log.v(LogcatHelper.TAG, "robot.slidePosition" + robot.slide.getAvgPosition())
         Log.v(LogcatHelper.TAG, "robot.slideTargetPosition" + robot.slide.getTargetPosition())
     }
 
     private fun detectPurplePath() {
         ColorDetectionProcessor.position = robot.colorDetectionProcessor?.position
+        Log.v(LogcatHelper.TAG, "Detected Position: " + ColorDetectionProcessor.position.toString())
     }
 }

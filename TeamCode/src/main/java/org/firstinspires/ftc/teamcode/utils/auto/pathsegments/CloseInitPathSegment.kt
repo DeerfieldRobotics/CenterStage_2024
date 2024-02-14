@@ -12,11 +12,10 @@ class CloseInitPathSegment(
 ) :
     RoadrunnerPathSegment(robot) {
 
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
             .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
             .setTangent(Math.toRadians(45 * PoseHelper.allianceAngleMultiplier))
             .addTemporalMarker(this::outtake)

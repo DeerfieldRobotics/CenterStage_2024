@@ -8,13 +8,12 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 class RelocalizeToWhitePathSegment(
     override val robot: Robot
 ) : RoadrunnerPathSegment(robot) {
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(
-            PoseHelper.currentPose
-        )
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
-    override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder
+    override
+
+    fun buildPathSegment() {
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
             .addTemporalMarker {
                 if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
                     robot.intake.servoPosition = Intake.IntakePositions.THREE

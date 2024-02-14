@@ -7,17 +7,17 @@ import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 class WhiteToParkPathSegment(override val robot: Robot) :
     RoadrunnerPathSegment(robot) {
 
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
             .setVelConstraint(PoseHelper.blastVelocityConstraint)
             .setAccelConstraint(PoseHelper.blastAccelerationConstraint)
             .addTemporalMarker {
-            robot.backCameraPortal?.close();
-            robot.frontCameraPortal?.close();
-        }
-        .addTemporalMarker(this::outtakeTransfer)
+                robot.backCameraPortal?.close();
+                robot.frontCameraPortal?.close();
+            }
+            .addTemporalMarker(this::outtakeTransfer)
             .forward(1.5)
             .back(1.5)
             .addTemporalMarker(this::stopIntake)

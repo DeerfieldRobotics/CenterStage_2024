@@ -11,11 +11,10 @@ class FarInitPathSegment(
 ) :
     RoadrunnerPathSegment(robot) {
 
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
             .setTangent(PoseHelper.initialFarTangent * PoseHelper.allianceAngleMultiplier)
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.INTAKE }
             .splineToLinearHeading(PoseHelper.spikePose, PoseHelper.spikePose.heading)

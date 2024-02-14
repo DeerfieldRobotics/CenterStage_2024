@@ -8,11 +8,11 @@ class RelocalizeToParkPathSegment(
     override val robot: Robot
 ) : RoadrunnerPathSegment(robot) {
 
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() { //idk what this shit does
-        trajectorySequenceBuilder = trajectorySequenceBuilder.setTangent(0.0)
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+            .setTangent(0.0)
             .strafeLeft(24 * PoseHelper.allianceAngleMultiplier)
             .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(180.0))
             .addTemporalMarker {

@@ -7,13 +7,11 @@ import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 class BackboardToParkPathSegment(
     override val robot: Robot
 ) : RoadrunnerPathSegment(robot) {
-    override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        robot.drive.trajectorySequenceBuilder(
-            PoseHelper.currentPose
-        )
+    override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder.back(PoseHelper.backboardBackup)
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+            .back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
             .addTemporalMarker { setSlideHeight(-1600) }
             .waitSeconds(.4)

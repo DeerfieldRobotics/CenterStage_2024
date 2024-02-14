@@ -4,14 +4,8 @@ import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper.Path
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper.StartPosition
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.PathSegment
 
-class AutoProfile(startPosition: StartPosition, path: Path) {
+class AutoProfile() {
     //TODO add delays
-    init {
-        PoseHelper.path = path
-        PoseHelper.startPosition = startPosition
-
-        PoseHelper.buildAuto()
-    }
 
     val path: ArrayList<PathSegment> = arrayListOf()
 
@@ -19,8 +13,8 @@ class AutoProfile(startPosition: StartPosition, path: Path) {
         path.add(pathSegment)
     }
 
-    class AutoProfileBuilder(startPosition: StartPosition, path: Path) {
-        private val profile = AutoProfile(startPosition, path)
+    class AutoProfileBuilder() {
+        private val profile = AutoProfile()
         fun addPathSegment(pathSegment: PathSegment) = apply {
             profile.addPathSegment(pathSegment)
         }
