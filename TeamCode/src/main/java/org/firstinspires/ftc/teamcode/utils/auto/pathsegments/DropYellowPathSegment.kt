@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
 import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder
+import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake
@@ -9,12 +10,10 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
 import org.firstinspires.ftc.teamcode.utils.hardware.Slide
 
 class DropYellowPathSegment(
-    override val drive: CogchampDrive,
-    override val intake: Intake, override val slide: Slide,
-    override val outtake: Outtake
-) : RoadrunnerPathSegment(drive, intake, slide, outtake) {
+    override val robot: Robot
+) : RoadrunnerPathSegment(robot) {
     override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+        robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = trajectorySequenceBuilder.back(PoseHelper.backboardBackup)

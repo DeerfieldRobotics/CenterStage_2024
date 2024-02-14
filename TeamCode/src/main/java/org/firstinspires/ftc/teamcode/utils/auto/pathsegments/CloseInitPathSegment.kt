@@ -1,24 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
-import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder
+import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake
-import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
-import org.firstinspires.ftc.teamcode.utils.hardware.Slide
 
 class CloseInitPathSegment(
-    override val drive: CogchampDrive,
-    override val intake: Intake,
-    override val slide: Slide,
-    override val outtake: Outtake
+    override val robot: Robot
 ) :
-    RoadrunnerPathSegment(drive, intake, slide, outtake) {
+    RoadrunnerPathSegment(robot) {
 
     override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        drive.trajectorySequenceBuilder(PoseHelper.initPose)
+        robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = trajectorySequenceBuilder
@@ -34,7 +29,7 @@ class CloseInitPathSegment(
             .waitSeconds(0.2)
             .forward(PoseHelper.backboardBackup)
             .addTemporalMarker(this::outtakeIn)
-            .addTemporalMarker { intake.servoPosition = Intake.IntakePositions.INTAKE }
+            .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.INTAKE }
             .setTangent(Math.toRadians(180.0))
             .splineToLinearHeading(PoseHelper.spikePose, Math.toRadians(180.0))
             .back(4.0)
@@ -49,6 +44,6 @@ class CloseInitPathSegment(
                 )
             )
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
-            .addTemporalMarker { intake.servoPosition = Intake.IntakePositions.FOUR }
+            .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
     }
 }

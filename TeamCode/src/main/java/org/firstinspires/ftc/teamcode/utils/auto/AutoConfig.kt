@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper.StartPosition
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.PathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RoadrunnerPathSegment
 
-class AutoConfig (startPosition: StartPosition, path: Path) {
+class AutoConfig(startPosition: StartPosition, path: Path) {
     //TODO add delays
     init {
         PoseHelper.path = path
@@ -14,7 +14,7 @@ class AutoConfig (startPosition: StartPosition, path: Path) {
         PoseHelper.buildAuto()
     }
 
-    val path : ArrayList<PathSegment> = arrayListOf()
+    val path: ArrayList<PathSegment> = arrayListOf()
 
     fun addPathSegment(pathSegment: PathSegment) {
         path.add(pathSegment)

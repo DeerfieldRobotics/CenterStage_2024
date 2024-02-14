@@ -1,22 +1,16 @@
 package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
-import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder
+import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
-import org.firstinspires.ftc.teamcode.utils.hardware.Intake
-import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
-import org.firstinspires.ftc.teamcode.utils.hardware.Slide
 
 class WhiteToBackboardPathSegment(
-    drive: CogchampDrive,
-    intake: Intake,
-    slide: Slide,
-    outtake: Outtake,
+    override val robot: Robot,
     private val cycle: Int
-) : RoadrunnerPathSegment(drive, intake, slide, outtake) {
+) : RoadrunnerPathSegment(robot) {
     override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
-        drive.trajectorySequenceBuilder(
+        robot.drive.trajectorySequenceBuilder(
             PoseHelper.currentPose
         )
 
@@ -41,14 +35,14 @@ class WhiteToBackboardPathSegment(
                 if (PoseHelper.path == PoseHelper.Path.INSIDE && cycle == 0) {
                     if (PoseHelper.backboardPose == PoseHelper.backboardLeftRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
                         if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
-                            PoseHelper.backboardPose = PoseHelper.backboardCenterRed;
+                            PoseHelper.backboardPose = PoseHelper.backboardCenterRed
                         else
-                            PoseHelper.backboardPose = PoseHelper.backboardCenterBlue;
+                            PoseHelper.backboardPose = PoseHelper.backboardCenterBlue
                     } else {
                         if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
-                            PoseHelper.backboardPose = PoseHelper.backboardLeftRed;
+                            PoseHelper.backboardPose = PoseHelper.backboardLeftRed
                         else
-                            PoseHelper.backboardPose = PoseHelper.backboardRightBlue;
+                            PoseHelper.backboardPose = PoseHelper.backboardRightBlue
                     }
                 }
             }

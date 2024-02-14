@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
-import org.firstinspires.ftc.teamcode.roadrunner.drive.CogchampDrive
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
-import org.firstinspires.ftc.teamcode.utils.hardware.Intake
-import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
-import org.firstinspires.ftc.teamcode.utils.hardware.Slide
 
-class BackboardToRelocalizePathSegment(
+class BackboardToParkPathSegment(
     override val robot: Robot
 ) : RoadrunnerPathSegment(robot) {
     override var trajectorySequenceBuilder: TrajectorySequenceBuilder =
@@ -17,12 +13,16 @@ class BackboardToRelocalizePathSegment(
         )
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = trajectorySequenceBuilder
-            .back(PoseHelper.backboardBackup)
+        trajectorySequenceBuilder = trajectorySequenceBuilder.back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
-            .waitSeconds(0.4)
+            .addTemporalMarker { setSlideHeight(-1600) }
+            .waitSeconds(.4)
             .addTemporalMarker(this::outtakeIn)
-            .addTemporalMarker { setSlideHeight(-1200) }
-            .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
+            .forward(5.0)
+            .strafeRight(8.0 * PoseHelper.allianceAngleMultiplier * (if (PoseHelper.path == PoseHelper.Path.INSIDE) 1.0 else -1.0))
+            .addTemporalMarker {
+                outtakeTransfer(); //transfer just for fun
+                transfer();
+            }
     }
 }
