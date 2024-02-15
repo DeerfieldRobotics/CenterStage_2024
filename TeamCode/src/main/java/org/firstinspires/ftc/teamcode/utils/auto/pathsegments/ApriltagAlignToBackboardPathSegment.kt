@@ -13,6 +13,7 @@ class ApriltagAlignToBackboardPathSegment(
     private val tuckerCarlson: Boolean
 ) : ApriltagPathSegment(robot) {
     override var running: Boolean = false
+    override var duration = 0.75
     override fun followPathSegment() {
         running = true
         if (tuckerCarlson) apriltagTuckerCarlson()

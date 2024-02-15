@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagAlignToBackboardPathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagRelocalizePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToRelocalizePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.CloseInitPathSegment
@@ -33,6 +34,7 @@ class AutoConfigurator(
             .addPathSegment(WhiteToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToWhitePathSegment(robot))
             .addPathSegment(WhiteToBackboardPathSegment(robot, 1))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
@@ -43,6 +45,7 @@ class AutoConfigurator(
             .addPathSegment(WhiteToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToWhitePathSegment(robot))
             .addPathSegment(WhiteToParkPathSegment(robot)).build(),
         PRESETS.FAR_OUT_2P3 to AutoProfile.AutoProfileBuilder()
@@ -50,6 +53,7 @@ class AutoConfigurator(
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(DropYellowPathSegment(robot))
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToWhitePathSegment(robot))
             .addPathSegment(WhiteToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
@@ -173,21 +177,17 @@ class AutoConfigurator(
 
             telemetry.update()
 
-            if (selectDown) selectedPresetIndex =
-                (selectedPresetIndex - 1) % optionIndex
+            if (selectDown) selectedPresetIndex = (selectedPresetIndex - 1) % optionIndex
 
-            if (selectUp) selectedPresetIndex =
-                (selectedPresetIndex + 1) % optionIndex
+            if (selectUp) selectedPresetIndex = (selectedPresetIndex + 1) % optionIndex
 
             if (gamepad1.cross || gamepad2.cross) break
         }
 
         //Checks if the selected path is inside or outside
 
-        if (autoProfile.toString().contains("IN"))
-            PoseHelper.path = PoseHelper.Path.INSIDE
-        else (autoProfile.toString().contains("OUT"))
-            PoseHelper.path = PoseHelper.Path.OUTSIDE
+        if (autoProfile.toString().contains("IN")) PoseHelper.path = PoseHelper.Path.INSIDE
+        else if (autoProfile.toString().contains("OUT")) PoseHelper.path = PoseHelper.Path.OUTSIDE
     }
 
     private fun updateSelection() {
