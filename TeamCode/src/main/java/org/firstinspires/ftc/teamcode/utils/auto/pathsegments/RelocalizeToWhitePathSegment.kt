@@ -30,4 +30,6 @@ class RelocalizeToWhitePathSegment(
                 Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
             )
     }
+
+    override fun toString() = "RelocalizeToWhitePathSegment"
 }

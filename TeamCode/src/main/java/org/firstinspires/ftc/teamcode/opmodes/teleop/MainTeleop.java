@@ -73,20 +73,6 @@ public class MainTeleop extends LinearOpMode {
             intake.update();
             outtake.update();
             slide.update();
-
-//            telemetry.addLine("--------15118 Teleop-------");
-//            telemetry.addData("CogchampDrive Average Current", drivetrain.getAverageCurrent());
-//            telemetry.addData("Slide Average Current", slide.getAvgCurrent());
-//            telemetry.addData("Slide Ticks", slide.getPosition()[0]);
-//            telemetry.addData("Intake Servo Pos: ", intake.getIntakePos());
-//
-//            tickCount++;
-//            telemetry.addData("Tick Time", runtime.milliseconds()-lastTickTime);
-//            lastTickTime = runtime.milliseconds();
-//            avgTickTime = (avgTickTime*(tickCount-1)+ runtime.milliseconds()-lastTickTime)/tickCount;
-//            telemetry.addData("Avg Tick Time", avgTickTime);
-//
-//            telemetry.update();
         }
 
     }
@@ -104,7 +90,7 @@ public class MainTeleop extends LinearOpMode {
         double lTriggerEnd = 0.6;
         double leftTrigger = Math.max((gamepad2.left_trigger - lTriggerStart) / (lTriggerEnd - lTriggerStart), 0);
 
-        intake.intake(0.8 * (rightTrigger - leftTrigger));
+        intake.intake(0.8 * (rightTrigger - leftTrigger), gamepad2.left_bumper);
 
         if(gamepad2.dpad_up)
             intake.changeIntakeServo(-.5);
@@ -114,9 +100,9 @@ public class MainTeleop extends LinearOpMode {
         if(gamepad1.right_trigger>0.3 && intake.getServoPosition()== Intake.IntakePositions.INTAKE)
             intake.setServoPosition(Intake.IntakePositions.DRIVE);
 
-        if(gamepad2.left_bumper)
-            intake.setBoosterServoPower(-1.0);
-        else if(leftTrigger > 0.1)
+//        if(gamepad2.left_bumper)
+//            intake.setBoosterServoPower(-1.0);
+        if(leftTrigger > 0.1)
             intake.setBoosterServoPower(-leftTrigger);
         else
             intake.setBoosterServoPower(0.0);

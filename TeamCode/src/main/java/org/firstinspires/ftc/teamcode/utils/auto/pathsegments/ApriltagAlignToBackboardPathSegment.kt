@@ -20,4 +20,6 @@ class ApriltagAlignToBackboardPathSegment(
         alignToApriltagBackboard()
         running = false
     }
+
+    override fun toString() = "ApriltagAlignToBackboardPathSegment"
 }

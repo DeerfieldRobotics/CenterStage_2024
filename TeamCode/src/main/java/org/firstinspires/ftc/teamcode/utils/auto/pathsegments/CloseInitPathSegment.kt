@@ -45,4 +45,6 @@ class CloseInitPathSegment(
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
     }
+
+    override fun toString() = "CloseInitPathSegment"
 }

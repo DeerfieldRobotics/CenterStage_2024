@@ -22,4 +22,6 @@ class BackboardToRelocalizePathSegment(
             .addTemporalMarker { setSlideHeight(-1200) }
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
     }
+
+    override fun toString() = "BackboardToRelocalizePathSegment"
 }

@@ -36,4 +36,6 @@ class WhiteToBackboardPathSegment(
                 }
             }
     }
+
+    override fun toString() = "WhiteToBackboardPathSegment"
 }

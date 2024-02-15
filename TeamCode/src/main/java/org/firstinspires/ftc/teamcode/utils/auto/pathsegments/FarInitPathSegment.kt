@@ -47,4 +47,6 @@ class FarInitPathSegment(
                 )
             )
     }
+
+    override fun toString() = "FarInitPathSegment"
 }

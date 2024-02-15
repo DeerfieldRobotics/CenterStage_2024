@@ -10,4 +10,6 @@ class ApriltagRelocalizePathSegment(robot: Robot) : ApriltagPathSegment(robot) {
         aprilTagRelocalize()
         running = false
     }
+
+    override fun toString() = "ApriltagRelocalizePathSegment"
 }

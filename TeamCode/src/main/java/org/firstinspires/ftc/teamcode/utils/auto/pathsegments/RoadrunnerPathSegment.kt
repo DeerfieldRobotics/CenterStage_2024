@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
 abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
     abstract var trajectorySequenceBuilder: TrajectorySequenceBuilder
     override var running = false
-    override var duration = 0.0
+    override var duration = 0.0 //TODO
 
     abstract fun buildPathSegment()
 
@@ -20,9 +20,7 @@ abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
             PoseHelper.currentPose = robot.drive.poseEstimate
             running = false
         }
-        val trajectorySequence = trajectorySequenceBuilder.build()
-        duration = trajectorySequence.duration()
-        return trajectorySequence
+        return trajectorySequenceBuilder.build()
     }
 
     override fun followPathSegment() {

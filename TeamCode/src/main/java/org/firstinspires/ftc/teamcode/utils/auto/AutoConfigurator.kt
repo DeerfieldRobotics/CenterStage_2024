@@ -10,8 +10,12 @@ import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagRelocalize
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToRelocalizePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.CloseInitPathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.DelayPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.DropYellowPathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.EmptyPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.FarInitPathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.PathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RelocalizeToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RelocalizeToWhitePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.WhiteToBackboardPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.WhiteToParkPathSegment
@@ -21,10 +25,10 @@ class AutoConfigurator(
     val telemetry: Telemetry,
     private var gamepad1: Gamepad,
     private var gamepad2: Gamepad,
-    robot: Robot
+    private val robot: Robot
 ) {
     enum class PRESETS {
-        CLOSE_IN_2P4, CLOSE_IN_2P2P2, FAR_OUT_2P3,
+        CLOSE_IN_2P4, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
     }
 
     private val profileMap = mapOf(
@@ -58,12 +62,17 @@ class AutoConfigurator(
             .addPathSegment(WhiteToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(BackboardToParkPathSegment(robot)).build(),
+        PRESETS.CUSTOM to AutoProfile.AutoProfileBuilder().build()
     )
 
     private var selectUp = false
+    private var upToggle = false
     private var selectDown = false
+    private var downToggle = false
     private var selectLeft = false
+    private var leftToggle = false
     private var selectRight = false
+    private var rightToggle = false
 
     private lateinit var autoProfile: AutoProfile
 
@@ -140,32 +149,28 @@ class AutoConfigurator(
             when (PoseHelper.startPosition) {
                 PoseHelper.StartPosition.RED_CLOSE -> {
                     for (preset in PRESETS.entries) if (preset.toString().contains("CLOSE")) {
-                        telemetryOption(preset.toString(), optionIndex == selectedPresetIndex)
-                        autoProfile = profileMap[preset]!!
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
                         optionIndex++
                     }
                 }
 
                 PoseHelper.StartPosition.RED_FAR -> {
                     for (preset in PRESETS.entries) if (preset.toString().contains("FAR")) {
-                        telemetryOption(preset.toString(), optionIndex == selectedPresetIndex)
-                        autoProfile = profileMap[preset]!!
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
                         optionIndex++
                     }
                 }
 
                 PoseHelper.StartPosition.BLUE_CLOSE -> {
                     for (preset in PRESETS.entries) if (preset.toString().contains("CLOSE")) {
-                        telemetryOption(preset.toString(), optionIndex == selectedPresetIndex)
-                        autoProfile = profileMap[preset]!!
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
                         optionIndex++
                     }
                 }
 
                 PoseHelper.StartPosition.BLUE_FAR -> {
                     for (preset in PRESETS.entries) if (preset.toString().contains("FAR")) {
-                        telemetryOption(preset.toString(), optionIndex == selectedPresetIndex)
-                        autoProfile = profileMap[preset]!!
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
                         optionIndex++
                     }
                 }
@@ -175,19 +180,237 @@ class AutoConfigurator(
                 }
             }
 
+            //ALWAYS ADD OPTION FOR CUSTOM PATH
+            telemetryProfileOption(PRESETS.CUSTOM, optionIndex == selectedPresetIndex)
+            optionIndex++
+
             telemetry.update()
 
-            if (selectDown) selectedPresetIndex = (selectedPresetIndex - 1) % optionIndex
+            if (selectDown && !downToggle) {
+                selectedPresetIndex = (selectedPresetIndex - 1) % (optionIndex + 1)
+                downToggle = true
+            } else if (!selectDown) {
+                downToggle = false
+            }
 
-            if (selectUp) selectedPresetIndex = (selectedPresetIndex + 1) % optionIndex
+            if (selectUp && !upToggle) {
+                selectedPresetIndex = (selectedPresetIndex + 1) % (optionIndex + 1)
+                upToggle = true
+            } else if (!selectUp) {
+                upToggle = false
+            }
 
             if (gamepad1.cross || gamepad2.cross) break
         }
 
         //Checks if the selected path is inside or outside
+        if (autoProfile == profileMap[PRESETS.CUSTOM]) {
+            customPath()
+        }
 
-        if (autoProfile.toString().contains("IN")) PoseHelper.path = PoseHelper.Path.INSIDE
-        else if (autoProfile.toString().contains("OUT")) PoseHelper.path = PoseHelper.Path.OUTSIDE
+    }
+
+    private fun customPath() {
+        var selectedPresetIndex = 0
+        while (true) {
+            updateSelection()
+
+            var optionIndex = 0
+
+            telemetry.addLine("               [PATH CUSTOMIZATION]")
+            telemetry.addLine("-------------------------------------------------")
+            telemetry.addLine("Select Path Template and press CROSS (X) to confirm.")
+
+            when (PoseHelper.startPosition) {
+                PoseHelper.StartPosition.RED_CLOSE -> {
+                    for (preset in PRESETS.entries) if (preset.toString().contains("CLOSE")) {
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
+                        optionIndex++
+                    }
+                }
+
+                PoseHelper.StartPosition.RED_FAR -> {
+                    for (preset in PRESETS.entries) if (preset.toString().contains("FAR")) {
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
+                        optionIndex++
+                    }
+                }
+
+                PoseHelper.StartPosition.BLUE_CLOSE -> {
+                    for (preset in PRESETS.entries) if (preset.toString().contains("CLOSE")) {
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
+                        optionIndex++
+                    }
+                }
+
+                PoseHelper.StartPosition.BLUE_FAR -> {
+                    for (preset in PRESETS.entries) if (preset.toString().contains("FAR")) {
+                        telemetryProfileOption(preset, optionIndex == selectedPresetIndex)
+                        optionIndex++
+                    }
+                }
+
+                else -> {
+                    throw Exception("Invalid Start Position")
+                }
+            }
+            telemetry.update()
+
+            if (selectDown && !downToggle) {
+                selectedPresetIndex = (selectedPresetIndex - 1) % (optionIndex + 1)
+                downToggle = true
+            } else if (!selectDown) {
+                downToggle = false
+            }
+
+            if (selectUp && !upToggle) {
+                selectedPresetIndex = (selectedPresetIndex + 1) % (optionIndex + 1)
+                upToggle = true
+            } else if (!selectUp) {
+                upToggle = false
+            }
+
+            if (gamepad1.cross || gamepad2.cross) break
+        }
+        editPath()
+    }
+
+    private fun editPath() {
+        var selectedSegmentIndex = 0
+
+        //SET UP CUSTOM PATH WITH EMPTY PATHS THAT WILL BE REMOVED LATER
+        val customProfileBuilder = AutoProfile.AutoProfileBuilder()
+        customProfileBuilder.addPathSegment(EmptyPathSegment())
+        for (segment in autoProfile.path)
+            customProfileBuilder.addPathSegment(segment).addPathSegment(EmptyPathSegment())
+
+        while (true) {
+            updateSelection()
+
+            telemetry.addLine("               [PATH CUSTOMIZATION]")
+            telemetry.addLine("-------------------------------------------------")
+            telemetry.addLine("Select Segment to edit using CROSS (X). Press CIRCLE (O) to confirm.")
+
+            for ((segmentIndex, segment) in customProfileBuilder.profile.path.withIndex())
+                telemetryPathSegmentOption(segment, segmentIndex == selectedSegmentIndex)
+
+            if (selectDown) selectedSegmentIndex =
+                (selectedSegmentIndex - 1) % customProfileBuilder.profile.path.size
+            if (selectUp) selectedSegmentIndex =
+                (selectedSegmentIndex + 1) % customProfileBuilder.profile.path.size
+
+            if (gamepad1.cross || gamepad2.cross) {
+                editPathSegment(selectedSegmentIndex)
+                break
+            }
+
+            if (gamepad1.circle || gamepad2.circle) {
+                customProfileBuilder.profile.removeEmptySegments()
+                autoProfile = customProfileBuilder.build()
+                break
+            }
+
+            telemetry.update()
+        }
+    }
+
+    private fun editPathSegment(segmentIndex: Int) {
+        while (true) {
+            telemetry.addLine("            [SEGMENT CUSTOMIZATION]")
+            telemetry.addLine("-------------------------------------------------")
+            telemetry.addLine("Press SQUARE ([]) to remove segment. Press CIRCLE (O) to change segment.")
+
+            if (gamepad1.square || gamepad2.square) {
+                autoProfile.path.removeAt(segmentIndex)
+                editPath()
+                break
+            }
+            if (gamepad1.circle || gamepad2.circle) {
+                changePathSegment(segmentIndex)
+                break
+            }
+        }
+    }
+
+    private fun changePathSegment(segmentIndex: Int) {
+        var selectedSegmentIndex = 0
+        val pathList = listOf(
+            DelayPathSegment(0.0),
+            EmptyPathSegment(),
+            CloseInitPathSegment(robot),
+            FarInitPathSegment(robot),
+            ApriltagRelocalizePathSegment(robot),
+            ApriltagAlignToBackboardPathSegment(robot, true),
+            BackboardToRelocalizePathSegment(robot),
+            BackboardToParkPathSegment(robot),
+            RelocalizeToWhitePathSegment(robot),
+            RelocalizeToParkPathSegment(robot),
+            WhiteToBackboardPathSegment(robot, 0),
+            WhiteToParkPathSegment(robot),
+            DropYellowPathSegment(robot)
+        )
+
+        while (true) {
+            telemetry.addLine("            [SEGMENT CUSTOMIZATION]")
+            telemetry.addLine("-------------------------------------------------")
+            telemetry.addLine("Select the path to change to and press CROSS (X) to confirm.")
+
+            for ((index, segment) in pathList.withIndex())
+                telemetryPathSegmentOption(segment, index == selectedSegmentIndex)
+
+            if (gamepad1.cross || gamepad2.cross) {
+                autoProfile.path.removeAt(segmentIndex)
+                if (selectedSegmentIndex != 0 && selectedSegmentIndex != 10)
+                    autoProfile.path.add(segmentIndex, pathList[selectedSegmentIndex])
+                else if (selectedSegmentIndex == 0) {
+                    var duration = 3.0
+                    while (true) {
+                        telemetry.clear()
+                        telemetry.addLine("            [SEGMENT CUSTOMIZATION]")
+                        telemetry.addLine("-------------------------------------------------")
+                        telemetry.addLine("Select the duration of the delay and press CROSS (X) to confirm.")
+                        telemetry.addData("Duration: ", duration)
+
+                        autoProfile.path.add(segmentIndex, DelayPathSegment(duration))
+
+                        if (gamepad1.cross || gamepad2.cross) break
+
+                        if (selectDown) duration -= 0.5
+                        if (selectUp) duration += 0.5
+                    }
+                } else {
+                    var cycles = 1
+                    while (true) {
+                        telemetry.clear()
+                        telemetry.addLine("            [SEGMENT CUSTOMIZATION]")
+                        telemetry.addLine("-------------------------------------------------")
+                        telemetry.addLine("Select the number of cycles and press CROSS (X) to confirm.")
+                        telemetry.addData("Duration: ", cycles)
+
+                        autoProfile.path.add(
+                            segmentIndex,
+                            WhiteToBackboardPathSegment(robot, cycles)
+                        )
+
+                        if (gamepad1.cross || gamepad2.cross) break
+
+                        if (selectDown) cycles -= 1
+                        if (selectUp) cycles += 1
+                    }
+                }
+                break
+            }
+
+            if (gamepad1.circle || gamepad2.circle) {
+                val segment = autoProfile.path[segmentIndex]
+                autoProfile.path.removeAt(segmentIndex)
+                autoProfile.path.add(segmentIndex, segment)
+                break
+            }
+
+            if (selectDown) selectedSegmentIndex = (selectedSegmentIndex - 1) % (pathList.size - 1)
+            if (selectUp) selectedSegmentIndex = (selectedSegmentIndex + 1) % (pathList.size - 1)
+        }
     }
 
     private fun updateSelection() {
@@ -201,9 +424,24 @@ class AutoConfigurator(
             gamepad1.dpad_right || gamepad2.dpad_right || gamepad1.left_stick_x > 0.5 || gamepad2.left_stick_x > 0.5
     }
 
-    private fun telemetryOption(option: String, selected: Boolean) {
+    private fun telemetryProfileOption(option: PRESETS, selected: Boolean) {
         var endSpace = ""
-        for (i in 0 until 13 - option.length) {
+        for (i in 0 until 13 - option.toString().length) {
+            endSpace += " "
+        }
+        if (selected) {
+            telemetry.addLine("     $option$endSpace[*]")
+            autoProfile = profileMap[option]!!
+            if (option.toString().contains("IN")) PoseHelper.path = PoseHelper.Path.INSIDE
+            else if (option.toString().contains("OUT")) PoseHelper.path = PoseHelper.Path.OUTSIDE
+        } else {
+            telemetry.addLine("     $option$endSpace[ ]")
+        }
+    }
+
+    private fun telemetryPathSegmentOption(option: PathSegment, selected: Boolean) {
+        var endSpace = ""
+        for (i in 0 until 13 - option.toString().length) {
             endSpace += " "
         }
         if (selected) {

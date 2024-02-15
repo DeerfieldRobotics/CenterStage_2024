@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.AutoConfigurator
 import org.firstinspires.ftc.teamcode.utils.auto.AutoProfile
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagPathSegment
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
@@ -77,7 +78,8 @@ class AutoState: LinearOpMode() {
             segment.followPathSegment()
             Log.d(LogcatHelper.TAG, "Following Path Segment: $segment")
             while (segment.running)
-                autoLoop()
+                if(segment !is ApriltagPathSegment) //DON'T AUTO LOOP APRILTAG SEGMENTS BECAUSE DRIVE.UPDATE FORCES ROADRUNNER TRAJECTORY
+                    autoLoop()
         }
     }
 

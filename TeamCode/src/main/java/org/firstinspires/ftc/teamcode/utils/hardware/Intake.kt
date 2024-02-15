@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import kotlin.math.abs
 
 class Intake(hardwareMap: HardwareMap){
     private var intakeServo: ServoImplEx = hardwareMap.get("is") as ServoImplEx //expansion hub: 0
@@ -70,8 +71,8 @@ class Intake(hardwareMap: HardwareMap){
         manualServoPosition -= power* 0.05
     }
 
-    fun intake (power: Double) {
-        if(power > 0.2 && servoPosition != IntakePositions.INTAKE) {
+    fun intake (power: Double, hold: Boolean) {
+        if(abs(power) > 0.2 && servoPosition != IntakePositions.INTAKE && !hold) {
             servoPosition = IntakePositions.INTAKE
         }
         motorPower = power*motorPowerMultiplier

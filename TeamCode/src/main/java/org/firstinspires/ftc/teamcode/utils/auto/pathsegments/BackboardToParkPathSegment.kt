@@ -23,4 +23,6 @@ class BackboardToParkPathSegment(
                 transfer();
             }
     }
+
+    override fun toString() = "BackboardToParkPathSegment"
 }

@@ -42,4 +42,6 @@ class DropYellowPathSegment(
                 }
             }
     }
+
+    override fun toString() = "DropYellowPathSegment"
 }

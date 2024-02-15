@@ -27,4 +27,5 @@ class WhiteToParkPathSegment(override val robot: Robot) :
             .splineToLinearHeading(PoseHelper.parkPose, Math.toRadians(0.0))
     }
 
+    override fun toString() = "WhiteToParkPathSegment"
 }
