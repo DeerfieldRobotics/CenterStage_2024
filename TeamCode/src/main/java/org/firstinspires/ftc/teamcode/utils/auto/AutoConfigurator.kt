@@ -408,9 +408,10 @@ class AutoConfigurator(
                 break
             }
 
-            if (selectDown) selectedSegmentIndex = (selectedSegmentIndex - 1) % (pathList.size - 1)
-            if (selectUp) selectedSegmentIndex = (selectedSegmentIndex + 1) % (pathList.size - 1)
+            if (selectDown) selectedSegmentIndex = (selectedSegmentIndex - 1) % (pathList.size)
+            if (selectUp) selectedSegmentIndex = (selectedSegmentIndex + 1) % (pathList.size)
         }
+        editPath()
     }
 
     private fun updateSelection() {
