@@ -79,12 +79,12 @@ class AutoState: LinearOpMode() {
         for (segment in autoProfile.path) {
             segment.followPathSegment()
             Log.d(LogcatHelper.TAG, "Following Path Segment: $segment")
-            while (segment.running) {
+            while (segment.running && opModeIsActive()) {
                 if (segment !is ApriltagPathSegment) //DON'T AUTO LOOP APRILTAG SEGMENTS BECAUSE DRIVE.UPDATE FORCES ROADRUNNER TRAJECTORY
                     autoLoop()
-                if(!segment.running)
-                    break
+                if (!opModeIsActive() || isStopRequested) break
             }
+            if (!opModeIsActive() || isStopRequested) break
         }
     }
 
@@ -97,7 +97,5 @@ class AutoState: LinearOpMode() {
         Log.v(LogcatHelper.TAG, "robot.slideTargetPosition" + robot.slide.getTargetPosition())
     }
 
-    private fun detectPurplePath() {
-        ColorDetectionProcessor.position = robot.colorDetectionProcessor?.position
-    }
+    private fun detectPurplePath() { ColorDetectionProcessor.position = robot.colorDetectionProcessor?.position }
 }
