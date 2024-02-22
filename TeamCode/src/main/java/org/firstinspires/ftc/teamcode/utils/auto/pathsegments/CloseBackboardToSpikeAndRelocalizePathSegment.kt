@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 import org.firstinspires.ftc.teamcode.utils.detection.ColorDetectionProcessor
 import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 
-class CloseInitPathSegment(
+class CloseBackboardToSpikeAndRelocalizePathSegment(
     override val robot: Robot
 ) :
     RoadrunnerPathSegment(robot) {
@@ -15,11 +15,7 @@ class CloseInitPathSegment(
     override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
-        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
-            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
-            .setTangent(Math.toRadians(45 * PoseHelper.allianceAngleMultiplier))
-            .addTemporalMarker(this::outtake)
-            .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(0.0))
+        trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
             .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
             .back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
@@ -46,5 +42,5 @@ class CloseInitPathSegment(
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
     }
 
-    override fun toString() = "CloseInitPathSegment"
+    override fun toString() = "CloseBackboardToSpikeAndRelocalizePathSegment"
 }

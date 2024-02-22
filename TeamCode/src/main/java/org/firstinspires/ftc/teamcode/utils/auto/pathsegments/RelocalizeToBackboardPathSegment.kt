@@ -4,20 +4,38 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
+import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 
-class WhiteToBackboardPathSegment(
+class RelocalizeToBackboardPathSegment(
     override val robot: Robot, private val cycle: Int
 ) : RoadrunnerPathSegment(robot) {
     override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+            .addTemporalMarker {
+                if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
+                    robot.intake.servoPosition = Intake.IntakePositions.THREE
+                else {
+                    robot.intake.servoPosition = Intake.IntakePositions.TWO
+                }
+                robot.intake.update();
+            }
+            .setTangent(Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 140.0 else -145.0) * PoseHelper.allianceAngleMultiplier)
+            .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
+            .addTemporalMarker(::intake)
+            .splineToConstantHeading(
+                PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(),
+                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
+            )
+            //TO WHITE
             .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
             .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
             .addTemporalMarker(this::outtakeTransfer)
             .forward(1.5)
             .back(3.0)
             .addTemporalMarker(this::stopIntake).addTemporalMarker(this::transfer)
+            .setTangent(Math.toRadians(0.0))
             .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0.0))
             .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0.0))
             .addTemporalMarker(this::outtake).addTemporalMarker { setSlideHeight(-1500) }
@@ -40,5 +58,5 @@ class WhiteToBackboardPathSegment(
             }
     }
 
-    override fun toString() = "WhiteToBackboardPathSegment"
+    override fun toString() = "RelocalizeToBackboardPathSegment"
 }

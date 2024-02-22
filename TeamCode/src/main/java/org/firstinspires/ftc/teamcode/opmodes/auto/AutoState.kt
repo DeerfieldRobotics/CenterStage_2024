@@ -66,6 +66,8 @@ class AutoState: LinearOpMode() {
         while(!isStarted && !isStopRequested) initLoop()
         waitForStart()
 
+        Log.v(LogcatHelper.TAG, "Detected Position: " + ColorDetectionProcessor.position.toString())
+
         PoseHelper.buildAuto()
 
         resetRuntime()
@@ -77,9 +79,12 @@ class AutoState: LinearOpMode() {
         for (segment in autoProfile.path) {
             segment.followPathSegment()
             Log.d(LogcatHelper.TAG, "Following Path Segment: $segment")
-            while (segment.running)
-                if(segment !is ApriltagPathSegment) //DON'T AUTO LOOP APRILTAG SEGMENTS BECAUSE DRIVE.UPDATE FORCES ROADRUNNER TRAJECTORY
+            while (segment.running) {
+                if (segment !is ApriltagPathSegment) //DON'T AUTO LOOP APRILTAG SEGMENTS BECAUSE DRIVE.UPDATE FORCES ROADRUNNER TRAJECTORY
                     autoLoop()
+                if(!segment.running)
+                    break
+            }
         }
     }
 
@@ -94,6 +99,5 @@ class AutoState: LinearOpMode() {
 
     private fun detectPurplePath() {
         ColorDetectionProcessor.position = robot.colorDetectionProcessor?.position
-        Log.v(LogcatHelper.TAG, "Detected Position: " + ColorDetectionProcessor.position.toString())
     }
 }
