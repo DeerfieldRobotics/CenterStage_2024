@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.auto
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.EmptyPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.PathSegment
 
-class AutoProfile() {
-    //TODO add delays
-
+class AutoProfile {
     val path: ArrayList<PathSegment> = arrayListOf()
 
     fun addPathSegment(pathSegment: PathSegment) {

@@ -9,8 +9,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Intake
 
 class CloseInitToBackboardPathSegment(
     override val robot: Robot
-) :
-    RoadrunnerPathSegment(robot) {
+) : RoadrunnerPathSegment(robot) {
 
     override lateinit var trajectorySequenceBuilder: TrajectorySequenceBuilder
 
