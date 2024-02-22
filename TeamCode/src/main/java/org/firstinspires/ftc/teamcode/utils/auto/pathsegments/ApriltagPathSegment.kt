@@ -18,6 +18,7 @@ abstract class ApriltagPathSegment(open val robot: Robot) : PathSegment {
                 robot.aprilTagProcessorBack?.poseEstimate?.heading!!
             )
         }
+        PoseHelper.currentPose = robot.drive.poseEstimate
         Log.d(LogcatHelper.TAG, "Set Pose" + robot.drive.poseEstimate)
     }
 

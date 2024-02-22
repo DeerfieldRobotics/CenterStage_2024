@@ -17,7 +17,7 @@ abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
     private fun getTrajectorySequence(): TrajectorySequence? {
         buildPathSegment()
         trajectorySequenceBuilder = trajectorySequenceBuilder.addTemporalMarker {
-            PoseHelper.currentPose = robot.drive.poseEstimate
+            PoseHelper.currentPose = robot.drive.poseEstimate //update current pose for the init pose of next trajectory sequence
             running = false
         }
         return trajectorySequenceBuilder.build()
