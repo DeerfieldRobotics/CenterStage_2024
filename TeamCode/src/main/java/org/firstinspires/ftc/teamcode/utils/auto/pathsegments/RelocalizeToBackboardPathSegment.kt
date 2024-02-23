@@ -34,12 +34,13 @@ class RelocalizeToBackboardPathSegment(
             .addTemporalMarker(this::outtakeTransfer)
             .forward(1.5)
             .back(3.0)
+            //TO BACKBOARD
             .addTemporalMarker(this::stopIntake).addTemporalMarker(this::transfer)
             .setTangent(Math.toRadians(0.0))
-            .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0.0))
-            .splineToLinearHeading(PoseHelper.boardTruss, Math.toRadians(0.0))
+            .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(0.0))
+            .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(0.0))
             .addTemporalMarker(this::outtake).addTemporalMarker { setSlideHeight(-1500) }
-            .splineToLinearHeading(
+            .splineToSplineHeading(
                 if (AllianceHelper.alliance == AllianceHelper.Alliance.RED) PoseHelper.backboardCenterRed else PoseHelper.backboardCenterBlue,
                 Math.toRadians(if (PoseHelper.path == PoseHelper.Path.OUTSIDE) 30.0 else -30.0 * PoseHelper.allianceAngleMultiplier)
             )

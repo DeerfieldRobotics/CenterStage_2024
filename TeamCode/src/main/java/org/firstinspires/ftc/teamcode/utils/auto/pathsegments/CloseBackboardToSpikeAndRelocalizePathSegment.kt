@@ -21,7 +21,6 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             .addTemporalMarker(this::drop)
             .waitSeconds(0.2)
             .addTemporalMarker { setSlideHeight(-1100) }
-            .waitSeconds(0.2)
             .forward(PoseHelper.backboardBackup)
             .addTemporalMarker(this::outtakeIn)
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.INTAKE }
@@ -40,6 +39,7 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             )
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
+            .waitSeconds(0.5)
     }
 
     override fun toString() = "CloseBackboardToSpikeAndRelocalizePathSegment"
