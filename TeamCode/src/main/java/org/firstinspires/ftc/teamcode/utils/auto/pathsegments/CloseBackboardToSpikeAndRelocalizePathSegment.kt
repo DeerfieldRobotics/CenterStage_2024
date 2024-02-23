@@ -19,7 +19,7 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
             .back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
-            .waitSeconds(0.2)
+            .waitSeconds(0.1)
             .addTemporalMarker { setSlideHeight(-1100) }
             .forward(PoseHelper.backboardBackup)
             .addTemporalMarker(this::outtakeIn)
@@ -28,7 +28,7 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             .splineToLinearHeading(PoseHelper.spikePose, Math.toRadians(180.0))
             .back(4.0)
             .addTemporalMarker(this::outtakePurple)
-            .waitSeconds(0.1)
+//            .waitSeconds(0.1)
             .back(4.0)
             .setTangent(
                 Math.toRadians(
@@ -39,7 +39,7 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             )
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
-            .waitSeconds(0.5)
+            .waitSeconds(0.3)
     }
 
     override fun toString() = "CloseBackboardToSpikeAndRelocalizePathSegment"

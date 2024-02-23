@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagAlignToBackboardPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.ApriltagRelocalizePathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardCycleNoRelocalizePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.BackboardToRelocalizePathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.CloseBackboardToSpikeAndRelocalizePathSegment
@@ -29,7 +30,7 @@ class AutoConfigurator(
     private val robot: Robot
 ) {
     enum class PRESETS {
-        CLOSE_IN_2P4, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
+        CLOSE_IN_2P4, CLOSE_IN_2P4_NORELOCALIZE, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
     }
 
     private val profileMap = mapOf(
@@ -43,6 +44,16 @@ class AutoConfigurator(
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
             .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToBackboardPathSegment(robot, 1))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
+            .addPathSegment(BackboardToParkPathSegment(robot)).build(),
+        PRESETS.CLOSE_IN_2P4_NORELOCALIZE to AutoProfile.AutoProfileBuilder()
+            .addPathSegment(CloseInitToBackboardPathSegment(robot))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
+            .addPathSegment(CloseBackboardToSpikeAndRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
+            .addPathSegment(RelocalizeToBackboardPathSegment(robot, 0))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
+            .addPathSegment(BackboardCycleNoRelocalizePathSegment(robot, 1))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(BackboardToParkPathSegment(robot)).build(),
         PRESETS.CLOSE_IN_2P2P2 to AutoProfile.AutoProfileBuilder()
