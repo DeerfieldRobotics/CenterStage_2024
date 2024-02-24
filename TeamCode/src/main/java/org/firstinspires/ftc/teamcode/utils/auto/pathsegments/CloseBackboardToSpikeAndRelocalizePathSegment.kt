@@ -26,10 +26,10 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.INTAKE }
             .setTangent(Math.toRadians(180.0))
             .splineToLinearHeading(PoseHelper.spikePose, Math.toRadians(180.0))
-            .back(4.0)
             .addTemporalMarker(this::outtakePurple)
+//            .back(4.0)
 //            .waitSeconds(0.1)
-            .back(4.0)
+//            .back(4.0)
             .setTangent(
                 Math.toRadians(
                     (if ((ColorDetectionProcessor.position == ColorDetectionProcessor.StartingPosition.RIGHT && AllianceHelper.alliance == AllianceHelper.Alliance.RED) ||
@@ -39,7 +39,7 @@ class CloseBackboardToSpikeAndRelocalizePathSegment(
             )
             .splineToConstantHeading(PoseHelper.aprilTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.FOUR }
-            .waitSeconds(0.3)
+            .waitSeconds(0.01)
     }
 
     override fun toString() = "CloseBackboardToSpikeAndRelocalizePathSegment"

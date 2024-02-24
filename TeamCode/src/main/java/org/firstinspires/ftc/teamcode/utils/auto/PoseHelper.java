@@ -27,9 +27,9 @@ public final class PoseHelper {
     public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -35.0, Math.toRadians(90.0));
     public final static Pose2d closeSpikeRightRed = new Pose2d(34.5, -33, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -22.5, Math.toRadians(180));
-    public final static Pose2d closeSpikeLeftRed = new Pose2d(12, -30, Math.toRadians(180));
+    public final static Pose2d closeSpikeLeftRed = new Pose2d(13, -30, Math.toRadians(180));
     public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-55, -9.0, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-58, -12.0, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
