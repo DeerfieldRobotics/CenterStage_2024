@@ -38,7 +38,8 @@ class AprilTagAlignmentProcessor(
     true,
     true,
     TagFamily.TAG_36h11,
-    3
+    3,
+        false
 ) {
 
     enum class CameraType {

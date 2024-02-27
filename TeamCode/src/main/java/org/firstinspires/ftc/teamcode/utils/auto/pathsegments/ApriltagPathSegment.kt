@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
 import android.util.Log
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
@@ -15,6 +16,7 @@ abstract class ApriltagPathSegment(open val robot: Robot) : PathSegment {
             robot.drive.poseEstimate = Pose2d(
                 robot.drive.poseEstimate.x,
                 robot.aprilTagProcessorBack?.poseEstimate?.y!!,
+//                robot.getIMUHeading()
                 robot.aprilTagProcessorBack?.poseEstimate?.heading!!
             )
         }

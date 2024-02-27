@@ -17,10 +17,10 @@ import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.DropYellowPathSegm
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.EmptyPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.FarInitPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.PathSegment
+import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RelocalizeCyclePark
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RelocalizeToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.RelocalizeToBackboardPathSegment
 import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.WhiteToBackboardPathSegment
-import org.firstinspires.ftc.teamcode.utils.auto.pathsegments.WhiteToParkPathSegment
 import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 
 class AutoConfigurator(
@@ -58,16 +58,20 @@ class AutoConfigurator(
             .addPathSegment(BackboardToParkPathSegment(robot)).build(),
         PRESETS.CLOSE_IN_2P2P2 to AutoProfile.AutoProfileBuilder()
             .addPathSegment(CloseInitToBackboardPathSegment(robot))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
+            .addPathSegment(CloseBackboardToSpikeAndRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
             .addPathSegment(ApriltagRelocalizePathSegment(robot))
-//            .addPathSegment(RelocalizeToBackboardPathSegment(robot)) TODO make relocalize to park
-            .addPathSegment(WhiteToParkPathSegment(robot)).build(),
+            .addPathSegment(RelocalizeCyclePark(robot, 1))
+            .build(),
         PRESETS.FAR_OUT_2P3 to AutoProfile.AutoProfileBuilder()
             .addPathSegment(FarInitPathSegment(robot))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(DropYellowPathSegment(robot))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
             .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToBackboardPathSegment(robot, 0))
@@ -95,10 +99,10 @@ class AutoConfigurator(
     }
 
     private fun configureStartingPosition() {
+        Log.d(LogcatHelper.TAG, "Configuring Starting Position...")
         while (true) {
             updateSelection()
 
-            Log.d(LogcatHelper.TAG, "Configuring Starting Position...")
             telemetry.addLine("             [15118 AUTO INITIALIZED]")
             telemetry.addLine("-------------------------------------------------")
             telemetry.addLine("Select Autonomous Starting Position using DPAD Keys")
@@ -358,7 +362,6 @@ class AutoConfigurator(
             RelocalizeToBackboardPathSegment(robot, 0),
             RelocalizeToParkPathSegment(robot),
             WhiteToBackboardPathSegment(robot, 0),
-            WhiteToParkPathSegment(robot),
             DropYellowPathSegment(robot)
         )
 

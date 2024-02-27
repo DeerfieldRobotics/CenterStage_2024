@@ -27,9 +27,11 @@ public class MainTeleop extends LinearOpMode {
     private boolean squareToggle = false;
     private boolean circleToggle = false;
     private boolean rightBumperToggle = false;
-    private final double lastTickTime = 0;
-    private final double avgTickTime = 0;
-    private final int tickCount = 0;
+    private boolean dpadDownToggle = false;
+    private boolean dpadUpToggle = false;
+
+    private boolean hookReleased = false;
+    private long millisAfterRelease = 0;
 
     private void driveNormal() {
         //driving values
@@ -80,6 +82,14 @@ public class MainTeleop extends LinearOpMode {
         //stick sensitivity values
         double l2Max = 0.8;
         slide.setPower(gamepad2.left_stick_y / l2Max);
+
+        if(gamepad2.left_stick_button && gamepad2.right_stick_button && !hookReleased) {
+            slide.releaseHook();
+            hookReleased = true;
+            millisAfterRelease = System.currentTimeMillis();
+        }
+        if(hookReleased && System.currentTimeMillis() - millisAfterRelease > 500)
+            slide.hookMotorPower(-gamepad2.right_stick_y);
     }
     private void intake() {
         double rTriggerStart = 0.05;
@@ -92,10 +102,23 @@ public class MainTeleop extends LinearOpMode {
 
         intake.intake(0.8 * (rightTrigger - leftTrigger), gamepad2.left_bumper);
 
-        if(gamepad2.dpad_up)
-            intake.changeIntakeServo(-.5);
-        if(gamepad2.dpad_down)
-            intake.changeIntakeServo(.5);
+        if(gamepad2.dpad_up && !dpadUpToggle) {
+            intake.intakePositionStepUp();
+            gamepad2.rumble(0.4, 0.8, 100);
+            dpadUpToggle = true;
+        }
+        if(!gamepad2.dpad_up) {
+            dpadUpToggle = false;
+        }
+        if(gamepad2.dpad_down && !dpadDownToggle) {
+            intake.intakePositionStepDown();
+            gamepad2.rumble(0.8, 0.4, 100);
+            dpadDownToggle = true;
+        }
+        if(!gamepad2.dpad_down) {
+            dpadDownToggle = false;
+        }
+
 
         if(gamepad1.right_trigger>0.3 && intake.getServoPosition()== Intake.IntakePositions.INTAKE)
             intake.setServoPosition(Intake.IntakePositions.DRIVE);
@@ -120,7 +143,8 @@ public class MainTeleop extends LinearOpMode {
     }
     private void outtake() {
         //Outtake Code
-        outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
+        if(!hookReleased)
+            outtake.outtakeAngleAdjust(gamepad2.right_stick_y);
 
         if (gamepad2.circle && !circleToggle) { // Outtake Procedure to Outside
             gamepad2.rumbleBlips(1);

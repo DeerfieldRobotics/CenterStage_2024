@@ -23,9 +23,10 @@ class BackboardCycleNoRelocalizePathSegment(
             .addTemporalMarker {
                 if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
                     robot.intake.servoPosition = Intake.IntakePositions.THREE
-                else {
+                else if(cycle == 0)
+                    robot.intake.servoPosition = Intake.IntakePositions.FOUR
+                else
                     robot.intake.servoPosition = Intake.IntakePositions.TWO
-                }
                 robot.intake.update();
             }
             .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))

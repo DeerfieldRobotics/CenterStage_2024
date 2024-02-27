@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,7 +13,7 @@ public class ServoTester extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        s = hardwareMap.get(Servo.class, "is");
+        s = hardwareMap.get(Servo.class, "hs");
 
 
         waitForStart();
@@ -30,6 +32,7 @@ public class ServoTester extends LinearOpMode {
             s.setPosition(servoPosition);
 
             telemetry.addData("Servo Position", s.getPosition());
+            Log.d("Servo Tester", "Servo Position: "+s.getPosition());
             telemetry.update();
         }
     }

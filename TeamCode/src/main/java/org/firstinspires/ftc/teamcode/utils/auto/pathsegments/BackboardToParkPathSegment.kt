@@ -11,6 +11,10 @@ class BackboardToParkPathSegment(
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+            .addTemporalMarker {
+                //TODO close if fixed in next SDK
+                robot.backCameraPortal?.stopStreaming()
+            }
             .back(PoseHelper.backboardBackup)
             .addTemporalMarker(this::drop)
             .addTemporalMarker { setSlideHeight(-1600) }

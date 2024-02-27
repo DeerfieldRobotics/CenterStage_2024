@@ -4,11 +4,16 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 
 class Slide (hardwareMap: HardwareMap){
     private var slide1: DcMotorEx = hardwareMap.get("sa") as DcMotorEx //expansion hub: 0
     private var slide2: DcMotorEx = hardwareMap.get("sb") as DcMotorEx //expansion hub: 1
+
+    private var hookMotor: DcMotorEx = hardwareMap.get("hm") as DcMotorEx //expansion: 3
+    private var hookServo: ServoImplEx = hardwareMap.get("hs") as ServoImplEx //expansion: 4
 
     var minSlideHeight = -800
         private set
@@ -39,6 +44,16 @@ class Slide (hardwareMap: HardwareMap){
 
         slide1.setCurrentAlert(6.0, CurrentUnit.AMPS)
         slide2.setCurrentAlert(6.0, CurrentUnit.AMPS)
+
+        hookServo.position = 1.0
+    }
+
+    fun releaseHook() {
+        hookServo.position = 0.9315
+    }
+
+    fun hookMotorPower(power: Double) {
+        hookMotor.power = power
     }
 
     fun setMode (mode: DcMotor.RunMode) {

@@ -68,7 +68,29 @@ class Intake(hardwareMap: HardwareMap){
     fun changeIntakeServo(power: Double){
         manualServoPosition = intakeServo.position
         servoPosition = IntakePositions.MANUAL
-        manualServoPosition -= power* 0.05
+        manualServoPosition -= power * 0.02
+    }
+
+    fun intakePositionStepUp() {
+        servoPosition = when(servoPosition) {
+            IntakePositions.FIVE -> IntakePositions.INTAKE
+            IntakePositions.FOUR -> IntakePositions.FIVE
+            IntakePositions.THREE -> IntakePositions.FOUR
+            IntakePositions.TWO -> IntakePositions.THREE
+            IntakePositions.INTAKE -> IntakePositions.TWO
+            else -> IntakePositions.THREE
+        }
+    }
+
+    fun intakePositionStepDown() {
+        servoPosition = when(servoPosition) {
+            IntakePositions.FIVE -> IntakePositions.FOUR
+            IntakePositions.FOUR -> IntakePositions.THREE
+            IntakePositions.THREE -> IntakePositions.TWO
+            IntakePositions.TWO -> IntakePositions.INTAKE
+            IntakePositions.INTAKE -> IntakePositions.FIVE
+            else -> IntakePositions.INTAKE
+        }
     }
 
     fun intake (power: Double, hold: Boolean) {
