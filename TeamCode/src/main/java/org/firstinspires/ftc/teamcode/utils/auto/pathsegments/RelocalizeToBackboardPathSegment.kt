@@ -22,22 +22,23 @@ class RelocalizeToBackboardPathSegment(
                     robot.intake.servoPosition = Intake.IntakePositions.TWO
                 robot.intake.update();
             }
-            .setTangent(Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 140.0 else -145.0) * PoseHelper.allianceAngleMultiplier)
+            .setTangent(Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 140.0 else -160.0) * PoseHelper.allianceAngleMultiplier)
             .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker(::intake)
-            .splineToConstantHeading(
-                PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(),
-                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
+            .splineToSplineHeading(
+                PoseHelper.stackPose.plus(PoseHelper.stackOffset),
+//                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
+                Math.toRadians(180.0)
             )
             //TO WHITE
             .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
             .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
             .addTemporalMarker(this::outtakeTransfer)
             .forward(1.5)
-            .back(3.0)
+//            .back(3.0)
             //TO BACKBOARD
             .addTemporalMarker(this::stopIntake).addTemporalMarker(this::transfer)
-            .setTangent(Math.toRadians(0.0))
+            .setTangent(Math.toRadians(180.0)-PoseHelper.stackPose.heading)
             .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(0.0))
             .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(0.0))
             .addTemporalMarker(this::outtake).addTemporalMarker { setSlideHeight(-1500) }

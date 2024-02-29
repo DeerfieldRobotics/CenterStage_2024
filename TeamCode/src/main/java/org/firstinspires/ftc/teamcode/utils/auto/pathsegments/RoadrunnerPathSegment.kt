@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.utils.auto.pathsegments
 
+import android.util.Log
 import com.qualcomm.robotcore.hardware.DcMotor
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder
+import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
+import java.lang.Exception
 
 abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
     abstract var trajectorySequenceBuilder: TrajectorySequenceBuilder
@@ -20,7 +23,13 @@ abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
             PoseHelper.currentPose = robot.drive.poseEstimate //update current pose for the init pose of next trajectory sequence
             running = false
         }
-        return trajectorySequenceBuilder.build()
+        return try {
+            trajectorySequenceBuilder.build()
+        } catch (e: Exception) {
+            Log.e(LogcatHelper.TAG, "Apriltag pose failed, reverting to last drive pose")
+            PoseHelper.currentPose = PoseHelper.lastDrivePose
+            trajectorySequenceBuilder.build()
+        }
     }
 
     override fun followPathSegment() {

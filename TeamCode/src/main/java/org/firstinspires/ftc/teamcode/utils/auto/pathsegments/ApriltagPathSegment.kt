@@ -12,11 +12,14 @@ abstract class ApriltagPathSegment(open val robot: Robot) : PathSegment {
         robot.aprilTagProcessorBack?.update()
         Log.d(LogcatHelper.TAG, "AprilTag Pose: " + (robot.aprilTagProcessorBack?.poseEstimate))
         Log.d(LogcatHelper.TAG, "Drive Pose" + robot.drive.poseEstimate)
+
+        PoseHelper.lastDrivePose = robot.drive.poseEstimate
+
         if (!robot.aprilTagProcessorBack?.poseEstimate?.x?.isNaN()!!) {
             robot.drive.poseEstimate = Pose2d(
                 robot.drive.poseEstimate.x,
                 robot.aprilTagProcessorBack?.poseEstimate?.y!!,
-//                robot.getIMUHeading()
+//                robot.getIMUHeading() + robot.imuError
                 robot.aprilTagProcessorBack?.poseEstimate?.heading!!
             )
         }
@@ -36,6 +39,8 @@ abstract class ApriltagPathSegment(open val robot: Robot) : PathSegment {
             robot.outtake.update()
         }
         apriltagToDrivePose()
+        robot.imu.resetYaw()
+        robot.imuError = robot.drive.poseEstimate.heading
     }
 
     fun apriltagTuckerCarlson() {
@@ -55,6 +60,7 @@ abstract class ApriltagPathSegment(open val robot: Robot) : PathSegment {
     private fun apriltagToDrivePose() {
         Log.d(LogcatHelper.TAG, "AprilTag Pose: " + (robot.aprilTagProcessorBack?.poseEstimate))
         Log.d(LogcatHelper.TAG, "Drive Pose" + robot.drive.poseEstimate)
+        PoseHelper.lastDrivePose = robot.drive.poseEstimate
         if (!robot.aprilTagProcessorBack?.poseEstimate?.x?.isNaN()!!) {
             robot.drive.poseEstimate = robot.aprilTagProcessorBack?.poseEstimate!!
         }

@@ -30,7 +30,7 @@ class AutoConfigurator(
     private val robot: Robot
 ) {
     enum class PRESETS {
-        CLOSE_IN_2P4, CLOSE_IN_2P4_NORELOCALIZE, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
+        CLOSE_IN_2P4, CLOSE_IN_2P4_NORELOCALIZE, CLOSE_OUT_2P4, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
     }
 
     private val profileMap = mapOf(
@@ -66,6 +66,19 @@ class AutoConfigurator(
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
             .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeCyclePark(robot, 1))
+            .build(),
+        PRESETS.CLOSE_OUT_2P4 to AutoProfile.AutoProfileBuilder()
+            .addPathSegment(CloseInitToBackboardPathSegment(robot))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
+            .addPathSegment(CloseBackboardToSpikeAndRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
+            .addPathSegment(RelocalizeToBackboardPathSegment(robot, 0))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
+            .addPathSegment(BackboardToRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
+            .addPathSegment(RelocalizeToBackboardPathSegment(robot, 1))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
+            .addPathSegment(BackboardToParkPathSegment(robot))
             .build(),
         PRESETS.FAR_OUT_2P3 to AutoProfile.AutoProfileBuilder()
             .addPathSegment(FarInitPathSegment(robot))

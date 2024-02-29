@@ -32,6 +32,7 @@ class Robot (hardwareMap: HardwareMap) {
     private val frontCamera: CameraName = hardwareMap.get(WebcamName::class.java, "Webcam 2")
 
     val imu: IMU = hardwareMap.get(IMU::class.java, "imu")
+    var imuError = 0.0
 
     var aprilTagProcessorBack: AprilTagAlignmentProcessor? = null
     var colorDetectionProcessor: ColorDetectionProcessor? = null
@@ -89,7 +90,7 @@ class Robot (hardwareMap: HardwareMap) {
         backCameraPortal?.stopLiveView()
     }
 
-    fun getIMUHeading():Double = imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+    fun getIMUHeading():Double = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
 
     fun update() {
         drive.update()
