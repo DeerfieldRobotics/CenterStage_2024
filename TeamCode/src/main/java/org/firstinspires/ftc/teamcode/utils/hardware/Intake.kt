@@ -27,10 +27,10 @@ class Intake(hardwareMap: HardwareMap){
         IntakePositions.TRANSFER to 0.293,
         IntakePositions.DRIVE to 0.264,
         IntakePositions.HIGH to 0.352,
-        IntakePositions.FIVE to 0.167,
-        IntakePositions.FOUR to 0.138,
-        IntakePositions.THREE to 0.112,
-        IntakePositions.TWO to 0.093
+        IntakePositions.FIVE to 0.171,
+        IntakePositions.FOUR to 0.147,
+        IntakePositions.THREE to 0.127,
+        IntakePositions.TWO to 0.097
     )
 
     //Servo variables
@@ -73,22 +73,16 @@ class Intake(hardwareMap: HardwareMap){
 
     fun intakePositionStepUp() {
         servoPosition = when(servoPosition) {
-            IntakePositions.FIVE -> IntakePositions.INTAKE
-            IntakePositions.FOUR -> IntakePositions.FIVE
-            IntakePositions.THREE -> IntakePositions.FOUR
-            IntakePositions.TWO -> IntakePositions.THREE
+            IntakePositions.TWO -> IntakePositions.INTAKE
             IntakePositions.INTAKE -> IntakePositions.TWO
-            else -> IntakePositions.THREE
+            else -> IntakePositions.TWO
         }
     }
 
     fun intakePositionStepDown() {
         servoPosition = when(servoPosition) {
-            IntakePositions.FIVE -> IntakePositions.FOUR
-            IntakePositions.FOUR -> IntakePositions.THREE
-            IntakePositions.THREE -> IntakePositions.TWO
+            IntakePositions.INTAKE -> IntakePositions.TWO
             IntakePositions.TWO -> IntakePositions.INTAKE
-            IntakePositions.INTAKE -> IntakePositions.FIVE
             else -> IntakePositions.INTAKE
         }
     }

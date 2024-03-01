@@ -16,7 +16,7 @@ class RelocalizeToBackboardPathSegment(
             .addTemporalMarker {
                 if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
                     robot.intake.servoPosition = Intake.IntakePositions.THREE
-                else if(cycle == 0)
+                else if (cycle == 0)
                     robot.intake.servoPosition = Intake.IntakePositions.FOUR
                 else
                     robot.intake.servoPosition = Intake.IntakePositions.TWO
@@ -25,38 +25,59 @@ class RelocalizeToBackboardPathSegment(
             .setTangent(Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 140.0 else -160.0) * PoseHelper.allianceAngleMultiplier)
             .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker(::intake)
-            .splineToSplineHeading(
-                PoseHelper.stackPose.plus(PoseHelper.stackOffset),
-//                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
-                Math.toRadians(180.0)
-            )
-            //TO WHITE
-            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
-            .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
+        approachStack()
+        trajectorySequenceBuilder = trajectorySequenceBuilder
+//            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
+//            .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
             .addTemporalMarker(this::outtakeTransfer)
-            .forward(1.5)
-//            .back(3.0)
+            .waitSeconds(0.1)
+            .forward(4.5)
+//            .waitSeconds(0.8)
             //TO BACKBOARD
-            .addTemporalMarker(this::stopIntake).addTemporalMarker(this::transfer)
-            .setTangent(Math.toRadians(180.0)-PoseHelper.stackPose.heading)
-            .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(0.0))
-            .splineToConstantHeading(PoseHelper.boardTruss.vec(), Math.toRadians(0.0))
+            .setTangent(Math.toRadians(180.0) - PoseHelper.stackPose.heading)
+            .UNSTABLE_addTemporalMarkerOffset(0.6) { stopIntake(); transfer() }
+            .splineToSplineHeading(PoseHelper.wingTruss, Math.toRadians(0.0))
+            .splineToSplineHeading(PoseHelper.boardTruss, Math.toRadians(0.0))
             .addTemporalMarker(this::outtake).addTemporalMarker { setSlideHeight(-1500) }
             .splineToSplineHeading(
                 if (AllianceHelper.alliance == AllianceHelper.Alliance.RED) PoseHelper.backboardCenterRed else PoseHelper.backboardCenterBlue,
                 Math.toRadians(if (PoseHelper.path == PoseHelper.Path.OUTSIDE) 30.0 else -30.0 * PoseHelper.allianceAngleMultiplier)
             )
+            //RESET BACKBOARD POSE
             .addTemporalMarker {
+                PoseHelper.backboardPose =
                 if (PoseHelper.path == PoseHelper.Path.INSIDE && cycle == 0) {
                     if (PoseHelper.backboardPose == PoseHelper.backboardLeftRed || PoseHelper.backboardPose == PoseHelper.backboardRightBlue) {
-                        if (AllianceHelper.alliance == AllianceHelper.Alliance.RED) PoseHelper.backboardPose =
+                        if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                             PoseHelper.backboardCenterRed
-                        else PoseHelper.backboardPose = PoseHelper.backboardCenterBlue
+                        else PoseHelper.backboardCenterBlue
                     } else {
-                        if (AllianceHelper.alliance == AllianceHelper.Alliance.RED) PoseHelper.backboardPose =
+                        if (AllianceHelper.alliance == AllianceHelper.Alliance.RED)
                             PoseHelper.backboardLeftRed
-                        else PoseHelper.backboardPose = PoseHelper.backboardRightBlue
+                        else  PoseHelper.backboardRightBlue
                     }
+                }
+                else if (PoseHelper.path == PoseHelper.Path.OUTSIDE) {
+                    if(AllianceHelper.alliance == AllianceHelper.Alliance.RED) {
+                        if (PoseHelper.backboardPose == PoseHelper.backboardRightRed) {
+                            PoseHelper.backboardCenterRed
+                        } else {
+                            PoseHelper.backboardRightRed
+                        }
+                    }
+                    else {
+                        if (PoseHelper.backboardPose == PoseHelper.backboardLeftBlue) {
+                            PoseHelper.backboardCenterBlue
+                        } else {
+                            PoseHelper.backboardLeftBlue
+                        }
+                    }
+                }
+                else { //DEFAULT TO CENTER
+                    if(AllianceHelper.alliance == AllianceHelper.Alliance.RED)
+                        PoseHelper.backboardCenterRed
+                    else
+                        PoseHelper.backboardCenterBlue
                 }
             }
     }

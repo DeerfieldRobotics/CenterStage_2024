@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 import org.firstinspires.ftc.teamcode.utils.Other.LogcatHelper
 import org.firstinspires.ftc.teamcode.utils.Robot
 import org.firstinspires.ftc.teamcode.utils.auto.PoseHelper
+import org.firstinspires.ftc.teamcode.utils.detection.AllianceHelper
 import org.firstinspires.ftc.teamcode.utils.hardware.Outtake
 import java.lang.Exception
 
@@ -30,6 +31,15 @@ abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
             PoseHelper.currentPose = PoseHelper.lastDrivePose
             trajectorySequenceBuilder.build()
         }
+    }
+
+    fun approachStack() {
+        trajectorySequenceBuilder = trajectorySequenceBuilder
+            .splineToSplineHeading(
+                if(PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset.times(PoseHelper.allianceAngleMultiplier)) else PoseHelper.stackPose,
+//                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
+                (if (PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset.times(PoseHelper.allianceAngleMultiplier)) else PoseHelper.stackPose).heading
+            )
     }
 
     override fun followPathSegment() {

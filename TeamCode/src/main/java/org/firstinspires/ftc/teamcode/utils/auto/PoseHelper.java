@@ -18,19 +18,19 @@ import java.util.Arrays;
 public final class PoseHelper {
     // RED POSES
     public final static Pose2d initCloseRed = new Pose2d(10.5, -63, Math.toRadians(90.0));
-    public final static Pose2d initFarRed = new Pose2d(-39.5, -64, Math.toRadians(90.0));
+    public final static Pose2d initFarRed = new Pose2d(-39.5, -63, Math.toRadians(90.0));
     public final static Pose2d backboardLeftRed = new Pose2d(48, -29.5, Math.toRadians(180.0));
     public final static Pose2d backboardCenterRed = new Pose2d(48, -35.5, Math.toRadians(180.0));
     public final static Pose2d backboardRightRed = new Pose2d(48, -41.5, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightRed = new Pose2d(-30.5, -39, Math.toRadians(50.0));
-    public final static Pose2d farSpikeCenterRed = new Pose2d(-39.5,-38, Math.toRadians(90.0));
+    public final static Pose2d farSpikeCenterRed = new Pose2d(-40,-38.5, Math.toRadians(90.0));
     public final static Pose2d farSpikeLeftRed = new Pose2d(-46.5, -37.0, Math.toRadians(90.0));
-    public final static Pose2d closeSpikeRightRed = new Pose2d(34.5, -33, Math.toRadians(180));
+    public final static Pose2d closeSpikeRightRed = new Pose2d(34.75, -33, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -22.5, Math.toRadians(180));
-    public final static Pose2d closeSpikeLeftRed = new Pose2d(13, -30, Math.toRadians(180));
-    public final static Pose2d apriltagStackRed = new Pose2d(-55.25, -36, Math.toRadians(180.0));
-    public final static Pose2d insideStackRed = new Pose2d(-55.5, -5, Math.toRadians(175.0));
-    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -57, Math.toRadians(180.0));
+    public final static Pose2d closeSpikeLeftRed = new Pose2d(11.5, -30, Math.toRadians(180));
+    public final static Pose2d apriltagStackRed = new Pose2d(-55.0, -36, Math.toRadians(180.0));
+    public final static Pose2d insideStackRed = new Pose2d(-55.75, -8, Math.toRadians(175.0));
+    public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideRed = new Pose2d(30, -52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideRed = new Pose2d(-33, -8, Math.toRadians(180.0));
@@ -41,20 +41,20 @@ public final class PoseHelper {
 
     // BLUE POSES
     public final static Pose2d initCloseBlue = new Pose2d(16, 63, Math.toRadians(270));
-    public final static Pose2d initFarBlue = new Pose2d(-33, 63, Math.toRadians(270));
+    public final static Pose2d initFarBlue = new Pose2d(-33, 67, Math.toRadians(270));
     public final static Pose2d backboardLeftBlue = new Pose2d(48.25, 41.5, Math.toRadians(180.0));
     public final static Pose2d backboardCenterBlue = new Pose2d(48.25, 35.5, Math.toRadians(180.0));
     public final static Pose2d backboardRightBlue = new Pose2d(48.25, 29.5, Math.toRadians(180.0));
     public final static Pose2d farSpikeRightBlue = new Pose2d(-47.5, 35.5, Math.toRadians(-90.0));
     public final static Pose2d farSpikeCenterBlue = new Pose2d(-39.5,37, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-33, 38.5, Math.toRadians(-50.0));
-    public final static Pose2d closeSpikeRightBlue = new Pose2d(12, 33, Math.toRadians(180));
-    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 26, Math.toRadians(180));
-    public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 33, Math.toRadians(180));
-    public final static Pose2d apriltagStackBlue = new Pose2d(-55.25, 36, Math.toRadians(180.0));
-    public final static Pose2d insideStackBlue = new Pose2d(-56, 16, Math.toRadians(180.0));
-    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 56.75, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 56.75, Math.toRadians(180.0));
+    public final static Pose2d closeSpikeRightBlue = new Pose2d(12, 35, Math.toRadians(180));
+    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 28, Math.toRadians(180));
+    public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 35, Math.toRadians(180));
+    public final static Pose2d apriltagStackBlue = new Pose2d(-55.8, 40.5, Math.toRadians(180.0));
+    public final static Pose2d insideStackBlue = new Pose2d(-56, 13, Math.toRadians(180.0));
+    public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 60, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 59, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideBlue = new Pose2d(30, 52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 10, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(20, 12, Math.toRadians(180.0));
@@ -65,11 +65,11 @@ public final class PoseHelper {
 
     public final static double backboardBackup = 5.25;
 //    public final static Pose2d stackOffset = new Pose2d(3, 1.5, 0); ORIGINAL
-    public final static Pose2d stackOffset = new Pose2d(0, -3, 0);
+    public final static Pose2d stackOffset = new Pose2d(0, -9.5, Math.toRadians(-30));
 //    public final static Pose2d stackOffset = new Pose2d(0, 0, 0);
     public final static TrajectoryVelocityConstraint toBackboardVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
                 new AngularVelocityConstraint(5),
-                new MecanumVelocityConstraint(45, TRACK_WIDTH)
+                new MecanumVelocityConstraint(52, TRACK_WIDTH)
         ));
 
     public final static TrajectoryVelocityConstraint blastVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
@@ -82,9 +82,17 @@ public final class PoseHelper {
             new MecanumVelocityConstraint(62, TRACK_WIDTH)
     ));
 
+    public final static TrajectoryVelocityConstraint defaultVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(5),
+            new MecanumVelocityConstraint(50, TRACK_WIDTH)
+    ));
+
    public final static TrajectoryAccelerationConstraint toBackboardAccelerationConstraint = new ProfileAccelerationConstraint(45);
 
     public final static TrajectoryAccelerationConstraint blastAccelerationConstraint = new ProfileAccelerationConstraint(45);
+
+    public final static TrajectoryAccelerationConstraint defaultAccelerationConstrain = new ProfileAccelerationConstraint(45);
+
     public static Pose2d stackPose;
     public static double allianceAngleMultiplier;
     public static Pose2d parkPose;

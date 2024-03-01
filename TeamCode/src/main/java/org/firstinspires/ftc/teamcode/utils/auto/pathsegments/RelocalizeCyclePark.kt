@@ -29,8 +29,8 @@ class RelocalizeCyclePark(
             .setTangent(Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 140.0 else -145.0) * PoseHelper.allianceAngleMultiplier)
             .splineToConstantHeading(PoseHelper.wingTruss.vec(), Math.toRadians(180.0))
             .addTemporalMarker(::intake)
-            .splineToConstantHeading(
-                PoseHelper.stackPose.plus(PoseHelper.stackOffset).vec(),
+            .splineToSplineHeading(
+                if(PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset.times(PoseHelper.allianceAngleMultiplier)) else PoseHelper.stackPose,
                 Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
             )
             //TO PARK

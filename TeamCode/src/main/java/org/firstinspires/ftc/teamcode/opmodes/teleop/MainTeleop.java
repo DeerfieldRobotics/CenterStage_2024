@@ -81,15 +81,19 @@ public class MainTeleop extends LinearOpMode {
     private void slide() {
         //stick sensitivity values
         double l2Max = 0.8;
-        slide.setPower(gamepad2.left_stick_y / l2Max);
 
         if(gamepad2.left_stick_button && gamepad2.right_stick_button && !hookReleased) {
             slide.releaseHook();
             hookReleased = true;
             millisAfterRelease = System.currentTimeMillis();
         }
-        if(hookReleased && System.currentTimeMillis() - millisAfterRelease > 500)
+        if(hookReleased && System.currentTimeMillis() - millisAfterRelease > 500) {
             slide.hookMotorPower(-gamepad2.right_stick_y);
+            slide.setPower(gamepad2.left_stick_y / l2Max);
+        }
+        else {
+            slide.setPower(gamepad2.left_stick_y / l2Max);
+        }
     }
     private void intake() {
         double rTriggerStart = 0.05;

@@ -21,7 +21,8 @@ class BackboardToParkPathSegment(
             .waitSeconds(.4)
             .addTemporalMarker(this::outtakeIn)
             .forward(5.0)
-            .strafeRight(8.0 * PoseHelper.allianceAngleMultiplier * (if (PoseHelper.path == PoseHelper.Path.INSIDE) 1.0 else -1.0))
+            .strafeRight(22.0 * PoseHelper.allianceAngleMultiplier * (if (PoseHelper.path == PoseHelper.Path.INSIDE) 1.0 else -1.0))
+            .back(10.0)
             .addTemporalMarker {
                 outtakeTransfer(); //transfer just for fun
                 transfer();

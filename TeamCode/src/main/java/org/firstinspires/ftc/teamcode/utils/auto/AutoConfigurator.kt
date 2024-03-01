@@ -30,7 +30,7 @@ class AutoConfigurator(
     private val robot: Robot
 ) {
     enum class PRESETS {
-        CLOSE_IN_2P4, CLOSE_IN_2P4_NORELOCALIZE, CLOSE_OUT_2P4, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
+        CLOSE_IN_2P4, CLOSE_IN_2P4_NORELOCALIZE, CLOSE_OUT_2P4, CLOSE_OUT_2P2, CLOSE_IN_2P2P2, FAR_OUT_2P3, CUSTOM,
     }
 
     private val profileMap = mapOf(
@@ -77,6 +77,15 @@ class AutoConfigurator(
             .addPathSegment(BackboardToRelocalizePathSegment(robot))
             .addPathSegment(ApriltagRelocalizePathSegment(robot))
             .addPathSegment(RelocalizeToBackboardPathSegment(robot, 1))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
+            .addPathSegment(BackboardToParkPathSegment(robot))
+            .build(),
+        PRESETS.CLOSE_OUT_2P2 to AutoProfile.AutoProfileBuilder()
+            .addPathSegment(CloseInitToBackboardPathSegment(robot))
+            .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, false))
+            .addPathSegment(CloseBackboardToSpikeAndRelocalizePathSegment(robot))
+            .addPathSegment(ApriltagRelocalizePathSegment(robot))
+            .addPathSegment(RelocalizeToBackboardPathSegment(robot, 0))
             .addPathSegment(ApriltagAlignToBackboardPathSegment(robot, true))
             .addPathSegment(BackboardToParkPathSegment(robot))
             .build(),
@@ -235,6 +244,8 @@ class AutoConfigurator(
 
         var selectedPresetIndex = 0
 
+        while(gamepad1.cross || gamepad2.cross) { /*wait for gamepad release*/ }
+
         while (true) {
             updateSelection()
 
@@ -303,6 +314,8 @@ class AutoConfigurator(
 
         var selectedSegmentIndex = 0
 
+        while(gamepad1.cross || gamepad2.cross) { /*wait for gamepad release*/ }
+
         //SET UP CUSTOM PATH WITH EMPTY PATHS THAT WILL BE REMOVED LATER
         val customProfileBuilder = AutoProfile.AutoProfileBuilder()
         customProfileBuilder.addPathSegment(EmptyPathSegment())
@@ -319,10 +332,12 @@ class AutoConfigurator(
             for ((segmentIndex, segment) in customProfileBuilder.profile.path.withIndex())
                 telemetryPathSegmentOption(segment, segmentIndex == selectedSegmentIndex)
 
-            if (selectDown) selectedSegmentIndex =
-                (selectedSegmentIndex + 1) % customProfileBuilder.profile.path.size
-            if (selectUp) selectedSegmentIndex =
-                (selectedSegmentIndex - 1) % customProfileBuilder.profile.path.size
+            if (selectUp && !upToggle) {
+                selectedSegmentIndex = (selectedSegmentIndex - 1) % (customProfileBuilder.profile.path.size)
+                upToggle = true
+            } else if (!selectUp) {
+                upToggle = false
+            }
 
             if (gamepad1.cross || gamepad2.cross) {
                 editPathSegment(selectedSegmentIndex)
@@ -341,6 +356,8 @@ class AutoConfigurator(
 
     private fun editPathSegment(segmentIndex: Int) {
         telemetry.clear()
+
+        while(gamepad1.cross || gamepad2.cross) { /*wait for gamepad release*/ }
 
         while (true) {
             telemetry.addLine("            [SEGMENT CUSTOMIZATION]")
@@ -363,6 +380,9 @@ class AutoConfigurator(
         telemetry.clear()
 
         var selectedSegmentIndex = 0
+
+        while(gamepad1.cross || gamepad2.cross) { /*wait for gamepad release*/ }
+
         val pathList = listOf(
             DelayPathSegment(0.0),
             EmptyPathSegment(),

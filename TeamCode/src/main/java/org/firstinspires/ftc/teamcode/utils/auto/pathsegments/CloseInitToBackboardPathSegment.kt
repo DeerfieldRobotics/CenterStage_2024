@@ -15,7 +15,7 @@ class CloseInitToBackboardPathSegment(
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
-            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
+//            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
             .setTangent(Math.toRadians(45 * PoseHelper.allianceAngleMultiplier))
             .addTemporalMarker(this::outtake)
             .splineToLinearHeading(PoseHelper.backboardPose, Math.toRadians(0.0))
