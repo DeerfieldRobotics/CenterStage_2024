@@ -13,6 +13,11 @@ class RelocalizeToBackboardPathSegment(
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.currentPose)
+        trajectorySequenceBuilder = if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
+            trajectorySequenceBuilder.resetVelConstraint()
+        else
+            trajectorySequenceBuilder.setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
+        trajectorySequenceBuilder = trajectorySequenceBuilder
             .addTemporalMarker {
                 if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
                     robot.intake.servoPosition = Intake.IntakePositions.THREE
@@ -31,14 +36,14 @@ class RelocalizeToBackboardPathSegment(
 //            .setAccelConstraint(PoseHelper.toBackboardAccelerationConstraint)
             .addTemporalMarker(this::outtakeTransfer)
             .waitSeconds(0.1)
-            .forward(4.5)
+            .forward(3.0)
 //            .waitSeconds(0.8)
             //TO BACKBOARD
             .setTangent(Math.toRadians(180.0) - PoseHelper.stackPose.heading)
-            .UNSTABLE_addTemporalMarkerOffset(0.6) { stopIntake(); transfer() }
+            .UNSTABLE_addTemporalMarkerOffset(0.2) { stopIntake(); transfer() }
             .splineToSplineHeading(PoseHelper.wingTruss, Math.toRadians(0.0))
             .splineToSplineHeading(PoseHelper.boardTruss, Math.toRadians(0.0))
-            .addTemporalMarker(this::outtake).addTemporalMarker { setSlideHeight(-1500) }
+            .UNSTABLE_addTemporalMarkerOffset(0.3) { outtake(); setSlideHeight(-1500) }
             .splineToSplineHeading(
                 if (AllianceHelper.alliance == AllianceHelper.Alliance.RED) PoseHelper.backboardCenterRed else PoseHelper.backboardCenterBlue,
                 Math.toRadians(if (PoseHelper.path == PoseHelper.Path.OUTSIDE) 30.0 else -30.0 * PoseHelper.allianceAngleMultiplier)

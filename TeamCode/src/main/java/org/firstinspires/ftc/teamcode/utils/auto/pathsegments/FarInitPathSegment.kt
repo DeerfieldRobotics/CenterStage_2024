@@ -16,7 +16,7 @@ class FarInitPathSegment(
 
     override fun buildPathSegment() {
         trajectorySequenceBuilder = robot.drive.trajectorySequenceBuilder(PoseHelper.initPose)
-//            .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
+            .setVelConstraint(PoseHelper.toPurpleVelocityConstraint)
             .setTangent(PoseHelper.initialFarTangent * PoseHelper.allianceAngleMultiplier)
             .addTemporalMarker { robot.intake.servoPosition = Intake.IntakePositions.INTAKE }
             .splineToLinearHeading(PoseHelper.spikePose, PoseHelper.spikePose.heading)
@@ -29,18 +29,19 @@ class FarInitPathSegment(
                 Math.toRadians(PoseHelper.toWhiteStackTangentFar)
             )
             .addTemporalMarker(::intake)
-//            .resetVelConstraint()
-            .forward(3.5)
-//            .waitSeconds(0.2)
-//            .setVelConstraint(PoseHelper.defaultVelocityConstraint)
-//            .back(2.0)
+        trajectorySequenceBuilder = if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
+            trajectorySequenceBuilder.resetVelConstraint()
+        else
+            trajectorySequenceBuilder.setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
+        trajectorySequenceBuilder = trajectorySequenceBuilder
+            .forward(2.0)
             .setTangent(Math.toRadians(355.0 /* * PoseHelper.allianceAngleMultiplier*/))
             .splineToLinearHeading(PoseHelper.wingTruss, Math.toRadians(0.0))
             .addTemporalMarker(::stopIntake)
             .addTemporalMarker { robot.intake.boosterServoPower = 0.0 }
             .setTangent(Math.toRadians(0.0))
             .splineToSplineHeading(PoseHelper.boardTruss, Math.toRadians(0.0))
-//            .setTangent(Math.toRadians(0.0))
+            .setVelConstraint(PoseHelper.toBackboardVelocityConstraint)
             .addTemporalMarker(::outtake)
             .addTemporalMarker { setSlideHeight(-1050) }
             .splineToSplineHeading(
@@ -48,16 +49,15 @@ class FarInitPathSegment(
                     PoseHelper.backboardCenterRed
                 else
                     PoseHelper.backboardCenterBlue).plus(
-                        if(PoseHelper.path == PoseHelper.Path.OUTSIDE) {
-                            Pose2d(0.0,8.0*PoseHelper.allianceAngleMultiplier, 0.0)
-                        }
-                        else {
-                            Pose2d(0.0,0.0, 0.0)
-                        }
-                    )
-                , Math.toRadians(
+                    //correct for compounded error when approaching board from stack through truss
+                    if (PoseHelper.path == PoseHelper.Path.OUTSIDE) {
+                        Pose2d(0.0, 8.0 * PoseHelper.allianceAngleMultiplier, 0.0)
+                    } else {
+                        Pose2d(0.0, 0.0, 0.0)
+                    }
+                ), Math.toRadians(
                     if (PoseHelper.path == PoseHelper.Path.OUTSIDE)
-                        30.0
+                        30.0 * PoseHelper.allianceAngleMultiplier
                     else
                         -30.0 * PoseHelper.allianceAngleMultiplier
                 )

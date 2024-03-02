@@ -36,9 +36,9 @@ abstract class RoadrunnerPathSegment(open val robot: Robot): PathSegment{
     fun approachStack() {
         trajectorySequenceBuilder = trajectorySequenceBuilder
             .splineToSplineHeading(
-                if(PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset.times(PoseHelper.allianceAngleMultiplier)) else PoseHelper.stackPose,
+                if(PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset) else PoseHelper.stackPose,
 //                Math.toRadians(if (PoseHelper.path == PoseHelper.Path.INSIDE) 180.0 else 120.0 * PoseHelper.allianceAngleMultiplier)
-                (if (PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset.times(PoseHelper.allianceAngleMultiplier)) else PoseHelper.stackPose).heading
+                (if (PoseHelper.path == PoseHelper.Path.OUTSIDE) PoseHelper.stackPose.plus(PoseHelper.stackOffset) else PoseHelper.stackPose).heading
             )
     }
 

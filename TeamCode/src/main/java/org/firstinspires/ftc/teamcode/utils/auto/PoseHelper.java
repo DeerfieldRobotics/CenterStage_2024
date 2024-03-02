@@ -28,7 +28,7 @@ public final class PoseHelper {
     public final static Pose2d closeSpikeRightRed = new Pose2d(34.75, -33, Math.toRadians(180));
     public final static Pose2d closeSpikeCenterRed = new Pose2d(20.5, -22.5, Math.toRadians(180));
     public final static Pose2d closeSpikeLeftRed = new Pose2d(11.5, -30, Math.toRadians(180));
-    public final static Pose2d apriltagStackRed = new Pose2d(-55.0, -36, Math.toRadians(180.0));
+    public final static Pose2d apriltagStackRed = new Pose2d(-56.5, -36, Math.toRadians(180.0));
     public final static Pose2d insideStackRed = new Pose2d(-55.75, -8, Math.toRadians(175.0));
     public final static Pose2d wingTrussOutsideRed = new Pose2d(-35, -58, Math.toRadians(180.0));
     public final static Pose2d boardTrussOutsideRed = new Pose2d(12, -57, Math.toRadians(180.0));
@@ -38,6 +38,7 @@ public final class PoseHelper {
     public final static Pose2d aprilTrussInsideRed = new Pose2d(31, -19, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideRed = new Pose2d(58.5, -11, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideRed = new Pose2d(58.5, -59, Math.toRadians(180.0));
+    public final static Pose2d redStackOffset = new Pose2d(0, -9.5, Math.toRadians(-30));
 
     // BLUE POSES
     public final static Pose2d initCloseBlue = new Pose2d(16, 63, Math.toRadians(270));
@@ -49,23 +50,24 @@ public final class PoseHelper {
     public final static Pose2d farSpikeCenterBlue = new Pose2d(-39.5,37, Math.toRadians(-90.0));
     public final static Pose2d farSpikeLeftBlue = new Pose2d(-33, 38.5, Math.toRadians(-50.0));
     public final static Pose2d closeSpikeRightBlue = new Pose2d(12, 35, Math.toRadians(180));
-    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 28, Math.toRadians(180));
-    public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 35, Math.toRadians(180));
-    public final static Pose2d apriltagStackBlue = new Pose2d(-55.8, 40.5, Math.toRadians(180.0));
-    public final static Pose2d insideStackBlue = new Pose2d(-56, 13, Math.toRadians(180.0));
+    public final static Pose2d closeSpikeCenterBlue = new Pose2d(20.5, 26, Math.toRadians(180));
+    public final static Pose2d closeSpikeLeftBlue = new Pose2d(33, 31, Math.toRadians(180));
+    public final static Pose2d apriltagStackBlue = new Pose2d(-56.5, 40.5, Math.toRadians(180.0));
+    public final static Pose2d insideStackBlue = new Pose2d(-54.5, 11, Math.toRadians(180.0));
     public final static Pose2d wingTrussOutsideBlue = new Pose2d(-35, 60, Math.toRadians(180.0));
-    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 59, Math.toRadians(180.0));
+    public final static Pose2d boardTrussOutsideBlue = new Pose2d(8, 58, Math.toRadians(180.0));
     public final static Pose2d aprilTrussOutsideBlue = new Pose2d(30, 52, Math.toRadians(180.0));
     public final static Pose2d wingTrussInsideBlue = new Pose2d(-33, 10, Math.toRadians(180.0));
     public final static Pose2d boardTrussInsideBlue = new Pose2d(20, 12, Math.toRadians(180.0));
     public final static Pose2d aprilTrussInsideBlue = new Pose2d(31, 19, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 6, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));
+    public final static Pose2d blueStackOffset = new Pose2d(0, 9.5, Math.toRadians(30));
 
 
     public final static double backboardBackup = 5.25;
 //    public final static Pose2d stackOffset = new Pose2d(3, 1.5, 0); ORIGINAL
-    public final static Pose2d stackOffset = new Pose2d(0, -9.5, Math.toRadians(-30));
+    public static Pose2d stackOffset;
 //    public final static Pose2d stackOffset = new Pose2d(0, 0, 0);
     public final static TrajectoryVelocityConstraint toBackboardVelocityConstraint = new MinVelocityConstraint(Arrays.asList(
                 new AngularVelocityConstraint(5),
@@ -128,6 +130,7 @@ public final class PoseHelper {
     public static void buildAuto(){
         switch(AllianceHelper.alliance) {
             case RED:
+                stackOffset = redStackOffset;
                 allianceAngleMultiplier = 1.0;
                 switch(path) {
                     case OUTSIDE:
@@ -160,6 +163,7 @@ public final class PoseHelper {
                 }
                 break;
             case BLUE:
+                stackOffset = blueStackOffset;
                 allianceAngleMultiplier = -1.0;
                 switch(path) {
                     case OUTSIDE:
