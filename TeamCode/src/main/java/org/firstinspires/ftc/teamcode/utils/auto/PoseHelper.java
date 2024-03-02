@@ -62,7 +62,7 @@ public final class PoseHelper {
     public final static Pose2d aprilTrussInsideBlue = new Pose2d(31, 19, Math.toRadians(180.0));
     public final static Pose2d parkPoseInsideBlue = new Pose2d(58.5, 6, Math.toRadians(180.0));
     public final static Pose2d parkPoseOutsideBlue = new Pose2d(58.5, 59, Math.toRadians(180.0));
-    public final static Pose2d blueStackOffset = new Pose2d(0, 9.5, Math.toRadians(30));
+    public final static Pose2d blueStackOffset = new Pose2d(-1, 8.5, Math.toRadians(30));
 
 
     public final static double backboardBackup = 5.25;

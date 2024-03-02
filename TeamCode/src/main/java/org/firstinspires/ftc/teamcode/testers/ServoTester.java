@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ServoTester extends LinearOpMode {
     private Servo s, ws;
     private final double maxSpeed = 0.001; // Adjust this value to change the maximum speed
-    private double servoPosition = 0.5; // Initial position of the servo
+    private double servoPosition = 1.0; // Initial position of the servo
 
     @Override
     public void runOpMode() throws InterruptedException {
-        s = hardwareMap.get(Servo.class, "is");
+        s = hardwareMap.get(Servo.class, "hs");
 
 
         waitForStart();

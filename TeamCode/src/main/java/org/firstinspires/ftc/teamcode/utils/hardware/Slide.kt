@@ -49,7 +49,7 @@ class Slide (hardwareMap: HardwareMap){
     }
 
     fun releaseHook() {
-        hookServo.position = 0.9315
+        hookServo.position = 0.545
     }
 
     fun hookMotorPower(power: Double) {
